@@ -173,3 +173,6 @@ data/visdrone_area10/
 
 详细实验计划见 `docs/experiment_plan_8weeks.md`，命令协议见
 `docs/baseline_protocol.md`。
+
+论文完成计划、当前进度和后续会话交接见
+`docs/paper_completion_plan.md`；新的 Codex 会话应先阅读根目录 `AGENTS.md`。
