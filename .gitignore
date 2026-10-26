@@ -1,0 +1,68 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments and local secrets
+.venv/
+venv/
+env/
+.env
+.env.*
+!.env.example
+
+# Packaging
+build/
+dist/
+*.egg-info/
+
+# Test and coverage artifacts
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Datasets, generated crops, and annotation caches
+data/
+datasets/
+*.cache
+
+# Model weights and exported runtimes
+weights/
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.engine
+*.torchscript
+*.tflite
+
+# Training and pseudo-label outputs
+runs/
+outputs/
+output/
+predictions/
+
+# Logs and profiler artifacts
+*.log
+events.out.tfevents.*
+*.prof
+
+# Notebook checkpoints
+.ipynb_checkpoints/
+
+# Editors and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+*~
