@@ -1,7 +1,7 @@
 # 论文完成计划与项目交接
 
 > 最后更新：2026-10-26  
-> 当前阶段：第 1 周；正式 10% seed0 数据已生成并通过基础审计，5%/20% 数据和正式训练尚未开始<br>
+> 当前阶段：第 1 周；Gate 1 工程验收已通过，正式 10% seed0 数据就绪，B1 正式训练尚未启动<br>
 > 论文暂定题目：**面向高分辨率航拍图像的区域局部标注小目标半监督检测方法**  
 > 仓库：`D:\Python\YOLO-RegionSSOD`  
 > 计划起点：2026-10-26，可按实际启动日期整体平移
@@ -57,13 +57,13 @@ P1 尺度感知伪标签与 uncertain-ignore 是否带来稳定收益。
 
 | 项目 | 状态 | 证据或位置 | 下一步 |
 |---|---|---|---|
-| Git 仓库 | 已初始化并推送 Gitee，本次会话基于 `23fdcd5` | `main...origin/main`；本次文档修改未提交 | 每个阶段单独提交 |
+| Git 仓库 | 已初始化并推送 Gitee，本次会话基于 `8501b73` | `main...origin/main`；本次文档修改未提交 | 每个阶段单独提交 |
 | 数据构造 | 已实现；10% seed0 已生成 | `src/regionssod/data/partial.py` | 生成正式 5%/20% split |
 | B0 完整监督 | 配置已加入，未正式训练 | `configs/train_full.yaml` | 复用旧结果或重训 seed 0 |
-| B1 部分监督 | 代码和配置已加入，仅做烟测 | `configs/train_partial_10.yaml` | 正式 100 epoch |
+| B1 部分监督 | 20 图、5 epoch 工程验收通过；正式训练未启动 | `runs/smoke/partial10_sup_smoke5/gate1_audit.json` | 正式 10% seed0、100 epoch |
 | B2 朴素自训练 | 代码、伪标签和合并入口已跑通烟测 | `src/regionssod/pseudo/generator.py` | 30 epoch pilot |
 | P1 尺度感知方法 | 仅完成实验设计，尚未实现 | `docs/experiment_plan_8weeks.md` | 第 3 周实现并测试 |
-| 正式 5/10/20% 数据 | 10% seed0 已生成；5%/20% 未生成 | `data/visdrone_area10/summary.json`、`audit.json` | 补同 seed 可复现检查和 5%/20% split |
+| 正式 5/10/20% 数据 | 10% seed0 已生成；20 图同 seed 检查通过；5%/20% 未生成 | `data/visdrone_area10/summary.json`、`audit.json` | 生成 5%/20% split |
 | 正式 100 epoch 主矩阵 | 未启动 | `runs/` 为本地忽略目录 | 第 1–5 周滚动执行 |
 | 论文正文 | 未开始 | 无 | 第 1 周建立骨架 |
 
@@ -90,9 +90,27 @@ P1 尺度感知伪标签与 uncertain-ignore 是否带来稳定收益。
   SHA256；检查包括 split/manifest 一致、标签合法、隐藏 GT 未导出为训练标签、
   验证路径指向完整原图。
 
-**证据边界：**本次仅完成数据构造和基础审计，没有启动训练；同 seed 重生成一致性、
-20 图 5 epoch/640 训练和完整原图 960 验证仍待完成。旧日志“仅过 Gate 1”的表述
-只代表旧烟测链路，不能据此认定第 9 节定义的 Gate 1 已完整通过。
+**证据边界：**该次数据构造只完成基础审计，没有启动训练。后续已补齐第 9 节
+要求的 20 图工程验收，见第 3.3 节；正式 100 epoch 训练尚未开始。
+
+### 3.3 Gate 1 工程验收通过（2026-10-26）
+
+- 用户已完成 `partial10_sup_smoke5`：20 张标注 tile、5 epoch、640、batch 8、
+  SGD、seed 0，`results.csv` 包含完整 5 行；所有数值有限，best/last 权重齐全。
+- box loss 从 2.04970 降至 1.77198；该趋势仅用于排除明显工程异常。
+- 本次补跑 `best.pt` 的完整原图 960 验证：548 张图、38759 个实例；Ultralytics
+  开发指标 mAP50=0.117764、mAP50-95=0.080882。
+- 同 seed 重生成 20 图数据，manifest 在归一化输出路径后完全一致；40 张裁剪
+  图像与 20 个标签文件的 SHA256 均一致，且与正式数据的前 20 图对应。
+- 正式数据基础审计所记录的 8 个文件哈希均未变化；`python -m pytest` 9/9 通过。
+- 证据：`runs/smoke/partial10_sup_smoke5/gate1_audit.json`、
+  `runs/val/partial10_sup_smoke5_val960/metrics.json`、
+  `data/gate1_checks/area10_seed0_20261026`。
+
+**结论：**第 9 节定义的 Gate 1 已通过。上述数字仍是 20 图工程烟测，不能进入
+论文结果表，也不能证明 B1/B2/P1 的正式效果。下一步在已审计的 6471 张正式
+10% 标注 tile 上，按现有配置从 COCO 预训练重新训练 B1 seed0、100 epoch；
+之后仍需完成 B1/B2 的 30 epoch pilot，才能决定是否实现 P1。
 
 ## 4. 固定实验协议
 
@@ -252,6 +270,7 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-10-26 | `d3503c9` | 初始化仓、数据/B1/B2 工具链；20 图烟测 | `data/smoke_area10`、`runs/smoke/*` | 9/9 tests；B2 13/20 伪标签图、38 框、33 训练图；完整 val 成功 | 仅过 Gate 1；正式数据未生成 |
 | 2026-10-26 | working tree | 建立论文完成计划、新会话入口和文件地图 | `docs/paper_completion_plan.md`、`AGENTS.md`、README 链接 | 8 周计划、证据边界和交接规则已落地；测试仍为 9/9 | 等待审阅后提交 |
 | 2026-10-26 | `23fdcd5` + working tree | 修正 Git Bash 环境命令；生成并审计正式 10% seed0 数据；明确 20 图烟测的数据路径 | Git Bash 加载 `conda.sh` 后 `conda activate yolo`；`data/visdrone_area10/{summary,audit}.json`；README/baseline 命令 | 6471 张训练图、105058 个监督框、38245 个可见隐藏 GT；完整 val 548 张；12/12 基础审计通过；未改源码，未运行训练 | 数据构造完成；Gate 1 尚缺同 seed 一致性和 5 epoch/640、完整 val960 验收；之后启动 B1 |
+| 2026-10-26 | `8501b73` + working tree | 审核用户完成的 5 epoch 烟测；补完整 val960、同 seed 重生成检查和测试 | `runs/smoke/partial10_sup_smoke5/gate1_audit.json`；`runs/val/partial10_sup_smoke5_val960/metrics.json`；`python -m pytest` | 20 图/640/batch8 训练完成；完整 val 548 图；开发 mAP50-95=0.080882；60 个数据文件哈希一致；9/9 tests；正式数据关键哈希未变 | Gate 1 通过；仅烟测，无正式方法结果；建议启动正式 10% seed0 的 B1 100 epoch，本次未启动 |
 
 ### 10.1 新会话开始流程
 

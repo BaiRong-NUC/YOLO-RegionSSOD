@@ -63,6 +63,16 @@ regionssod train --config configs\train_partial_10.yaml --data data\visdrone_are
 regionssod validate --weights runs\partial10_sup_s0\weights\best.pt --data data\visdrone_area10\dataset.yaml --imgsz 960 --name partial10_sup_s0_val960
 ```
 
+Git Bash 下，正式训练及完成后的验证命令是：
+
+```bash
+regionssod train --config configs/train_partial_10.yaml --data data/visdrone_area10/dataset.yaml --name partial10_sup_s0
+regionssod validate --weights runs/partial10_sup_s0/weights/best.pt --data data/visdrone_area10/dataset.yaml --imgsz 960 --name partial10_sup_s0_val960
+```
+
+正式 B1 使用 6471 张标注 tile，按配置从 COCO 预训练重新开始，固定 100 epoch。
+20 图烟测权重仅用于工程验收。
+
 ## 4. B2 Naive self-training
 
 先固定 teacher。使用 B1 的 `best.pt`，不要使用 last.pt 或 epoch 中途权重。

@@ -114,6 +114,13 @@ regionssod train `
   --name partial10_sup_s0
 ```
 
+Git Bash 的正式 B1 训练命令如下，配置固定 100 epoch，并从 COCO 预训练
+`D:/Python/YOLO/yolo11s.pt` 初始化：
+
+```bash
+regionssod train --config configs/train_partial_10.yaml --data data/visdrone_area10/dataset.yaml --name partial10_sup_s0
+```
+
 用完整原图在 960 分辨率评估：
 
 ```powershell
