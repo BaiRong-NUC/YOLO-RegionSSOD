@@ -128,9 +128,15 @@ def generate_pseudo_labels(
     images_dir.mkdir(parents=True, exist_ok=True)
     labels_dir.mkdir(parents=True, exist_ok=True)
 
+    # A Python list selects Ultralytics' in-memory loader, which treats every
+    # image as one batch. A file manifest keeps inference bounded by batch.
+    prediction_list_path = output_dir / "prediction_images.txt"
+    prediction_list_path.write_text(
+        "\n".join(str(path) for path in image_paths) + "\n", encoding="utf-8"
+    )
     model = YOLO(str(weights))
     predictions = model.predict(
-        source=[str(path) for path in image_paths],
+        source=str(prediction_list_path),
         imgsz=imgsz,
         conf=conf_floor,
         iou=0.7,
@@ -201,6 +207,10 @@ def generate_pseudo_labels(
         "threshold": threshold,
         "conf_floor": conf_floor,
         "imgsz": imgsz,
+        "batch": batch,
+        "device": device,
+        "max_det": max_det,
+        "prediction_images_list": str(prediction_list_path),
         "requested_images": len(image_paths),
         "processed_images": processed,
         "accepted_images": len(accepted_images),

@@ -149,8 +149,19 @@ regionssod pseudo-label `
   --images-list data\visdrone_area10\splits\unlabeled_train.txt `
   --output data\visdrone_area10\pseudo\naive_t050 `
   --threshold 0.50 `
-  --imgsz 960
+  --conf-floor 0.05 `
+  --imgsz 960 `
+  --batch 8
 ```
+
+Git Bash 对应命令：
+
+```bash
+regionssod pseudo-label --weights runs/partial10_sup_s0/weights/best.pt --images-list data/visdrone_area10/splits/unlabeled_train.txt --output data/visdrone_area10/pseudo/naive_t050 --threshold 0.50 --conf-floor 0.05 --imgsz 960 --batch 8 --device 0
+```
+
+推理输入会保存在 `prediction_images.txt`，按 `--batch` 分批读取；输出目录必须
+为空，已有成功产物可直接复用。
 
 合并标注 tile 和伪标签 tile：
 
@@ -164,7 +175,25 @@ regionssod combine-lists `
   --source-data D:\Python\YOLO\data\visdrone\dataset.yaml
 ```
 
-训练自训练 baseline：
+Git Bash 对应命令：
+
+```bash
+regionssod combine-lists --inputs data/visdrone_area10/splits/labeled_train.txt data/visdrone_area10/pseudo/naive_t050/pseudo_train.txt --output data/visdrone_area10/combined_naive_t050.txt --dataset-yaml data/visdrone_area10/dataset_naive_t050.yaml --source-data D:/Python/YOLO/data/visdrone/dataset.yaml
+```
+
+先执行 30 epoch 的 B1/B2 配对 pilot，检查半监督信号。两个学生均从同一 COCO
+预训练初始化；B2 及后续 P1 的 pilot 固定使用上面的 B1 100 epoch 教师：
+
+```bash
+regionssod train --config configs/train_partial_10.yaml --data data/visdrone_area10/dataset.yaml --epochs 30 --name partial10_sup_pilot30_s0
+regionssod train --config configs/train_naive_10.yaml --data data/visdrone_area10/dataset_naive_t050.yaml --epochs 30 --name partial10_naive_t050_pilot30_s0
+```
+
+两个 pilot 均需完整原图 960 验证，再按 Gate 2 比较；完整验证命令见
+`docs/baseline_protocol.md` 第 4.1 节。B2 的 30 epoch 结果不能直接与 B1 的
+100 epoch 结果作 gate 比较。
+
+完成 pilot 后，100 epoch 的正式自训练 baseline 命令是：
 
 ```powershell
 regionssod train `

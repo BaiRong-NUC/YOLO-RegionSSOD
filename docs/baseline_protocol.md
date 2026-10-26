@@ -78,8 +78,12 @@ regionssod validate --weights runs/partial10_sup_s0/weights/best.pt --data data/
 先固定 teacher。使用 B1 的 `best.pt`，不要使用 last.pt 或 epoch 中途权重。
 
 ```powershell
-regionssod pseudo-label --weights runs\partial10_sup_s0\weights\best.pt --images-list data\visdrone_area10\splits\unlabeled_train.txt --output data\visdrone_area10\pseudo\naive_t050 --threshold 0.50 --conf-floor 0.05 --imgsz 960 --device 0
+regionssod pseudo-label --weights runs\partial10_sup_s0\weights\best.pt --images-list data\visdrone_area10\splits\unlabeled_train.txt --output data\visdrone_area10\pseudo\naive_t050 --threshold 0.50 --conf-floor 0.05 --imgsz 960 --batch 8 --device 0
 ```
+
+生成器将选中的输入保存为 `prediction_images.txt` 并使用文件清单按 batch 推理，
+避免 Python 图片路径列表被 Ultralytics 当作一个大批次。`summary.json` 记录
+实际请求的 batch、device 和 max_det。Git Bash 的生成和合并命令见 README。
 
 检查 `summary.json`：
 
@@ -93,10 +97,39 @@ regionssod pseudo-label --weights runs\partial10_sup_s0\weights\best.pt --images
 regionssod combine-lists --inputs data\visdrone_area10\splits\labeled_train.txt data\visdrone_area10\pseudo\naive_t050\pseudo_train.txt --output data\visdrone_area10\combined_naive_t050.txt --dataset-yaml data\visdrone_area10\dataset_naive_t050.yaml --source-data D:\Python\YOLO\data\visdrone\dataset.yaml
 ```
 
-训练：
+### 4.1 先执行 Gate 2 的 30 epoch 配对 pilot
+
+B1 的 100 epoch 正式结果用于主表及固定教师；Gate 2 另外比较两个从同一 COCO
+预训练初始化、各训练 30 epoch 的学生。B2 pilot 使用上面固定的 B1 100 epoch
+`best.pt` 生成的伪标签；后续 P1 pilot 必须复用同一教师。学生阶段的训练预算
+一致，教师阶段的 100 epoch 成本另行记录。
+
+Git Bash 按顺序执行以下命令，每个训练结束后都对其 `best.pt` 做完整原图 960
+验证。两个训练都保留原配置的 640、batch 8、SGD、seed 0：
+
+```bash
+regionssod train --config configs/train_partial_10.yaml --data data/visdrone_area10/dataset.yaml --epochs 30 --name partial10_sup_pilot30_s0
+regionssod validate --weights runs/partial10_sup_pilot30_s0/weights/best.pt --data data/visdrone_area10/dataset.yaml --imgsz 960 --name partial10_sup_pilot30_s0_val960
+regionssod train --config configs/train_naive_10.yaml --data data/visdrone_area10/dataset_naive_t050.yaml --epochs 30 --name partial10_naive_t050_pilot30_s0
+regionssod validate --weights runs/partial10_naive_t050_pilot30_s0/weights/best.pt --data data/visdrone_area10/dataset_naive_t050.yaml --imgsz 960 --name partial10_naive_t050_pilot30_s0_val960
+```
+
+Gate 2 比较上述两个独立 30 epoch run 的 mAP50-95，要求 B2 不低于 B1 超过
+0.2 个百分点（0–1 指标差不低于 -0.002）。不要将 B2 30 epoch 与 B1 100 epoch
+直接比较，也不要将 100 epoch run 的第 30 行当作独立 30 epoch 实验：学习率
+调度和 `close_mosaic` 时点不同。通过该 gate 后才实现 P1。
+
+### 4.2 后续 100 epoch 正式 B2
+
+完成 pilot 和对应数据诊断后，正式 B2 的训练命令是：
 
 ```powershell
 regionssod train --config configs\train_naive_10.yaml --data data\visdrone_area10\dataset_naive_t050.yaml --name partial10_naive_t050_s0
+```
+
+```bash
+regionssod train --config configs/train_naive_10.yaml --data data/visdrone_area10/dataset_naive_t050.yaml --name partial10_naive_t050_s0
+regionssod validate --weights runs/partial10_naive_t050_s0/weights/best.pt --data data/visdrone_area10/dataset_naive_t050.yaml --imgsz 960 --name partial10_naive_t050_s0_val960
 ```
 
 ## 5. 对照规则

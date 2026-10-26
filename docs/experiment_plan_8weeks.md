@@ -84,6 +84,11 @@ tile 边长按 `sqrt(area_ratio * image_width * image_height)` 计算。因为�
 用 B1 教师对未标注 tile 做全局阈值 0.50 推理，保留有检测结果的 tile，再与
 标注 tile 联合重训一次。它是判断问题是否值得继续的最重要基线。
 
+seed0 的 pilot 固定已完成的 B1 100 epoch `best.pt` 为教师，B2 和后续 P1 共用；
+B1/B2 学生各自从 COCO 预训练独立训练 30 epoch，按完整原图 960 指标比较。
+教师训练成本单独记录；不能用 B1 100 epoch 结果或该 run 的第 30 行 CSV 代替
+独立 30 epoch B1 学生。具体命令见 `docs/baseline_protocol.md` 第 4.1 节。
+
 ### P1 Scale-aware self-training
 
 计划在第 3 周实现：

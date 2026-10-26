@@ -1,7 +1,7 @@
 # 论文完成计划与项目交接
 
 > 最后更新：2026-10-26  
-> 当前阶段：第 1 周；Gate 1 工程验收已通过，正式 10% seed0 数据就绪，B1 正式训练尚未启动<br>
+> 当前阶段：B1 seed0 的 100 epoch 及完整 val960 已完成，B2 伪标签与训练清单就绪，待执行 Gate 2 配对 pilot<br>
 > 论文暂定题目：**面向高分辨率航拍图像的区域局部标注小目标半监督检测方法**  
 > 仓库：`D:\Python\YOLO-RegionSSOD`  
 > 计划起点：2026-10-26，可按实际启动日期整体平移
@@ -57,14 +57,14 @@ P1 尺度感知伪标签与 uncertain-ignore 是否带来稳定收益。
 
 | 项目 | 状态 | 证据或位置 | 下一步 |
 |---|---|---|---|
-| Git 仓库 | 已初始化并推送 Gitee，本次会话基于 `8501b73` | `main...origin/main`；本次文档修改未提交 | 每个阶段单独提交 |
+| Git 仓库 | 已初始化并推送 Gitee，本次会话基于 `14eaf2c` | `main...origin/main`；本次源码/测试/文档修改未提交 | 每个阶段单独提交 |
 | 数据构造 | 已实现；10% seed0 已生成 | `src/regionssod/data/partial.py` | 生成正式 5%/20% split |
 | B0 完整监督 | 配置已加入，未正式训练 | `configs/train_full.yaml` | 复用旧结果或重训 seed 0 |
-| B1 部分监督 | 20 图、5 epoch 工程验收通过；正式训练未启动 | `runs/smoke/partial10_sup_smoke5/gate1_audit.json` | 正式 10% seed0、100 epoch |
-| B2 朴素自训练 | 代码、伪标签和合并入口已跑通烟测 | `src/regionssod/pseudo/generator.py` | 30 epoch pilot |
+| B1 部分监督 | 正式 10% seed0、100 epoch 已完成；完整 val960 mAP50-95=0.248835 | `runs/partial10_sup_s0/audit.json`、`validation/metrics.json` | 补独立 30 epoch B1 学生，与 B2 配对 pilot |
+| B2 朴素自训练 | 正式伪标签与合并清单就绪；学生未训练 | `data/visdrone_area10/pseudo/naive_t050/{summary,audit,quality_audit}.json` | 30 epoch 配对 pilot |
 | P1 尺度感知方法 | 仅完成实验设计，尚未实现 | `docs/experiment_plan_8weeks.md` | 第 3 周实现并测试 |
 | 正式 5/10/20% 数据 | 10% seed0 已生成；20 图同 seed 检查通过；5%/20% 未生成 | `data/visdrone_area10/summary.json`、`audit.json` | 生成 5%/20% split |
-| 正式 100 epoch 主矩阵 | 未启动 | `runs/` 为本地忽略目录 | 第 1–5 周滚动执行 |
+| 正式 100 epoch 主矩阵 | 已完成 B1 10% seed0；B2/P1 未完成 | `runs/partial10_sup_s0`；单 seed 开发结果 | 先测 Gate 2，再继续方法与矩阵 |
 | 论文正文 | 未开始 | 无 | 第 1 周建立骨架 |
 
 ### 3.1 已完成的烟测
@@ -90,8 +90,8 @@ P1 尺度感知伪标签与 uncertain-ignore 是否带来稳定收益。
   SHA256；检查包括 split/manifest 一致、标签合法、隐藏 GT 未导出为训练标签、
   验证路径指向完整原图。
 
-**证据边界：**该次数据构造只完成基础审计，没有启动训练。后续已补齐第 9 节
-要求的 20 图工程验收，见第 3.3 节；正式 100 epoch 训练尚未开始。
+**证据边界：**该次数据构造只完成基础审计。后续的 20 图工程验收和正式 B1
+训练分别见第 3.3、3.4 节。
 
 ### 3.3 Gate 1 工程验收通过（2026-10-26）
 
@@ -108,9 +108,43 @@ P1 尺度感知伪标签与 uncertain-ignore 是否带来稳定收益。
   `data/gate1_checks/area10_seed0_20261026`。
 
 **结论：**第 9 节定义的 Gate 1 已通过。上述数字仍是 20 图工程烟测，不能进入
-论文结果表，也不能证明 B1/B2/P1 的正式效果。下一步在已审计的 6471 张正式
-10% 标注 tile 上，按现有配置从 COCO 预训练重新训练 B1 seed0、100 epoch；
-之后仍需完成 B1/B2 的 30 epoch pilot，才能决定是否实现 P1。
+论文结果表，也不能证明 B1/B2/P1 的正式效果。当时建议的 B1 seed0、100 epoch
+现已完成，见第 3.4 节；仍需完成 B1/B2 的 30 epoch pilot，才能决定是否实现 P1。
+
+### 3.4 正式 B1 完成，B2 数据准备完成（2026-10-26）
+
+- 用户已完成 `runs/partial10_sup_s0`：6471 张标注 tile、100 epoch、YOLO11s、
+  640、batch 8、SGD、seed 0；从 COCO 预训练初始化。日志共 100 行、全部数值
+  有限，CSV 累计训练耗时 11460.1 秒（约 3.18 小时）。训练 commit 为 `14eaf2c`。
+- 本次补跑 `best.pt` 的完整原图 960 验证：548 张图、38759 个实例；Ultralytics
+  mAP50=0.417503、mAP50-95=0.248835、precision=0.559604、recall=0.408240。
+  训练日志的 640 验证最佳 mAP50-95 为 0.16704（epoch 90），须与 val960 区分。
+- 8 项正式 run 审计通过；原 split/manifest 等关键哈希未变。证据和 SHA256 保存在
+  `runs/partial10_sup_s0/audit.json`、`SHA256SUMS.txt`、`validation/metrics.json`。
+- 固定教师 `runs/partial10_sup_s0/weights/best.pt`，SHA256 为
+  `58f40e1e7b397c3f0b873bbc9cbd9e50660b41c48c9cadb1e7ef3d0f0b0ebf54`。
+- 正式伪标签首轮暴露了批处理缺陷：Python 路径列表使 Ultralytics 将全部 6471
+  图当作一个 batch，触发 CUDA OOM。已改为持久化文件清单输入，按 batch 8
+  流式读取；回归测试在旧实现上复现问题，修复后全部 11 项测试通过。
+  失败目录归档为 `data/visdrone_area10/pseudo/naive_t050_failed_all_images_batch_20261026`。
+- 修复后以 threshold=0.50、conf-floor=0.05、imgsz=960、batch=8 完成 6471 图
+  推理；接受 4624 个 tile（71.46%）、27667 个框，10 类均有伪标签。合并后
+  11095 张训练 tile、132725 个框，完整验证集保持不变，未将空预测 tile 当背景。
+- 离线隐藏 GT 诊断：按类别、IoU>=0.50、降序 IoU 一对一匹配，伪标签 precision
+  为 81.47%、recall 为 58.94%，漏检隐藏 GT 15704 个；小目标 recall 为 46.99%。
+  尺寸按原始 tile 中裁剪后框面积划分（small<32²、medium<96²），这不是 AP_small
+  或官方评测，不能证明 B2 学生已有收益。隐藏 GT 只用于离线分析。
+- B2 数据通过 10 项审计；其标签、清单、配置、源代码及教师共 11106 个文件的
+  SHA256 已保存。证据位于 `data/visdrone_area10/pseudo/naive_t050/` 下的
+  `summary.json`、`audit.json`、`quality_audit.json`、`SHA256SUMS.txt`；合并配置为
+  `data/visdrone_area10/dataset_naive_t050.yaml`。诊断脚本在忽略目录
+  `outputs/audit_naive_t050_20261026.py`。
+
+**下一步：**按 baseline 协议第 4.1 节运行 B1/B2 各 30 epoch 的独立学生并完成
+完整 val960；两者均从 COCO 预训练开始，B2 和后续 P1 pilot 固定使用上述 B1
+100 epoch 教师。学生训练预算配对，教师训练成本另记。不得将 B2 30 epoch 与
+B1 100 epoch、或其第 30 行 CSV 直接作 Gate 2 比较。Gate 2 尚未测量；P1 尚未
+实现。当前 B1 为单 seed 的正式开发结果，官方 AP、AP_small 和多 seed 仍待补。
 
 ## 4. 固定实验协议
 
@@ -271,6 +305,7 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-10-26 | working tree | 建立论文完成计划、新会话入口和文件地图 | `docs/paper_completion_plan.md`、`AGENTS.md`、README 链接 | 8 周计划、证据边界和交接规则已落地；测试仍为 9/9 | 等待审阅后提交 |
 | 2026-10-26 | `23fdcd5` + working tree | 修正 Git Bash 环境命令；生成并审计正式 10% seed0 数据；明确 20 图烟测的数据路径 | Git Bash 加载 `conda.sh` 后 `conda activate yolo`；`data/visdrone_area10/{summary,audit}.json`；README/baseline 命令 | 6471 张训练图、105058 个监督框、38245 个可见隐藏 GT；完整 val 548 张；12/12 基础审计通过；未改源码，未运行训练 | 数据构造完成；Gate 1 尚缺同 seed 一致性和 5 epoch/640、完整 val960 验收；之后启动 B1 |
 | 2026-10-26 | `8501b73` + working tree | 审核用户完成的 5 epoch 烟测；补完整 val960、同 seed 重生成检查和测试 | `runs/smoke/partial10_sup_smoke5/gate1_audit.json`；`runs/val/partial10_sup_smoke5_val960/metrics.json`；`python -m pytest` | 20 图/640/batch8 训练完成；完整 val 548 图；开发 mAP50-95=0.080882；60 个数据文件哈希一致；9/9 tests；正式数据关键哈希未变 | Gate 1 通过；仅烟测，无正式方法结果；建议启动正式 10% seed0 的 B1 100 epoch，本次未启动 |
+| 2026-10-26 | `14eaf2c` + working tree | 验收正式 B1 100 epoch，补 val960/权重哈希；修复全量伪标签批处理 OOM；生成/诊断/合并 B2 数据 | `runs/partial10_sup_s0/{audit.json,SHA256SUMS.txt,validation/metrics.json}`；`data/visdrone_area10/pseudo/naive_t050/`；`python -m pytest --basetemp outputs/pytest_pseudo_batch_20261026` | B1 正式开发 mAP50-95=0.248835；4624 个伪标签 tile、27667 框，合并 11095 图；11/11 tests；教师哈希固定，隐藏 GT 仅离线分析 | B1 完成，B2 数据就绪；Gate 2 未测，两个 30 epoch 学生均未启动；P1 尚未实现 |
 
 ### 10.1 新会话开始流程
 
