@@ -1,5 +1,14 @@
 # Baseline 执行协议
 
+本文的 `powershell` 命令块适用于 PowerShell。Git Bash（提示包含 `MINGW64`）
+需要先按 `README.md` 的环境章节加载 `/d/MiniConda/etc/profile.d/conda.sh` 并激活
+`yolo`；使用 `cd /d/Python/YOLO-RegionSSOD` 切换目录，参数路径使用正斜杠。
+例如，正式 10% 数据的 Git Bash 命令是：
+
+```bash
+regionssod make-partial --source-data D:/Python/YOLO/data/visdrone/dataset.yaml --output data/visdrone_area10 --ratio 0.10 --seed 0 --unlabeled-per-image 1
+```
+
 ## 1. 生成 5/10/20% 数据
 
 每个比例使用独立输出目录，不要覆盖已有目录：
@@ -35,10 +44,11 @@ regionssod validate --weights runs\full_sup_s0\weights\best.pt --data D:\Python\
 
 ## 3. B1 Partial-supervised
 
-烟测：
+烟测（先按 README 生成 `data/smoke_area10` 的 20 张图数据）：
 
 ```powershell
-regionssod train --config configs\train_partial_10.yaml --epochs 5 --name partial10_sup_smoke
+regionssod train --config configs\train_partial_10.yaml --data data\smoke_area10\dataset.yaml --epochs 5 --project runs\smoke --name partial10_sup_smoke5
+regionssod validate --weights runs\smoke\partial10_sup_smoke5\weights\best.pt --data data\smoke_area10\dataset.yaml --imgsz 960 --name partial10_sup_smoke5_val960
 ```
 
 正式：

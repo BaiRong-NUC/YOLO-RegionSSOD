@@ -28,6 +28,25 @@ python -m pip install -e . --no-deps
 python -m pytest
 ```
 
+如果终端提示包含 `MINGW64`，当前使用的是 Git Bash。本机 Conda 安装在
+`D:/MiniConda`，先在当前终端加载它，再激活已有环境：
+
+```bash
+source /d/MiniConda/etc/profile.d/conda.sh
+conda activate yolo
+cd /d/Python/YOLO-RegionSSOD
+regionssod --help
+```
+
+若激活后仍找不到 `regionssod`，在仓库目录执行
+`python -m pip install -e . --no-deps`。Git Bash 使用 `cd` 切换目录，命令参数中的
+Windows 路径使用正斜杠，例如 `D:/Python/YOLO/data/visdrone/dataset.yaml`。
+本文其余命令块使用 PowerShell 语法；Git Bash 下可将命令写成单行，例如：
+
+```bash
+regionssod make-partial --source-data D:/Python/YOLO/data/visdrone/dataset.yaml --output data/visdrone_area10 --ratio 0.10 --seed 0 --unlabeled-per-image 1
+```
+
 数据默认使用：
 
 ```text
@@ -65,13 +84,25 @@ regionssod make-partial `
   --unlabeled-per-image 1
 ```
 
-5 个 epoch 的 baseline 烟测：
+在上述 20 张图的数据上进行 5 个 epoch 的 baseline 烟测：
 
 ```powershell
 regionssod train `
   --config configs\train_partial_10.yaml `
+  --data data\smoke_area10\dataset.yaml `
   --epochs 5 `
-  --name partial10_sup_smoke
+  --project runs\smoke `
+  --name partial10_sup_smoke5
+```
+
+烟测权重也必须在完整原图上进行 960 验证：
+
+```powershell
+regionssod validate `
+  --weights runs\smoke\partial10_sup_smoke5\weights\best.pt `
+  --data data\smoke_area10\dataset.yaml `
+  --imgsz 960 `
+  --name partial10_sup_smoke5_val960
 ```
 
 正式部分监督 baseline：

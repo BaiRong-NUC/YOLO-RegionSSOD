@@ -1,7 +1,7 @@
 # 论文完成计划与项目交接
 
 > 最后更新：2026-10-26  
-> 当前阶段：第 1 周；工程链路已打通，正式数据和正式训练尚未开始  
+> 当前阶段：第 1 周；正式 10% seed0 数据已生成并通过基础审计，5%/20% 数据和正式训练尚未开始<br>
 > 论文暂定题目：**面向高分辨率航拍图像的区域局部标注小目标半监督检测方法**  
 > 仓库：`D:\Python\YOLO-RegionSSOD`  
 > 计划起点：2026-10-26，可按实际启动日期整体平移
@@ -57,13 +57,13 @@ P1 尺度感知伪标签与 uncertain-ignore 是否带来稳定收益。
 
 | 项目 | 状态 | 证据或位置 | 下一步 |
 |---|---|---|---|
-| Git 仓库 | 已初始化并推送 Gitee，当前快照 `d3503c9` | `main...origin/main` | 每个阶段单独提交 |
-| 数据构造 | 已实现 | `src/regionssod/data/partial.py` | 生成正式 5/10/20% split |
+| Git 仓库 | 已初始化并推送 Gitee，本次会话基于 `23fdcd5` | `main...origin/main`；本次文档修改未提交 | 每个阶段单独提交 |
+| 数据构造 | 已实现；10% seed0 已生成 | `src/regionssod/data/partial.py` | 生成正式 5%/20% split |
 | B0 完整监督 | 配置已加入，未正式训练 | `configs/train_full.yaml` | 复用旧结果或重训 seed 0 |
 | B1 部分监督 | 代码和配置已加入，仅做烟测 | `configs/train_partial_10.yaml` | 正式 100 epoch |
 | B2 朴素自训练 | 代码、伪标签和合并入口已跑通烟测 | `src/regionssod/pseudo/generator.py` | 30 epoch pilot |
 | P1 尺度感知方法 | 仅完成实验设计，尚未实现 | `docs/experiment_plan_8weeks.md` | 第 3 周实现并测试 |
-| 正式 5/10/20% 数据 | 未生成 | 当前只有 `data/smoke_area10` | 第 1 周完成 |
+| 正式 5/10/20% 数据 | 10% seed0 已生成；5%/20% 未生成 | `data/visdrone_area10/summary.json`、`audit.json` | 补同 seed 可复现检查和 5%/20% split |
 | 正式 100 epoch 主矩阵 | 未启动 | `runs/` 为本地忽略目录 | 第 1–5 周滚动执行 |
 | 论文正文 | 未开始 | 无 | 第 1 周建立骨架 |
 
@@ -78,6 +78,21 @@ P1 尺度感知伪标签与 uncertain-ignore 是否带来稳定收益。
 
 **证据边界：**烟测只有 20 张图、1 epoch，B2 烟测 `mAP50-95 ≈ 0.0252`。
 这只证明工程链路，不是方法效果，不得写入论文结果表，也不得据此判断研究方向。
+
+### 3.2 正式 10% seed0 数据
+
+- 2026-10-26 在 Git Bash 中加载 `D:/MiniConda/etc/profile.d/conda.sh`，激活已有
+  `yolo` 环境后运行 `make-partial`；命令见 README 和 baseline 协议。
+- 6471 张训练图全部使用，无跳过；6471 个标注 tile、6471 个未标注 tile。
+- 标注 tile 共保留 105058 个监督框，未标注 tile 中共有 38245 个可见隐藏 GT 框。
+- 实际平均标注面积比例为 9.993%；完整原图验证集仍为 548 张。
+- `data/visdrone_area10/audit.json` 保存了 12 项基础检查、当前 commit 和关键文件
+  SHA256；检查包括 split/manifest 一致、标签合法、隐藏 GT 未导出为训练标签、
+  验证路径指向完整原图。
+
+**证据边界：**本次仅完成数据构造和基础审计，没有启动训练；同 seed 重生成一致性、
+20 图 5 epoch/640 训练和完整原图 960 验证仍待完成。旧日志“仅过 Gate 1”的表述
+只代表旧烟测链路，不能据此认定第 9 节定义的 Gate 1 已完整通过。
 
 ## 4. 固定实验协议
 
@@ -236,6 +251,7 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 |---|---|---|---|---|---|
 | 2026-10-26 | `d3503c9` | 初始化仓、数据/B1/B2 工具链；20 图烟测 | `data/smoke_area10`、`runs/smoke/*` | 9/9 tests；B2 13/20 伪标签图、38 框、33 训练图；完整 val 成功 | 仅过 Gate 1；正式数据未生成 |
 | 2026-10-26 | working tree | 建立论文完成计划、新会话入口和文件地图 | `docs/paper_completion_plan.md`、`AGENTS.md`、README 链接 | 8 周计划、证据边界和交接规则已落地；测试仍为 9/9 | 等待审阅后提交 |
+| 2026-10-26 | `23fdcd5` + working tree | 修正 Git Bash 环境命令；生成并审计正式 10% seed0 数据；明确 20 图烟测的数据路径 | Git Bash 加载 `conda.sh` 后 `conda activate yolo`；`data/visdrone_area10/{summary,audit}.json`；README/baseline 命令 | 6471 张训练图、105058 个监督框、38245 个可见隐藏 GT；完整 val 548 张；12/12 基础审计通过；未改源码，未运行训练 | 数据构造完成；Gate 1 尚缺同 seed 一致性和 5 epoch/640、完整 val960 验收；之后启动 B1 |
 
 ### 10.1 新会话开始流程
 
