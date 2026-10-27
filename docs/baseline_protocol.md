@@ -177,7 +177,14 @@ Gate 3 的主门槛为 B2 val960 mAP50-95 +0.005，即至少 **0.239534294688062
 匹配、IoU>=0.50、max_det=500、原图 GT 面积<32² 的 recall 严格高于 B2。
 所有尺寸 GT 联合按预测置信度降序一对一匹配，再统计尺寸；不能以 P1 伪标签
 的隐藏 GT recall 代替学生完整 val recall。本工具是 YOLO 开发诊断，不等于官方
-AP_small/AR500。最终论文仍需官方评测。只有两个 Gate 3 条件均满足才扩训。
+AP_small/AR500。最终论文仍需官方评测。原计划以两个 Gate 3 条件均满足作为扩训门槛。
+
+2026-10-27 验收结果：P1 mAP50-95=0.23788331849556607，比 B2 提升
+0.3349 个百分点；小目标 recall=0.35692516085336945，提升 1.8776 个百分点。
+原 Gate 3 的整体 mAP 条件未达到、小目标条件达到，总判定为未通过。
+用户随后明确将“保留有提升的阶段成果”作为当前目标，后续优先整理方法和已有
+结果，补充验证规模按论文需要决定。数值门槛、原判定及这一结果后的决策分别
+记录在 `docs/paper_completion_plan.md` 第 3.8 节；冻结数据和命令仍可复现本轮。
 
 ## 5. 对照规则
 
@@ -188,6 +195,15 @@ AP_small/AR500。最终论文仍需官方评测。只有两个 Gate 3 条件均�
 - 只根据 val 调阈值；最终确认前不得反复查看 test-dev。
 
 ## 6. 输出审计
+
+论文主表与方法/实验初稿见 `docs/paper/README.md`。数字核对命令为
+`python scripts/build_paper_tables.py --check`，重新生成表格使用
+`python scripts/build_paper_tables.py`。本次为补齐三组对照，追加 B1 固定操作点
+评估（已有产物直接复用）：
+
+```bash
+regionssod size-recall --weights runs/partial10_sup_pilot30_s0/weights/best.pt --data D:/Python/YOLO/data/visdrone/dataset.yaml --output runs/size_recall/b1_pilot30_s0 --imgsz 960 --batch 8 --device 0 --conf 0.25 --match-iou 0.50
+```
 
 每个正式 run 至少保存：
 

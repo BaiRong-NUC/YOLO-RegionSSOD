@@ -6,11 +6,23 @@
 不能被视为纯背景。目标是复用 VisDrone、YOLO11 和航拍小目标经验，在单张
 RTX 4070 Ti 12 GB 上完成毕业/中文核心所需的完整实验。
 
-当前状态（2026-10-27）：10% seed0 的 B1 100 epoch、B1/B2 30 epoch 配对 pilot
-及完整原图 960 验证均已完成，Gate 2 已通过。P1 的尺度感知伪标签、置信度软权重
-和 uncertain-ignore 已实现，28 项测试及真实 GPU 烟测通过。全量数据已生成，
-30 epoch pilot 已于 10:33 启动；Gate 3 尚未测量。实时阶段见
-`outputs/gate3_20261027/status.json`，进度见 `docs/paper_completion_plan.md` 第 3.6 节。
+当前状态（2026-10-27）：P1 的 30 epoch、完整原图 val960 和小目标 recall 已完成
+验收，19/19 检查通过。相对 B2，mAP50-95 从 23.4534% 升至 23.7883%
+（+0.3349 个百分点），小目标 recall 从 33.8150% 升至 35.6925%
+（+1.8776 个百分点）。原 Gate 3 的 +0.5 个百分点门槛未达到；按用户当前目标，
+保留本轮积极的单 seed 初步成果，优先整理方法、结果和分析。验收及证据见
+`docs/paper_completion_plan.md` 第 3.8 节。
+
+论文初稿入口：[方法与实验写作](docs/paper/README.md)。已有
+[论文结果表格](docs/paper/results_tables.md)、[方法章节](docs/paper/methods.md)
+和[实验分析章节](docs/paper/experiments.md)，B1/B2/P1 的同操作点分尺寸 recall
+也已补齐。用 `python scripts/build_paper_tables.py --check` 核对表格与冻结结果。
+
+实时查看 P1：在 `yolo` 环境、仓库根目录运行 `python scripts/watch_p1.py`，打开
+终端输出的本机地址。页面每 3 秒刷新 epoch、批次、估计剩余训练时间及最近日志，
+并区分训练、val960、小目标 recall 和全部完成。看到“训练和自动评估均已完成”后
+即可通知助手验收。当前查看地址保存在 `outputs/p1_monitor/server.json`；
+查看器只读取现有日志与产物，关闭页面不影响训练。
 
 ## 研究问题
 
@@ -212,7 +224,7 @@ medium<96²，其余为 large；正阈值依次为 0.30/0.50/0.50，下限为 0.
 这是一组待检验的 pilot 参数，不是已证明最优的阈值。正框保留教师置信度，
 其余候选作为 ignore；没有正框的 tile 被排除，候选仍写入离线记录。
 
-Git Bash / PowerShell 均可逐行执行下列命令（已有成功产物应复用，不要覆盖）：
+以下为本轮冻结的复现命令，已有训练及评估产物可直接复用：
 
 ```bash
 regionssod pseudo-label-p1 --weights runs/partial10_sup_s0/weights/best.pt --images-list data/visdrone_area10/splits/unlabeled_train.txt --output data/visdrone_area10/pseudo/p1_s030_m050_l050 --policy configs/pseudo_p1_10.yaml --imgsz 960 --batch 8 --device 0
@@ -240,7 +252,7 @@ Gate 3 要求 P1 完整原图 val960 mAP50-95 至少 0.239534294688062，且相�
 | B0 Full-sup reference | 完整 VisDrone 标签 | 上界参考，不参与方法变量 |
 | B1 Partial-sup crop | 仅标注 tile | 区域局部监督主 baseline |
 | B2 Naive self-training | 标注 tile + 全局阈值伪标签 tile | 半监督基线 |
-| P1 Scale-aware | 尺度分层阈值 + 置信度软权重 + uncertain-ignore | 已实现，待 Gate 3 验证 |
+| P1 Scale-aware | 尺度分层阈值 + 置信度软权重 + uncertain-ignore | 已验收，有正向初步收益；原 Gate 3 未达门槛 |
 
 ## 数据目录约定
 
@@ -266,7 +278,7 @@ data/visdrone_area10/
 
 - Ultralytics 的 mAP 不是 VisDrone 官方 AP；论文最终表仍需官方工具或服务器。
 - 现有 VisDrone test-dev 已被旧项目多次查看，不能继续当作盲测集。
-- P1 工程实现和烟测不代表方法收益；Gate 3 通过前不扩展正式主矩阵。
+- P1 的 30 epoch 配对结果可作为单 seed 初步成果；原 Gate 3 的判定和结果后的工作决策见进度文档第 3.8 节。
 - 首轮不要把网络结构、P2、注意力和推理分辨率一起修改，否则无法归因。
 
 详细实验计划见 `docs/experiment_plan_8weeks.md`，命令协议见

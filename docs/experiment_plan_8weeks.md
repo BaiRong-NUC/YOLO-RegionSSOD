@@ -91,7 +91,9 @@ B1/B2 学生各自从 COCO 预训练独立训练 30 epoch，按完整原图 960 
 
 ### P1 Scale-aware self-training
 
-2026-10-27 已完成工程实现，待 30 epoch Gate 3 对照；第一版固定参数见
+2026-10-27 已完成工程实现及 30 epoch 配对验收，整体 mAP 与小目标 recall
+均有初步收益；原 Gate 3 未达 +0.5 个百分点门槛。用户当前优先整理已有成果，
+具体结果和后续决策见 `paper_completion_plan.md` 第 3.8 节。第一版固定参数见
 `configs/pseudo_p1_10.yaml`，执行路径和损失语义见 baseline 协议第 4.3 节：
 
 - 小、中、大目标使用不同伪标签置信阈值。

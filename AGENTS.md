@@ -40,8 +40,10 @@ Never revert user or other-session changes without authorization.
   val at 960.
 - B0 is the full-supervision upper reference; B1 is partial-supervision; B2 is
   global-threshold self-training; P1 is the proposed scale-aware method.
-- Gate 2 passed on 2026-10-27. P1 is implemented; measure the paired Gate 3 pilot
-  before extending it to the formal experiment matrix.
+- P1's 30-epoch pilot and full-val evaluation were accepted on 2026-10-27:
+  mAP50-95 +0.3349 percentage points and small-object recall +1.8776 points vs B2.
+  The original Gate 3 threshold was not met. The user chose to retain the positive
+  preliminary result and prioritize writing/analysis; see paper_completion_plan.md 3.8.
 - Do not add backbone, P2, attention, or multi-module changes before the core
   P1 mechanism passes Gate 3.
 

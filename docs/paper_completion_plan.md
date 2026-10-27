@@ -1,7 +1,7 @@
 # 论文完成计划与项目交接
 
 > 最后更新：2026-10-27<br>
-> 当前阶段：Gate 2 已通过；P1 三项机制已实现、测试及 GPU 烟测通过，30 epoch pilot 已启动，Gate 3 尚未测量<br>
+> 当前阶段：B1/B2/P1 结果已整理成七组论文表格，方法与实验分析章节初稿已落盘；保留积极的单 seed 初步成果，原 Gate 3 判定及证据见第 3.8 节<br>
 > 论文暂定题目：**面向高分辨率航拍图像的区域局部标注小目标半监督检测方法**  
 > 仓库：`D:\Python\YOLO-RegionSSOD`  
 > 计划起点：2026-10-26，可按实际启动日期整体平移
@@ -57,15 +57,15 @@ P1 尺度感知伪标签与 uncertain-ignore 是否带来稳定收益。
 
 | 项目 | 状态 | 证据或位置 | 下一步 |
 |---|---|---|---|
-| Git 仓库 | 已初始化并推送 Gitee，本次会话基于 `f7b711c` | `main...origin/main`；既有文档改动保留，本次 P1 源码/配置/测试/文档未提交 | 每个阶段单独提交 |
+| Git 仓库 | P1 实现已提交为 `8f02449`，本次在此基础上验收结果 | `main...origin/main`；进度文档/README 及查看器仍有本地改动 | 保留既有改动，按阶段整理 |
 | 数据构造 | 已实现；10% seed0 已生成 | `src/regionssod/data/partial.py` | 生成正式 5%/20% split |
 | B0 完整监督 | 配置已加入，未正式训练 | `configs/train_full.yaml` | 复用旧结果或重训 seed 0 |
 | B1 部分监督 | 正式 100 epoch 和独立 30 epoch pilot 均完成；val960 mAP50-95 分别为 0.248835、0.229114 | `runs/partial10_sup_s0/`、`runs/partial10_sup_pilot30_s0/` | 冻结为正式参考与 pilot 对照 |
-| B2 朴素自训练 | 30 epoch pilot 完成；val960 mAP50-95=0.234534；100 epoch 尚未运行 | `runs/partial10_naive_t050_pilot30_s0/` | 冻结 pilot 对照，供 P1 验证 Gate 3 |
-| P1 尺度感知方法 | 三项机制已实现，28/28 测试和真实 GPU 烟测通过；30 epoch pilot 已启动 | `configs/train_p1_10.yaml`、`outputs/gate3_20261027/{preflight,status}.json` | 等待完整训练、val960 及小目标 recall；Gate 3 未测 |
+| B2 朴素自训练 | 30 epoch pilot 完成；val960 mAP50-95=0.234534；100 epoch 尚未运行 | `runs/partial10_naive_t050_pilot30_s0/` | 保留为冻结的配对对照 |
+| P1 尺度感知方法 | 30 epoch 和完整评估已验收；mAP50-95=0.237883、小目标 recall=0.356925，均优于 B2 | `outputs/gate3_20261027/{comparison,acceptance_audit}.json`；第 3.8 节 | 保留积极的单 seed 初步结果，整理方法/结果/分析；原 Gate 3 未达预设门槛 |
 | 正式 5/10/20% 数据 | 10% seed0 已生成；20 图同 seed 检查通过；5%/20% 未生成 | `data/visdrone_area10/summary.json`、`audit.json` | 生成 5%/20% split |
-| 正式 100 epoch 主矩阵 | 已完成 B1 10% seed0；B2/P1 未完成 | `runs/partial10_sup_s0`；单 seed 开发结果 | 先实现 P1 并测 Gate 3，再扩展主矩阵 |
-| 论文正文 | 未开始 | 无 | 第 1 周建立骨架 |
+| 正式 100 epoch 主矩阵 | 已完成 B1 10% seed0；B2/P1 未完成 | `runs/partial10_sup_s0`；已有 P1 30 epoch 正向初步结果 | 先整理已有成果，后续按论文需要决定补充验证规模 |
+| 论文正文 | 方法、实验分析章节及七组结果表已形成初稿；B1 分尺寸 recall 已补齐 | `docs/paper/{methods,experiments,results_tables,evidence}.md`；第 3.9 节 | 审阅文字与表格，继续整合论文结构和相关工作 |
 
 ### 3.1 已完成的烟测
 
@@ -171,7 +171,7 @@ P1 尺度感知伪标签与 uncertain-ignore 是否带来稳定收益。
   B1 100 epoch 教师。不能据此宣称同等计算量下的收益。指标仍为 Ultralytics
   开发指标，未补官方 AP、AP_small、AR500 或多 seed。
 
-**下一步：**开始实现 P1 的尺度分层阈值、教师置信度软权重和 uncertain-ignore。
+**当时的下一步：**开始实现 P1 的尺度分层阈值、教师置信度软权重和 uncertain-ignore。
 先完成候选/置信度保留和损失侧的权重、ignore 路径及测试，再使用同一固定教师、
 同一 split、COCO 初始化和 30 epoch 学生协议对照 B2。Gate 3 要求 P1 相对 B2
 至少 +0.5 个百分点 mAP50-95（即当前基线下至少 0.239534），并且 AP_small 或
@@ -223,9 +223,98 @@ P1 尺度感知伪标签与 uncertain-ignore 是否带来稳定收益。
   日志为 `outputs/p1_pilot30_20261027.{stdout,stderr}.log`，当前状态必须读取
   `outputs/gate3_20261027/status.json`，不得仅凭本启动记录认定训练已完成。
 
-**未完成：**30 epoch pilot 和 Gate 3 的最终验收。通过条件为 P1 mAP50-95
+**当时尚未完成：**30 epoch pilot 和 Gate 3 的最终验收，现已完成，见第 3.8 节。
+原通过条件为 P1 mAP50-95
 至少 0.239534294688062，且小目标 recall 严格高于 0.33814952778718443。
 未测得两个条件前不扩展正式 P1 主矩阵，不宣称 P1 有效。
+
+### 3.7 P1 训练进度核查：尚未完成（2026-10-27 11:04，北京时间）
+
+- 后台 Python 进程 PID 9500 仍在运行，命令为 `scripts/run_p1_pilot.py`；
+  `status.json` 仍处于 `training`。该文件仅记录阶段切换，实时 epoch 进度应以
+  stdout 日志和 `results.csv` 为准，不把阶段时间戳较旧误判为训练停滞。
+- CSV 已记录完整、连续的 epoch 1–6，全部数值有限；最近一行累计训练时间
+  1618.76 秒。11:04:53 日志已到第 7/30 epoch 的 1344/1414 batch（约 95%）。
+  best.pt、last.pt 均存在；stderr 为 0 字节，核查时未见训练错误。
+- 实际 `args.yaml` 与 B2 对比，除 data/name/save_dir 外无参数差异。训练内的
+  640 验证值属于中间曲线，不能当作最终完整原图 val960 结果或提前判定 Gate 3。
+- P1 的完整 val960 `metrics.json`、分尺寸 recall 和 Gate 3 `comparison.json`
+  均尚未生成。因此本次仅完成**训练进度核查**，不能验收最终效果；Gate 3 是
+  **尚未测量**，不是通过或失败。原后台训练继续运行，完成后由已启动脚本自动
+  执行完整验证、固定操作点小目标 recall 和比较，不另行启动重复训练。
+- 核查证据：`outputs/gate3_20261027/progress_check_20261027_110453.json`。
+
+### 3.8 P1 结果验收：取得初步收益，保留阶段成果（2026-10-27）
+
+P1 的 30 epoch 训练、完整原图 val960 和固定操作点小目标 recall 已于北京时间
+**12:36:10** 全部完成，12:44 完成独立验收。**结果显示正向收益，可作为方法的
+阶段成果整理。**原 Gate 3 的 +0.5 个百分点 mAP50-95 门槛未达到，小目标 recall
+同向改善条件已达到，故原 Gate 3 判定为未通过。
+
+| 方法（独立 30 epoch，seed0） | 训练 tile | 学生耗时（秒） | mAP50 | mAP50-95 | 小目标 recall |
+|---|---:|---:|---:|---:|---:|
+| B2 全局阈值自训练 | 11095 | 5073.12 | 38.9202% | 23.4534% | 33.8150% |
+| P1 尺度阈值 + 软权重 + ignore | 11310 | 7286.61 | 39.4990% | 23.7883% | 35.6925% |
+| P1−B2（百分点） | — | — | **+0.5788** | **+0.3349** | **+1.8776** |
+
+- 两者使用同一完整原图 val：548 张、38759 个 GT。小目标 recall 固定
+  conf=0.25、匹配 IoU>=0.50、max_det=500、原图 GT 框面积<32²，匹配规则一致。
+  P1 匹配小目标 9486/26577，B2 为 8987/26577，即多匹配 499 个小目标。
+  这是学生完整验证集的诊断 recall，与隐藏训练 GT 的伪标签 recall 分开报告。
+- 原门槛要求 P1 mAP50-95>=0.239534294688062，实际为
+  0.23788331849556607，差 0.1651 个百分点；因此自动判定与人工复核均为
+  `gate3_passed=false`。该检查项未通过不等于没有成果：mAP50、mAP50-95
+  和小目标 recall 均为正向变化。
+- **验收检查 19/19 通过**：30 行 epoch 连续、CSV 数值全部有限、best/last 齐全、
+  训练参数与 B2 除 data/name/save_dir 外一致；共 23773 个冻结输入、19 个 run
+  记录的源码/输入和 8 个输出文件哈希均匹配。教师与 B2 所用教师一致，P1
+  评估权重对应本轮 best.pt，均可追溯；
+  两次分尺寸评估的 548 图列表/顺序和 GT 数一致，stderr 为空。
+- best.pt SHA256：
+  `8d20c9645328d9f1a18429c7223d40e3a123f211ec04e86b2f697a844a51e115`。
+  last.pt SHA256：
+  `03cf3b6c4f9bb238001179a44667610c5a9344935fd3ed9cc820add79c7253ca`。
+- 证据：`runs/partial10_p1_pilot30_s0/{audit.json,SHA256SUMS.txt,results.csv}`、
+  `runs/val/partial10_p1_pilot30_s0_val960/metrics.json`、
+  `runs/size_recall/{b2_pilot30_s0,p1_pilot30_s0}/metrics.json`、
+  `outputs/gate3_20261027/{comparison,acceptance_audit}.json`。
+  独立验收脚本为 `outputs/audit_gate3_acceptance_20261027.py`。
+- 当前证据是单 split/seed 的 Ultralytics 开发结果。可以表述为“在本次配对
+  pilot 中，P1 提高整体检测指标和小目标召回”；跨 seed 稳定性和统计显著性
+  尚待补充，官方 AP/AP_small/AR500 也需与这些开发指标分别报告。
+- **结果后的工作决策：**用户明确要求“有提升，有成果就好”。因此将本轮作为
+  积极的初步成果保留，优先整理方法、配对结果表、伪标签覆盖/精度取舍和案例。
+  原 Gate 3 数值和判定保留用于复盘，后续工作不以本次未达 0.5 个百分点门槛
+  为由否定已有成果。若需要增强论文证据，可按具体需要选择单因素消融或重复
+  seed 验证；不把扩大完整矩阵作为整理现有成果的前提。
+
+### 3.9 论文结果表格与方法和实验初稿（2026-10-27）
+
+- 写作入口为 `docs/paper/README.md`。`methods.md` 已写出区域协议、固定离线
+  教师、原始 tile 尺度阈值、置信度分类软权重、ignore 掩码及总体损失公式；
+  描述与现有 P1 实现对应。`experiments.md` 已写出设置、整体结果、分尺寸
+  recall、伪标签精度与覆盖取舍、逐类别表现和运行开销分析。
+- `results_tables.md` 包含表 4-1 至 4-6 和表 4-S1，共七组：主结果/差值、
+  分尺寸 recall、伪标签覆盖、伪标签质量、逐类别 AP50-95、学生规模/耗时，
+  以及单列的 B1 30/100 epoch 参考。主对照只使用三个独立 30 epoch 学生，
+  未混入工程烟测；百分数保留三位小数，差值用未舍入值计算。
+- 为补齐三组的相同操作点评估，使用冻结 B1 30 epoch best.pt 补跑完整 val960
+  `size-recall`，没有重新训练。结果 small/medium/large recall 分别为
+  34.379%/76.302%/89.316%，small 匹配 9137/26577；权重哈希仍为
+  `5c9e531a5e04929261fbeb57854f78703c011db00b226a8250683cbe232f86f4`。
+  证据为 `runs/size_recall/b1_pilot30_s0/metrics.json`，命令见 baseline 协议。
+- 分尺寸分析明确记录：B2 整体 mAP 提高，但固定 conf=0.25 下 small recall
+  低于 B1；P1 相对 B1/B2 均提高该 recall。逐类别 AP 中 P1 相对 B2 为
+  **7 类升、3 类降**；论文草稿据此描述收益分布，没有表述为全部类别改善。
+- 新增 `scripts/build_paper_tables.py`，从冻结 JSON/CSV 生成表格并用
+  `--check` 逐字核对；同时校验 best.pt 哈希、30 行日志、配对参数、548 图
+  和 GT 分组/操作点。27 个来源的哈希、完整精度数值和核对记录保存为
+  `outputs/paper_tables_20261027/audit.json`；写作来源与权重索引见
+  `docs/paper/evidence.md`。
+- 当前交付为**方法与实验章节初稿**。引言、相关工作、案例图和最终排版可在
+  此基础上继续整合。原 Gate 3 与用户保留初步成果的决定按第 3.8 节记录。
+- `python scripts/build_paper_tables.py --check` 核对通过；
+  `python -m pytest --basetemp outputs/pytest_paper_writing_20261027` 28/28 通过。
 
 ## 4. 固定实验协议
 
@@ -389,6 +478,10 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-10-26 | `14eaf2c` + working tree | 验收正式 B1 100 epoch，补 val960/权重哈希；修复全量伪标签批处理 OOM；生成/诊断/合并 B2 数据 | `runs/partial10_sup_s0/{audit.json,SHA256SUMS.txt,validation/metrics.json}`；`data/visdrone_area10/pseudo/naive_t050/`；`python -m pytest --basetemp outputs/pytest_pseudo_batch_20261026` | B1 正式开发 mAP50-95=0.248835；4624 个伪标签 tile、27667 框，合并 11095 图；11/11 tests；教师哈希固定，隐藏 GT 仅离线分析 | B1 完成，B2 数据就绪；Gate 2 未测，两个 30 epoch 学生均未启动；P1 尚未实现 |
 | 2026-10-27 | `f7b711c` + working tree | 验收用户完成的 B1/B2 30 epoch pilot，分别补完整原图 val960 和权重/输入审计 | 两个 pilot run 下的 `audit.json`、`SHA256SUMS.txt`、`validation/metrics.json`；`outputs/gate2_20261027/comparison.json` | B1 mAP50-95=0.229114，B2=0.234534，差 +0.5421 个百分点；30 epoch 及实际训练参数配对，11106 个伪标签包文件哈希未变 | Gate 2 通过；仅单 seed 开发 pilot，非最终方法结论；下一步实现 P1 并测 Gate 3，本次未改源码或启动新训练 |
 | 2026-10-27 | `f7b711c` + working tree | 实现 P1 三项机制、固定分尺寸 recall；单元测试/GPU 烟测、全量生成和哈希预检；10:33 启动 30 epoch pilot | `python -m pytest --basetemp outputs/pytest_p1_20261027`；`configs/{pseudo_p1_10,train_p1_10}.yaml`；`outputs/gate3_20261027/{preflight,status}.json`；`scripts/run_p1_pilot.py` | 28/28 tests；37 tile/1 epoch 烟测通过；全量 4839 伪标签 tile、35067 正框、52117 ignore 框，合并 11310 图；B2 学生固定小目标 recall=33.815%；详见 3.6 | 工程实现完成，正式 pilot 仅已启动；Gate 3 未测，待 val960 和小目标 recall 同时达标；不扩训 |
+| 2026-10-27 11:04 | `f7b711c` + working tree | 核查 P1 训练进程、CSV、权重文件、实际配对参数和评估产物；更新进度记录 | `outputs/gate3_20261027/progress_check_20261027_110453.json`；stdout/stderr、`results.csv`、`args.yaml` | 已完成 6/30 epoch，第 7 epoch 到 1344/1414 batch；CSV 连续且全部有限，best/last 存在，stderr 为空；与 B2 实际参数配对一致 | 训练未完成，最终 val960/小目标 recall/比较文件尚未生成；Gate 3 尚未测量，继续原后台流程；本次未改源码或重启训练 |
+| 2026-10-27 | `8f02449` + working tree | 增加 P1 本机实时进度查看器并打开浏览器，方便用户持续查看和完成后通知验收 | `python scripts/watch_p1.py`；地址见 `outputs/p1_monitor/server.json`；`python -m pytest --basetemp outputs/pytest_p1_monitor_20261027` | 页面每 3 秒读取日志/CSV/阶段；显示 epoch/批次、估计剩余训练时间、最近日志和评估完成提示；28/28 tests，HTTP 页面及完成/评估中状态检查通过；核查时完成 17 epoch、正在 18 epoch | 仅增加只读查看工具，训练继续，Gate 3 未测；全部完成后验收结果 |
+| 2026-10-27 12:44 | `8f02449` + working tree | 验收 P1 30 epoch、完整 val960、小目标 recall，独立核对冻结输入/产物哈希与 Gate 3；按用户目标保留正向阶段成果 | `outputs/audit_gate3_acceptance_20261027.py`；`outputs/gate3_20261027/acceptance_audit.json`；run 下 `audit.json` | 19/19 验收检查通过；mAP50-95=23.7883%，比 B2 +0.3349 个百分点；小目标 recall=35.6925%，+1.8776 个百分点；23773 冻结输入哈希匹配 | 原 Gate 3 未达 +0.5 个百分点门槛，小目标条件通过；用户决定认可初步收益，优先整理方法、结果和分析；后续验证按论文需要安排 |
+| 2026-10-27 | `8f02449` + working tree | 整理 B1/B2/P1 论文表格，起草方法与实验分析；补齐 B1 分尺寸 recall，增加表格生成核对命令 | `docs/paper/`；`python scripts/build_paper_tables.py --check`；`runs/size_recall/b1_pilot30_s0/metrics.json` | 七组结果表及两章中文初稿；B1 small recall=34.379%，P1 对比 B2 的 AP 为 7 类升/3 类降；27 个来源哈希/表格核对通过，28/28 tests | 写作已启动，主表为配对 30 epoch 单 seed 开发结果；后续审阅与整合正文 |
 
 ### 10.1 新会话开始流程
 
@@ -427,6 +520,7 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | `AGENTS.md` | 后续会话的入口规则和当前范围 |
 | `docs/experiment_plan_8weeks.md` | 科学问题、固定协议和完整实验设计 |
 | `docs/baseline_protocol.md` | B0/B1/B2 的可执行命令和审计规则 |
+| `docs/paper/README.md` | 方法、实验分析初稿及论文表格的写作入口 |
 | `configs/train_full.yaml` | B0 完整监督配置 |
 | `configs/train_partial_05.yaml` | 5% 部分监督配置 |
 | `configs/train_partial_10.yaml` | 10% 主实验配置 |
@@ -441,6 +535,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | `src/regionssod/evaluation/runner.py` | 完整原图 val 和 `metrics.json` |
 | `src/regionssod/evaluation/size_recall.py` | 固定操作点完整 val 分尺寸 recall，非官方 AP_small |
 | `scripts/run_p1_pilot.py` | 本机已冻结输入的 pilot 训练/验证/Gate 3 顺序执行脚本 |
+| `scripts/watch_p1.py` | 仅监听本机的实时进度页，3 秒刷新；不控制训练 |
+| `scripts/build_paper_tables.py` | 从冻结评估产物生成论文结果表，`--check` 核对表格数字 |
 | `tests/` | 数据、配置、伪标签和路径回归测试 |
 
 ## 13. 非本论文内容
