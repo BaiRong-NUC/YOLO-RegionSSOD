@@ -1,0 +1,7 @@
+# Original tile pixel area; no hidden GT enters generation or training.
+small_threshold: 0.30
+medium_threshold: 0.50
+large_threshold: 0.50
+conf_floor: 0.05
+small_area: 1024.0
+large_area: 9216.0

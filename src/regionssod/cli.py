@@ -61,6 +61,16 @@ def _build_parser() -> argparse.ArgumentParser:
     validate.add_argument("--project", type=str, default="runs/val")
     validate.add_argument("--name", type=str, default=None)
 
+    size_recall = subparsers.add_parser("size-recall", help="full-image recall at a fixed confidence, by native GT size")
+    size_recall.add_argument("--weights", type=Path, required=True)
+    size_recall.add_argument("--data", type=Path, required=True)
+    size_recall.add_argument("--output", type=Path, required=True)
+    size_recall.add_argument("--imgsz", type=int, default=960)
+    size_recall.add_argument("--batch", type=int, default=8)
+    size_recall.add_argument("--device", type=str, default="0")
+    size_recall.add_argument("--conf", type=float, default=.25)
+    size_recall.add_argument("--match-iou", type=float, default=.5)
+
     pseudo = subparsers.add_parser(
         "pseudo-label",
         help="generate global-threshold pseudo labels for unlabeled tiles",
@@ -76,6 +86,17 @@ def _build_parser() -> argparse.ArgumentParser:
     pseudo.add_argument("--max-det", type=int, default=500)
     pseudo.add_argument("--limit", type=int, default=None)
 
+    p1 = subparsers.add_parser("pseudo-label-p1", help="generate scale-aware positives and uncertain-ignore metadata")
+    p1.add_argument("--weights", type=Path, required=True)
+    p1.add_argument("--images-list", type=Path, required=True)
+    p1.add_argument("--output", type=Path, required=True)
+    p1.add_argument("--policy", type=Path, default=Path("configs/pseudo_p1_10.yaml"))
+    p1.add_argument("--imgsz", type=int, default=960)
+    p1.add_argument("--batch", type=int, default=8)
+    p1.add_argument("--device", type=str, default="0")
+    p1.add_argument("--max-det", type=int, default=500)
+    p1.add_argument("--limit", type=int, default=None)
+
     combine = subparsers.add_parser(
         "combine-lists",
         help="combine labeled and pseudo image lists into a dataset YAML",
@@ -84,6 +105,7 @@ def _build_parser() -> argparse.ArgumentParser:
     combine.add_argument("--output", type=Path, required=True)
     combine.add_argument("--dataset-yaml", type=Path, required=True)
     combine.add_argument("--source-data", type=Path, required=True)
+    combine.add_argument("--p1-metadata", type=Path, default=None)
 
     return parser
 
@@ -137,6 +159,14 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(f"validation_dir: {save_dir}")
         return 0
 
+    if args.command == "size-recall":
+        from regionssod.evaluation.size_recall import run_size_recall
+
+        _print_summary(run_size_recall(args.weights, args.data, args.output, imgsz=args.imgsz,
+                                      batch=args.batch, device=args.device, conf=args.conf,
+                                      match_iou=args.match_iou))
+        return 0
+
     if args.command == "pseudo-label":
         summary = generate_pseudo_labels(
             weights=args.weights,
@@ -153,12 +183,22 @@ def main(argv: Sequence[str] | None = None) -> int:
         _print_summary(summary)
         return 0
 
+    if args.command == "pseudo-label-p1":
+        from regionssod.pseudo.scale import generate_scale_labels
+
+        _print_summary(generate_scale_labels(
+            args.weights, args.images_list, args.output, policy_path=args.policy,
+            imgsz=args.imgsz, batch=args.batch, device=args.device,
+            max_det=args.max_det, limit=args.limit))
+        return 0
+
     if args.command == "combine-lists":
         summary = combine_image_lists(
             inputs=args.inputs,
             output=args.output,
             dataset_yaml=args.dataset_yaml,
             source_data=args.source_data,
+            p1_metadata=args.p1_metadata,
         )
         _print_summary(summary)
         return 0

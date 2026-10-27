@@ -231,7 +231,10 @@ def combine_image_lists(
     output: Path,
     dataset_yaml: Path,
     source_data: Path,
+    p1_metadata: Path | None = None,
 ) -> dict[str, object]:
+    if p1_metadata is not None and not p1_metadata.is_file():
+        raise FileNotFoundError(p1_metadata)
     all_images: list[Path] = []
     for input_path in inputs:
         all_images.extend(read_image_list(input_path))
@@ -251,13 +254,20 @@ def combine_image_lists(
         val_spec=source.images_val,
         names=source.names,
     )
+    if p1_metadata is not None:
+        import yaml
+
+        payload = yaml.safe_load(dataset_yaml.read_text(encoding="utf-8"))
+        payload["p1_metadata"] = str(p1_metadata.resolve())
+        dataset_yaml.write_text(yaml.safe_dump(payload, sort_keys=False), encoding="utf-8")
     summary = {
         "inputs": [str(path.resolve()) for path in inputs],
         "deduplicated_images": len(deduplicated),
         "output_list": str(output),
         "dataset_yaml": str(dataset_yaml.resolve()),
     }
-    (dataset_yaml.resolve().parent / "combine_summary.json").write_text(
+    summary_name = f"{dataset_yaml.stem}.combine_summary.json" if p1_metadata else "combine_summary.json"
+    (dataset_yaml.resolve().parent / summary_name).write_text(
         json.dumps(summary, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )

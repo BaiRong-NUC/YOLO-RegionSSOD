@@ -6,8 +6,11 @@
 不能被视为纯背景。目标是复用 VisDrone、YOLO11 和航拍小目标经验，在单张
 RTX 4070 Ti 12 GB 上完成毕业/中文核心所需的完整实验。
 
-当前状态：数据构造、部分监督 baseline、全局阈值自训练 baseline 和评估入口
-已落地；尺度感知伪标签、低置信度 ignore 和最终方法实现留给第 3–6 周。
+当前状态（2026-10-27）：10% seed0 的 B1 100 epoch、B1/B2 30 epoch 配对 pilot
+及完整原图 960 验证均已完成，Gate 2 已通过。P1 的尺度感知伪标签、置信度软权重
+和 uncertain-ignore 已实现，28 项测试及真实 GPU 烟测通过。全量数据已生成，
+30 epoch pilot 已于 10:33 启动；Gate 3 尚未测量。实时阶段见
+`outputs/gate3_20261027/status.json`，进度见 `docs/paper_completion_plan.md` 第 3.6 节。
 
 ## 研究问题
 
@@ -202,6 +205,34 @@ regionssod train `
   --name partial10_naive_t050_s0
 ```
 
+## P1：尺度阈值、软权重与 uncertain-ignore
+
+固定参数见 `configs/pseudo_p1_10.yaml`：原始 tile 框面积 small<32²、
+medium<96²，其余为 large；正阈值依次为 0.30/0.50/0.50，下限为 0.05。
+这是一组待检验的 pilot 参数，不是已证明最优的阈值。正框保留教师置信度，
+其余候选作为 ignore；没有正框的 tile 被排除，候选仍写入离线记录。
+
+Git Bash / PowerShell 均可逐行执行下列命令（已有成功产物应复用，不要覆盖）：
+
+```bash
+regionssod pseudo-label-p1 --weights runs/partial10_sup_s0/weights/best.pt --images-list data/visdrone_area10/splits/unlabeled_train.txt --output data/visdrone_area10/pseudo/p1_s030_m050_l050 --policy configs/pseudo_p1_10.yaml --imgsz 960 --batch 8 --device 0
+regionssod combine-lists --inputs data/visdrone_area10/splits/labeled_train.txt data/visdrone_area10/pseudo/p1_s030_m050_l050/pseudo_train.txt --output data/visdrone_area10/combined_p1.txt --dataset-yaml data/visdrone_area10/dataset_p1.yaml --source-data D:/Python/YOLO/data/visdrone/dataset.yaml --p1-metadata data/visdrone_area10/pseudo/p1_s030_m050_l050/metadata.jsonl
+regionssod train --config configs/train_p1_10.yaml --name partial10_p1_pilot30_s0
+regionssod validate --weights runs/partial10_p1_pilot30_s0/weights/best.pt --data data/visdrone_area10/dataset_p1.yaml --imgsz 960 --name partial10_p1_pilot30_s0_val960
+regionssod size-recall --weights runs/partial10_naive_t050_pilot30_s0/weights/best.pt --data D:/Python/YOLO/data/visdrone/dataset.yaml --output runs/size_recall/b2_pilot30_s0 --imgsz 960 --conf 0.25 --match-iou 0.50
+regionssod size-recall --weights runs/partial10_p1_pilot30_s0/weights/best.pt --data D:/Python/YOLO/data/visdrone/dataset.yaml --output runs/size_recall/p1_pilot30_s0 --imgsz 960 --conf 0.25 --match-iou 0.50
+```
+
+训练器通过相同数据增强同步变换正框、置信度和 ignore 框；分类损失按匹配正框的
+教师置信度加权，人工标签权重为 1，分母保持原 TAL 分母。ignore 只屏蔽锚点中心
+落入候选框内的**负**分类项，已匹配正样本优先；box/DFL 不变。实现细节、消融
+开关和审计见 baseline 协议第 4.3 节。
+
+Gate 3 要求 P1 完整原图 val960 mAP50-95 至少 0.239534294688062，且相对 B2
+小目标 recall 同向改善。这里的 `size-recall` 固定 conf=0.25、IoU=0.50、max_det=500，
+按完整原图 GT 面积分组，在所有尺度 GT 上联合一对一匹配；这是开发诊断 recall，
+不是官方 AP_small 或 AR500，也不是伪标签的隐藏 GT recall。
+
 ## Baseline 定义
 
 | 名称 | 训练数据 | 作用 |
@@ -209,7 +240,7 @@ regionssod train `
 | B0 Full-sup reference | 完整 VisDrone 标签 | 上界参考，不参与方法变量 |
 | B1 Partial-sup crop | 仅标注 tile | 区域局部监督主 baseline |
 | B2 Naive self-training | 标注 tile + 全局阈值伪标签 tile | 半监督基线 |
-| P1 Scale-aware | 尺度分层阈值 + 低置信度 ignore | 后续主方法候选 |
+| P1 Scale-aware | 尺度分层阈值 + 置信度软权重 + uncertain-ignore | 已实现，待 Gate 3 验证 |
 
 ## 数据目录约定
 
@@ -235,7 +266,7 @@ data/visdrone_area10/
 
 - Ultralytics 的 mAP 不是 VisDrone 官方 AP；论文最终表仍需官方工具或服务器。
 - 现有 VisDrone test-dev 已被旧项目多次查看，不能继续当作盲测集。
-- 当前版本不实现尺度感知阈值和 uncertain-ignore，只提供可复现 baseline。
+- P1 工程实现和烟测不代表方法收益；Gate 3 通过前不扩展正式主矩阵。
 - 首轮不要把网络结构、P2、注意力和推理分辨率一起修改，否则无法归因。
 
 详细实验计划见 `docs/experiment_plan_8weeks.md`，命令协议见
