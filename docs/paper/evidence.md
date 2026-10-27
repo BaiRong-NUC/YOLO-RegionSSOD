@@ -52,4 +52,12 @@ P1 的完整性验收为 `outputs/gate3_20261027/acceptance_audit.json`，19 项
 
 运行 `python scripts/build_paper_tables.py --check` 会核对三组 best.pt 哈希、各 run 的完整 30 行日志、验证分辨率、相同 GT 分组计数和操作点，并逐字比较表格与重新计算的文本。表格使用的 27 个源文件哈希及完整精度指标保存在 `outputs/paper_tables_20261027/audit.json`。
 
+## 引言与相关工作核对
+
+[引言](introduction.md)中的主结果和固定操作点召回来自表 4-1、4-2；面积预算与裁片构造来自上述数据实现。引言不将 10% 面积等同于目标数量或实测人工工时，也不将单 seed 开发结果解释为跨 seed 稳定收益。
+
+[S³OD 差异对照](s3od_comparison.md)分别记录了 2025 年正式发表信息、2023 年可读预印本的章节与公式、以及作者公开代码提交 `d7806b78947cdc403d525e67a28193a88a4f8598` 的静态核对结果。正式发表 DOI 为 [10.1016/j.isprsjprs.2025.01.037](https://doi.org/10.1016/j.isprsjprs.2025.01.037)。预印本 PDF 本机缓存位于忽略目录 `outputs/literature/s3od/2310.14718.pdf`；期刊全文未取得，不能把预印本参数直接归于期刊版。公开代码的 GMM 阈值配置已与预印本百分位方案区分。
+
+Soft Teacher 的权重对象依据其[第 3.2 节式(4)–(5)](https://arxiv.org/html/2106.09018v3#S3.SS2)核对，方法和相关工作已明确区分其背景可靠性权重与 P1 正伪框前景置信度权重。详细对照没有产生新的训练或同协议相关方法结果。
+
 论文表格之外的复现命令见 [baseline_protocol.md](../baseline_protocol.md)，研究进度见 [paper_completion_plan.md](../paper_completion_plan.md)。引用文献与最终章节编号可在整合论文时统一处理，当前正文不使用虚构的文献编号或缺失结果。

@@ -13,11 +13,12 @@ RTX 4070 Ti 12 GB 上完成毕业/中文核心所需的完整实验。
 保留本轮积极的单 seed 初步成果，优先整理方法、结果和分析。验收及证据见
 `docs/paper_completion_plan.md` 第 3.8 节。
 
-论文初稿入口：[方法与实验写作](docs/paper/README.md)。已有
+论文初稿入口：[论文写作](docs/paper/README.md)。已有
+[引言初稿](docs/paper/introduction.md)和 [S³OD 方法差异对照](docs/paper/s3od_comparison.md)，以及
 [论文结果表格](docs/paper/results_tables.md)、[方法章节](docs/paper/methods.md)
 和[实验分析章节](docs/paper/experiments.md)，B1/B2/P1 的同操作点分尺寸 recall
 也已补齐；[相关工作](docs/paper/related_work.md)与[参考文献](docs/paper/references.md)
-已整理，含 BibTeX。用 `python scripts/build_paper_tables.py --check` 核对表格。
+已整理，含 BibTeX；S³OD 已更新为 2025 年期刊版引用。用 `python scripts/build_paper_tables.py --check` 核对表格。
 
 实时查看 P1：在 `yolo` 环境、仓库根目录运行 `python scripts/watch_p1.py`，打开
 终端输出的本机地址。页面每 3 秒刷新 epoch、批次、估计剩余训练时间及最近日志，
@@ -245,6 +246,33 @@ Gate 3 要求 P1 完整原图 val960 mAP50-95 至少 0.239534294688062，且相�
 小目标 recall 同向改善。这里的 `size-recall` 固定 conf=0.25、IoU=0.50、max_det=500，
 按完整原图 GT 面积分组，在所有尺度 GT 上联合一对一匹配；这是开发诊断 recall，
 不是官方 AP_small 或 AR500，也不是伪标签的隐藏 GT recall。
+
+## 第①组消融：关闭 uncertain-ignore
+
+独立配置为 `configs/train_p1_no_ignore_10.yaml`，仅将 `p1.uncertain_ignore` 设为
+`false`，保留尺度阈值、分类软权重和完整 P1 的其余条件：同一数据/伪标签、
+COCO 初始化、640、30 epoch、batch8、SGD、seed0。元信息与增强链路仍保留，
+只关闭损失侧负分类项屏蔽，不重新生成伪标签。
+
+在已有 `yolo` 环境、仓库根目录运行以下一条命令，自动完成训练、完整原图
+val960、固定操作点分尺寸 recall，以及与已完成的完整 P1 的对比：
+
+```bash
+python -u scripts/run_p1_no_ignore.py
+```
+
+只核对配置与冻结输入、不启动训练或 GPU 评估：
+
+```bash
+python scripts/run_p1_no_ignore.py --check-only
+```
+
+训练目录为 `runs/partial10_p1_no_ignore_pilot30_s0`。阶段记录在
+`outputs/p1_no_ignore_pilot30_s0/status.json`；完成后的对比表及完整数值分别为
+同目录 `comparison.md`、`comparison.json`。差值定义为“去掉 ignore − 完整 P1”，
+单位为百分点。脚本检查冻结输入/参考产物 SHA256、实际参数、连续 30 epoch、
+评估权重及相同验证列表/操作点；已有训练目录或派发记录时拒绝重复启动。
+本组用于单 seed 机制分析，不重新判定原 Gate 3。
 
 ## Baseline 定义
 

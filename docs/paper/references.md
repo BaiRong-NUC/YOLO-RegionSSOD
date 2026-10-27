@@ -24,7 +24,7 @@
 
 [11] Suri S., Rambhatla S., Chellappa R., Shrivastava A. SparseDet: Improving Sparsely Annotated Object Detection with Pseudo-Positive Mining[C]//IEEE/CVF International Conference on Computer Vision (ICCV). 2023. DOI: 10.1109/ICCV51070.2023.00623.
 
-[12] Zhang R., Xu C., Xu F., et al. Rethinking Scale Imbalance in Semi-Supervised Object Detection for Aerial Images[EB/OL]. arXiv:2310.14718, 2023. https://arxiv.org/abs/2310.14718. **预印本，也是与本方法最接近的文献。**
+[12] Zhang R., Xu C., Xu F., et al. S³OD: Size-unbiased semi-supervised object detection in aerial images[J]. ISPRS Journal of Photogrammetry and Remote Sensing, 2025, 221: 179-192. https://doi.org/10.1016/j.isprsjprs.2025.01.037. **与本方法最接近的文献；已核对正式发表信息。** 早期预印本题名为 *Rethinking Scale Imbalance in Semi-supervised Object Detection for Aerial Images*，arXiv:2310.14718v1，2023，https://arxiv.org/abs/2310.14718v1。两版与公开代码的证据范围见 [方法差异对照](s3od_comparison.md)。
 
 [13] Meethal A., Granger E., Pedersoli M. Density Crop-guided Semi-supervised Object Detection in Aerial Images[EB/OL]. arXiv:2308.05032, 2023. https://arxiv.org/abs/2308.05032.
 
@@ -38,8 +38,8 @@
 
 | 优先级 | 文献 | 在论文中的作用 | 阅读重点 |
 |---|---|---|---|
-| 必读 | [12] S³OD | 最接近的航拍尺度 SSOD | 尺度阈值、负学习和 DOTA 实验设置；逐项比较本文机制 |
-| 必读 | [6] Soft Teacher | 置信度分类软权重来源 | 教师分数如何进入分类损失，回归与可靠性如何处理 |
+| 必读 | [12] S³OD | 最接近的航拍尺度 SSOD | 区分 2023 预印本、2025 期刊版与公开代码；逐项比较 SAT/SLA/TNL |
+| 必读 | [6] Soft Teacher | 教师可靠性加权的相关工作 | 背景分数对负候选分类项的权重及归一化；与本文正伪框权重区分 |
 | 必读 | [9] Consistent-Teacher | 伪目标一致性 | anchor 分配和动态阈值解决的问题 |
 | 必读 | [11] SparseDet | 漏标与背景误监督 | 已标注/未标注区域划分及伪正样本挖掘 |
 | 必读 | [13] Density Crop SSOD | 航拍 VisDrone 小目标 SSOD | 基线、评价指标与密度裁片策略 |
@@ -48,6 +48,6 @@
 | 建议 | [14] ClusDet、[15] QueryDet | 航拍小目标网络与分辨率处理 | 为何本文不修改网络结构，以及计算开销来源 |
 | 背景 | [1]-[3]、[16] | YOLO、COCO、VisDrone 基础设置 | 数据和检测器引用，具体版本与实验协议 |
 
-引用时应注意：[12] 和 [13] 当前按预印本列出；正式发表信息应在投稿前再次核对。[6] 的软权重作用于分类损失，[12] 的教师引导负学习较早处理尺度相关的负样本偏差，因此本文的介绍不能把这些概念写成已有文献中不存在的新思想。本文的实验尚未直接复现 [12] 或 [13]，不能跨数据集比较数值性能。
+引用时应注意：[12] 已更新为 2025 年期刊文献，早期预印本和公开代码用于定位机制细节，不能混用其版本参数；[13] 仍按预印本列出，正式发表信息应在投稿前再次核对。[6] 第 3.2 节的软权重具体用于负候选的背景分类项，与本文前景置信度对正 anchor 分类项的权重不同。[12] 已处理尺度相关的阈值与负学习偏差，因此不能把这些概念写成本文首次提出。本文的实验尚未直接复现 [12] 或 [13]，不能跨数据集比较数值性能。
 
-BibTeX 条目见 [references.bib](references.bib)。本文件是待整合稿，编号需在引言完成后按全文首次引用顺序统一重排。
+BibTeX 条目见 [references.bib](references.bib)。当前引言和其余章节沿用本表的稳定编号；最终整合排版时再按全文首次引用顺序统一重排。

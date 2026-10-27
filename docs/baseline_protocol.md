@@ -186,6 +186,47 @@ AP_small/AR500。最终论文仍需官方评测。原计划以两个 Gate 3 条�
 结果，补充验证规模按论文需要决定。数值门槛、原判定及这一结果后的决策分别
 记录在 `docs/paper_completion_plan.md` 第 3.8 节；冻结数据和命令仍可复现本轮。
 
+### 4.4 第①组：P1 去掉 uncertain-ignore
+
+使用独立配置 `configs/train_p1_no_ignore_10.yaml`：
+
+```yaml
+p1:
+  soft_weights: true
+  uncertain_ignore: false
+```
+
+除 run 名称与上述 ignore 开关外，配置与完整 P1 冻结 `experiment.json` 一致。
+复用 `data/visdrone_area10/dataset_p1.yaml` 和全部伪标签/元信息，保留相同增强、
+尺度阈值及 COCO 初始化。学生为 640、30 epoch、batch8、SGD、seed0；教师不重训。
+ignore 框仍经过相同数据加载和增强，只关闭负分类项的屏蔽。
+
+在 `yolo` 环境、仓库根目录执行：
+
+```bash
+python -u scripts/run_p1_no_ignore.py
+```
+
+脚本先核对原 P1 的冻结输入与参考产物，再串行执行训练、完整 val960、分尺寸
+recall 和结果对比；可先用 `--check-only` 仅做预检。比较对象固定为
+`runs/partial10_p1_pilot30_s0/weights/best.pt`；分尺寸操作点仍为 conf=0.25、
+匹配 IoU=0.50、NMS IoU=0.70、max_det=500，548 张完整验证原图。
+
+单独的基础训练/评估命令如下；自动脚本已经串行执行这些步骤，选择一种入口即可：
+
+```bash
+regionssod train --config configs/train_p1_no_ignore_10.yaml
+regionssod validate --weights runs/partial10_p1_no_ignore_pilot30_s0/weights/best.pt --data data/visdrone_area10/dataset_p1.yaml --imgsz 960 --batch 8 --device 0 --name partial10_p1_no_ignore_pilot30_s0_val960
+regionssod size-recall --weights runs/partial10_p1_no_ignore_pilot30_s0/weights/best.pt --data D:/Python/YOLO/data/visdrone/dataset.yaml --output runs/size_recall/p1_no_ignore_pilot30_s0 --imgsz 960 --batch 8 --device 0 --conf 0.25 --match-iou 0.50
+```
+
+训练为 `runs/partial10_p1_no_ignore_pilot30_s0`，评估为
+`runs/val/partial10_p1_no_ignore_pilot30_s0_val960`、
+`runs/size_recall/p1_no_ignore_pilot30_s0`。自动对比输出为
+`outputs/p1_no_ignore_pilot30_s0/{comparison.md,comparison.json}`，正差值表示去掉
+ignore 后指标更高；报告不预设哪一组获胜。训练时间取 CSV 最后一行累计时间，
+不解释为独立 ignore 模块的精确耗时；指标仍属于 Ultralytics 开发评测。
+
 ## 5. 对照规则
 
 - B1 与 B2 必须从同一 `yolo11s.pt` 初始化。

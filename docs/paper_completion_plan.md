@@ -1,7 +1,7 @@
 # 论文完成计划与项目交接
 
 > 最后更新：2026-10-27<br>
-> 当前阶段：结果表、方法、实验分析和相关工作初稿已完成；16 篇核心参考文献及 BibTeX 已整理，下一阶段整合引言并精读最接近的 S³OD<br>
+> 当前阶段：第 1–4 章初稿、结果表和 S³OD 方法差异对照已完成；S³OD 引用已更新为 2025 年期刊版，下一阶段补案例图、核心消融和重复 seed 证据<br>
 > 论文暂定题目：**面向高分辨率航拍图像的区域局部标注小目标半监督检测方法**  
 > 仓库：`D:\Python\YOLO-RegionSSOD`  
 > 计划起点：2026-10-26，可按实际启动日期整体平移
@@ -65,7 +65,7 @@ P1 尺度感知伪标签与 uncertain-ignore 是否带来稳定收益。
 | P1 尺度感知方法 | 30 epoch 和完整评估已验收；mAP50-95=0.237883、小目标 recall=0.356925，均优于 B2 | `outputs/gate3_20261027/{comparison,acceptance_audit}.json`；第 3.8 节 | 保留积极的单 seed 初步结果，整理方法/结果/分析；原 Gate 3 未达预设门槛 |
 | 正式 5/10/20% 数据 | 10% seed0 已生成；20 图同 seed 检查通过；5%/20% 未生成 | `data/visdrone_area10/summary.json`、`audit.json` | 生成 5%/20% split |
 | 正式 100 epoch 主矩阵 | 已完成 B1 10% seed0；B2/P1 未完成 | `runs/partial10_sup_s0`；已有 P1 30 epoch 正向初步结果 | 先整理已有成果，后续按论文需要决定补充验证规模 |
-| 论文正文 | 方法、实验分析、相关工作及七组结果表已形成初稿；核心文献与 BibTeX 已整理 | `docs/paper/`；第 3.9、3.10 节 | 精读 S³OD/Soft Teacher/SparseDet，整合引言并统一全文引用编号 |
+| 论文正文 | 第 1–4 章及七组结果表已有初稿；S³OD 对照完成，参考文献与 BibTeX 已更新正式发表信息 | `docs/paper/`；第 3.9–3.11 节 | 补案例图、三组核心消融及重复 seed；最终排版时统一引用编号 |
 
 ### 3.1 已完成的烟测
 
@@ -335,6 +335,52 @@ P1 的 30 epoch 训练、完整原图 val960 和固定操作点小目标 recall 
 - 文献线索经论文搜索和官方出版页/论文页核对；S³OD 与 Density Crop-guided SSOD
   均标注为预印本。未把不同数据集上的论文数值直接与本文 VisDrone 开发结果比较。
 
+### 3.11 S³OD 方法差异对照与引言初稿（2026-10-27）
+
+- 新增 `docs/paper/s3od_comparison.md`：按标注预算、区域构造、师生更新、尺度
+  阈值、正样本分配、分类权重、负学习、框类型和评测口径逐项对照，并连接
+  S³OD 原文段落、公式与 P1 实现；不从不同协议的数值推断方法优劣。
+- 更新第 3.10 节的历史文献信息：S³OD 已以 *S³OD: Size-unbiased semi-supervised
+  object detection in aerial images* 正式发表于 ISPRS Journal of Photogrammetry
+  and Remote Sensing，2025，221：179–192，DOI `10.1016/j.isprsjprs.2025.01.037`。
+  `references.md` 与 BibTeX 已更新；详细公式仍明确归于已读的 2023 预印本。
+- 期刊全文本次未取得。核对作者公开 master 提交
+  `d7806b78947cdc403d525e67a28193a88a4f8598`：其 DOTA 配置含 GMM 自适应阈值，
+  与预印本百分位方案不同；另核对 GWD top-K 分配和教师 RoI 负候选处理，
+  没有声称复现或运行 S³OD。期刊摘要的实验集为 DOTA-v1.5 与 SODA-A。
+- 新增 `docs/paper/introduction.md`，包含研究背景、区域面积预算、错误负监督
+  问题、已有工作关系、方法概述、三项工作和单 seed 初步结果。明确目标中心
+  采样为合成协议，面积预算不能等同于实测工时节省，不声称首次或领先 S³OD。
+- 按 Soft Teacher 第 3.2 节修正方法/相关工作/文献阅读说明：其具体公式对负候选
+  背景分类项按教师背景分数加权，与 P1 的正 anchor 前景置信度权重不同。
+- README 与论文入口、证据索引已同步；现有引用编号暂保持一致，最终排版时
+  再按全文首次引用顺序重排。本次为文稿与文献核对，不新增实验或改变 Gate 3。
+- `python scripts/build_paper_tables.py --check` 通过，27 个结果来源核对一致。
+  忽略目录中的 `outputs/verify_writing_20261027.py` 核对 9 份论文 Markdown、
+  36 个本地链接、16 项文献/BibTeX 及引言 6 个结果数值，全部通过；审计记录为
+  `outputs/literature/s3od/writing_audit_20261027.json`。`git diff --check` 通过。
+  未改训练源码，未重跑训练测试或启动训练。
+
+### 3.12 第①组去掉 uncertain-ignore 的训练入口就绪（2026-10-27）
+
+- 按用户要求新增 `configs/train_p1_no_ignore_10.yaml`，run 为
+  `partial10_p1_no_ignore_pilot30_s0`。与完整 P1 的冻结配置相比仅更改名称和
+  `p1.uncertain_ignore=false`；保留软权重、尺度阈值、11310 个训练 tile、元信息、
+  增强链路、同一 COCO 初始化、640/30 epoch/batch8/SGD/seed0。
+- 新增 `scripts/run_p1_no_ignore.py`，执行后依次训练、验证连续 30 epoch 和实际
+  参数、完整原图 val960、相同操作点分尺寸 recall，再与完整 P1 自动生成 JSON
+  及 Markdown 对照。差值为“去掉 ignore − 完整 P1”，不预设结果方向，不改变
+  原 Gate 3；失败写入阶段记录并停止，已有 run/派发记录时拒绝重复启动。
+- 已在原 `yolo` 环境执行 `python scripts/run_p1_no_ignore.py --check-only`：
+  **23781 个冻结输入与完整 P1 参考产物哈希核对通过**，确认仅变更目标开关。
+  预检在 `outputs/p1_no_ignore_pilot30_s0/preflight.json`，不表示训练已完成。
+- `python -m pytest --basetemp outputs/pytest_p1_no_ignore_20261027` 28/28 通过；
+  README 和 baseline 协议第 4.4 节已加入自动入口与独立训练/评估命令。
+- **当前状态仅为配置、脚本与预检完成，尚未启动训练**，按用户“给我训练指令”
+  提供可直接运行的 `python -u scripts/run_p1_no_ignore.py`。启动后的阶段文件为
+  `outputs/p1_no_ignore_pilot30_s0/status.json`；全部完成后查看同目录
+  `comparison.md`、`comparison.json`，尚无本组方法效果结论。
+
 ## 4. 固定实验协议
 
 ### 4.1 训练与评估
@@ -502,6 +548,12 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-10-27 12:44 | `8f02449` + working tree | 验收 P1 30 epoch、完整 val960、小目标 recall，独立核对冻结输入/产物哈希与 Gate 3；按用户目标保留正向阶段成果 | `outputs/audit_gate3_acceptance_20261027.py`；`outputs/gate3_20261027/acceptance_audit.json`；run 下 `audit.json` | 19/19 验收检查通过；mAP50-95=23.7883%，比 B2 +0.3349 个百分点；小目标 recall=35.6925%，+1.8776 个百分点；23773 冻结输入哈希匹配 | 原 Gate 3 未达 +0.5 个百分点门槛，小目标条件通过；用户决定认可初步收益，优先整理方法、结果和分析；后续验证按论文需要安排 |
 | 2026-10-27 | `8f02449` + working tree | 整理 B1/B2/P1 论文表格，起草方法与实验分析；补齐 B1 分尺寸 recall，增加表格生成核对命令 | `docs/paper/`；`python scripts/build_paper_tables.py --check`；`runs/size_recall/b1_pilot30_s0/metrics.json` | 七组结果表及两章中文初稿；B1 small recall=34.379%，P1 对比 B2 的 AP 为 7 类升/3 类降；27 个来源哈希/表格核对通过，28/28 tests | 写作已启动，主表为配对 30 epoch 单 seed 开发结果；后续审阅与整合正文 |
 | 2026-10-27 | `8f02449` + working tree | 检索并核对 SSOD、稀疏标注与航拍小目标参考论文；新增相关工作及 BibTeX；调整方法/实验引用边界 | `docs/paper/{related_work,references}.md`、`docs/paper/references.bib`；第 3.10 节 | 16 项核心文献；识别 S³OD 为最近邻工作，明确其尺度阈值与教师负学习重叠；正文不宣称这些概念首次提出 | 后续精读核心文献、按首次引用顺序统一编号、写引言；比较性实验按现有结果需要安排 |
+
+| 2026-10-27 | `9dd79f7` + working tree | 按用户“下一步怎么做”请求复核进度、协议、论文缺口及现有 Gate 3 结果，给出后续优先级建议 | `python scripts/build_paper_tables.py --check`（已有 yolo 环境）；`outputs/gate3_20261027/{comparison,acceptance_audit}.json` | 表格核对通过，27 个来源哈希及三组 recall 的 GT 计数核对通过；现有正文缺引言、案例图，核心单因素消融与重复 seed 尚未完成；本次未改源码、未启动训练 | 建议先精读 S³OD 并明确方法差异、补引言和图；随后优先做去掉 ignore、去掉软权重、全局阈值三组 30 epoch 消融，再按证据需要安排重复 seed 与正式训练；这是建议，尚未实施或改变原 Gate 判定 |
+
+| 2026-10-27 | `9dd79f7` + working tree | 完成 S³OD 方法差异对照和第 1 章引言；核对正式发表版本、早期预印本与公开代码；修正 Soft Teacher 权重对象 | `docs/paper/{introduction,s3od_comparison}.md`；`references.md`、BibTeX 与论文入口/证据索引；第 3.11 节 | 第 1–4 章初稿齐备；S³OD 更新为 ISPRS Journal 2025 期刊文献；预印本百分位与公开代码 GMM 阈值分开描述；表格 27 来源及文稿链接/文献/引言数字核对通过；仅文稿，无新训练 | 原 Gate 3 判定不变；后续补案例图、核心消融和重复 seed，期刊全文细节与最终引用排序待补 |
+
+| 2026-10-27 | `9dd79f7` + working tree | 准备第①组 no-ignore 配置及训练→val960→分尺寸 recall→完整 P1 对比脚本，提供用户执行命令 | `configs/train_p1_no_ignore_10.yaml`；`scripts/run_p1_no_ignore.py --check-only`；README、baseline 第 4.4 节 | 23781 个冻结文件核对通过；11310 tile 与完整 P1 条件一致，仅关闭 uncertain-ignore；28/28 tests | 仅准备和预检完成，训练尚未启动；用户执行 `python -u scripts/run_p1_no_ignore.py` 后自动评估对比；原 Gate 3 不变 |
 
 ### 10.1 新会话开始流程
 
