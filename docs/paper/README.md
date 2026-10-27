@@ -8,6 +8,8 @@
 | [experiments.md](experiments.md) | 第 4 章实验分析初稿：实验设置、整体/分尺寸/逐类别结果、伪标签质量和开销 |
 | [results_tables.md](results_tables.md) | 表 4-1 至 4-6 和补充表 4-S1，含单位、评测口径和差值附表 |
 | [evidence.md](evidence.md) | 表格来源、权重 SHA256、补评估记录和数字核对方式 |
+| [related_work.md](related_work.md) | 第 2 章相关工作初稿：SSOD、缺失标注、航拍小目标与最接近工作的关系 |
+| [references.md](references.md) | 16 篇核心文献、阅读优先级、引用边界；[references.bib](references.bib) 供文献管理工具导入 |
 
 表格采用三个独立 30 epoch 学生进行主对照。B1 100 epoch 单列为教师和较长训练参考；20 图工程烟测不进入这些结果表。正文中的指标为单 seed 的 Ultralytics 开发结果，小目标诊断 recall 与官方 AP_small/AR500 分别表述。
 
@@ -20,4 +22,4 @@ python scripts/build_paper_tables.py --check
 python scripts/build_paper_tables.py
 ```
 
-`--check` 只核对表格与冻结结果是否一致；第二条命令重新生成表格文本。完整精度数值、输入哈希和生成核对记录位于忽略目录 `outputs/paper_tables_20261027/audit.json`。初稿尚未覆盖引言、相关工作与最终排版；可继续以当前方法、结果表和分析为基础扩写。
+`--check` 只核对表格与冻结结果是否一致；第二条命令重新生成表格文本。完整精度数值、输入哈希和生成核对记录位于忽略目录 `outputs/paper_tables_20261027/audit.json`。参考文献已单独整理；初稿尚未覆盖引言与最终排版。S³OD 是最接近的工作，正式写作前应重点核对其全文和方法差异。

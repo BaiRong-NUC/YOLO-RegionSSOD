@@ -16,7 +16,8 @@ RTX 4070 Ti 12 GB 上完成毕业/中文核心所需的完整实验。
 论文初稿入口：[方法与实验写作](docs/paper/README.md)。已有
 [论文结果表格](docs/paper/results_tables.md)、[方法章节](docs/paper/methods.md)
 和[实验分析章节](docs/paper/experiments.md)，B1/B2/P1 的同操作点分尺寸 recall
-也已补齐。用 `python scripts/build_paper_tables.py --check` 核对表格与冻结结果。
+也已补齐；[相关工作](docs/paper/related_work.md)与[参考文献](docs/paper/references.md)
+已整理，含 BibTeX。用 `python scripts/build_paper_tables.py --check` 核对表格。
 
 实时查看 P1：在 `yolo` 环境、仓库根目录运行 `python scripts/watch_p1.py`，打开
 终端输出的本机地址。页面每 3 秒刷新 epoch、批次、估计剩余训练时间及最近日志，

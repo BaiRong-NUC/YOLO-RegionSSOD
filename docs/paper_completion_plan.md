@@ -1,7 +1,7 @@
 # 论文完成计划与项目交接
 
 > 最后更新：2026-10-27<br>
-> 当前阶段：B1/B2/P1 结果已整理成七组论文表格，方法与实验分析章节初稿已落盘；保留积极的单 seed 初步成果，原 Gate 3 判定及证据见第 3.8 节<br>
+> 当前阶段：结果表、方法、实验分析和相关工作初稿已完成；16 篇核心参考文献及 BibTeX 已整理，下一阶段整合引言并精读最接近的 S³OD<br>
 > 论文暂定题目：**面向高分辨率航拍图像的区域局部标注小目标半监督检测方法**  
 > 仓库：`D:\Python\YOLO-RegionSSOD`  
 > 计划起点：2026-10-26，可按实际启动日期整体平移
@@ -65,7 +65,7 @@ P1 尺度感知伪标签与 uncertain-ignore 是否带来稳定收益。
 | P1 尺度感知方法 | 30 epoch 和完整评估已验收；mAP50-95=0.237883、小目标 recall=0.356925，均优于 B2 | `outputs/gate3_20261027/{comparison,acceptance_audit}.json`；第 3.8 节 | 保留积极的单 seed 初步结果，整理方法/结果/分析；原 Gate 3 未达预设门槛 |
 | 正式 5/10/20% 数据 | 10% seed0 已生成；20 图同 seed 检查通过；5%/20% 未生成 | `data/visdrone_area10/summary.json`、`audit.json` | 生成 5%/20% split |
 | 正式 100 epoch 主矩阵 | 已完成 B1 10% seed0；B2/P1 未完成 | `runs/partial10_sup_s0`；已有 P1 30 epoch 正向初步结果 | 先整理已有成果，后续按论文需要决定补充验证规模 |
-| 论文正文 | 方法、实验分析章节及七组结果表已形成初稿；B1 分尺寸 recall 已补齐 | `docs/paper/{methods,experiments,results_tables,evidence}.md`；第 3.9 节 | 审阅文字与表格，继续整合论文结构和相关工作 |
+| 论文正文 | 方法、实验分析、相关工作及七组结果表已形成初稿；核心文献与 BibTeX 已整理 | `docs/paper/`；第 3.9、3.10 节 | 精读 S³OD/Soft Teacher/SparseDet，整合引言并统一全文引用编号 |
 
 ### 3.1 已完成的烟测
 
@@ -316,6 +316,25 @@ P1 的 30 epoch 训练、完整原图 val960 和固定操作点小目标 recall 
 - `python scripts/build_paper_tables.py --check` 核对通过；
   `python -m pytest --basetemp outputs/pytest_paper_writing_20261027` 28/28 通过。
 
+### 3.10 相关工作与参考论文整理（2026-10-27）
+
+- 新增 `docs/paper/related_work.md`，按半监督目标检测、漏标/稀疏标注、航拍
+  小目标检测及与本文方法的关系组织，并直接服务于后续第 2 章写作。
+- 新增 `docs/paper/references.md` 和 `references.bib`，共 16 项文献。核心必读
+  为 S³OD、Soft Teacher、Consistent-Teacher、SparseDet 和 Density Crop-guided
+  SSOD；另整理阅读重点及引用限制，后续不应只按题名堆积参考文献。
+- **最近的参考工作是 S³OD**（arXiv:2310.14718，当前按预印本引用）：其尺寸感知
+  自适应阈值、尺度重平衡标签分配和教师引导负学习与本文尺度阈值及不确定区域
+  处理直接相关。相关工作已明确，本文不能声称首次结合尺度阈值和教师负学习；
+  当前可支持的差异主要是区域局部标注协议、不修改 YOLO11s 网络的实现，以及
+  完整原图上的伪标签覆盖/精度和大小目标收益分析。正式投稿前应核对其预印本
+  后续版本，并尽可能做同协议对照或单因素消融。
+- `methods.md` 和 `experiments.md` 已加入关键引用。文献编号当前按基础检测器/
+  数据、SSOD、缺失标注、航拍尺度工作的顺序编排；完成引言后需按全文首次引用
+  顺序统一重排。
+- 文献线索经论文搜索和官方出版页/论文页核对；S³OD 与 Density Crop-guided SSOD
+  均标注为预印本。未把不同数据集上的论文数值直接与本文 VisDrone 开发结果比较。
+
 ## 4. 固定实验协议
 
 ### 4.1 训练与评估
@@ -482,6 +501,7 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-10-27 | `8f02449` + working tree | 增加 P1 本机实时进度查看器并打开浏览器，方便用户持续查看和完成后通知验收 | `python scripts/watch_p1.py`；地址见 `outputs/p1_monitor/server.json`；`python -m pytest --basetemp outputs/pytest_p1_monitor_20261027` | 页面每 3 秒读取日志/CSV/阶段；显示 epoch/批次、估计剩余训练时间、最近日志和评估完成提示；28/28 tests，HTTP 页面及完成/评估中状态检查通过；核查时完成 17 epoch、正在 18 epoch | 仅增加只读查看工具，训练继续，Gate 3 未测；全部完成后验收结果 |
 | 2026-10-27 12:44 | `8f02449` + working tree | 验收 P1 30 epoch、完整 val960、小目标 recall，独立核对冻结输入/产物哈希与 Gate 3；按用户目标保留正向阶段成果 | `outputs/audit_gate3_acceptance_20261027.py`；`outputs/gate3_20261027/acceptance_audit.json`；run 下 `audit.json` | 19/19 验收检查通过；mAP50-95=23.7883%，比 B2 +0.3349 个百分点；小目标 recall=35.6925%，+1.8776 个百分点；23773 冻结输入哈希匹配 | 原 Gate 3 未达 +0.5 个百分点门槛，小目标条件通过；用户决定认可初步收益，优先整理方法、结果和分析；后续验证按论文需要安排 |
 | 2026-10-27 | `8f02449` + working tree | 整理 B1/B2/P1 论文表格，起草方法与实验分析；补齐 B1 分尺寸 recall，增加表格生成核对命令 | `docs/paper/`；`python scripts/build_paper_tables.py --check`；`runs/size_recall/b1_pilot30_s0/metrics.json` | 七组结果表及两章中文初稿；B1 small recall=34.379%，P1 对比 B2 的 AP 为 7 类升/3 类降；27 个来源哈希/表格核对通过，28/28 tests | 写作已启动，主表为配对 30 epoch 单 seed 开发结果；后续审阅与整合正文 |
+| 2026-10-27 | `8f02449` + working tree | 检索并核对 SSOD、稀疏标注与航拍小目标参考论文；新增相关工作及 BibTeX；调整方法/实验引用边界 | `docs/paper/{related_work,references}.md`、`docs/paper/references.bib`；第 3.10 节 | 16 项核心文献；识别 S³OD 为最近邻工作，明确其尺度阈值与教师负学习重叠；正文不宣称这些概念首次提出 | 后续精读核心文献、按首次引用顺序统一编号、写引言；比较性实验按现有结果需要安排 |
 
 ### 10.1 新会话开始流程
 

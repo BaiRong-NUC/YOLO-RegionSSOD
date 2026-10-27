@@ -44,6 +44,10 @@ Never revert user or other-session changes without authorization.
   mAP50-95 +0.3349 percentage points and small-object recall +1.8776 points vs B2.
   The original Gate 3 threshold was not met. The user chose to retain the positive
   preliminary result and prioritize writing/analysis; see paper_completion_plan.md 3.8.
+- Before making a novelty claim, read the closest related work S3OD in
+  `docs/paper/{related_work,references}.md`. It already combines scale-aware
+  pseudo-label thresholds and teacher-guided negative learning; do not claim
+  those ideas are first introduced here.
 - Do not add backbone, P2, attention, or multi-module changes before the core
   P1 mechanism passes Gate 3.
 
