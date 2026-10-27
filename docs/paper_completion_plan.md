@@ -1,7 +1,7 @@
 # 论文完成计划与项目交接
 
 > 最后更新：2026-10-27<br>
-> 当前阶段：第 1–4 章初稿及 S³OD 对照已完成；低成本筛查表明软权重信号中性、统一阈值显著降低小目标召回；全量尺度阈值 30 epoch 确认数据已准备，等待用户启动<br>
+> 当前阶段：第 1–4 章初稿及 S³OD 对照已完成；软权重信号在低成本筛查中为中性；全量尺度阈值 30 epoch 确认完成，统一 0.50 相对完整 P1 同时降低 mAP 与小目标固定操作点召回<br>
 > 论文暂定题目：**面向高分辨率航拍图像的区域局部标注小目标半监督检测方法**  
 > 仓库：`D:\Python\YOLO-RegionSSOD`  
 > 计划起点：2026-10-26，可按实际启动日期整体平移
@@ -57,7 +57,7 @@ P1 尺度感知伪标签与 uncertain-ignore 是否带来稳定收益。
 
 | 项目 | 状态 | 证据或位置 | 下一步 |
 |---|---|---|---|
-| Git 仓库 | P1 实现已提交为 `8f02449`，本次在此基础上验收结果 | `main...origin/main`；进度文档/README 及查看器仍有本地改动 | 保留既有改动，按阶段整理 |
+| Git 仓库 | 前序机制筛选已提交至 `ad298ce`；本轮全量确认、结果表与文稿已通过检查并纳入本次提交 | `main...origin/main`；`scripts/build_paper_tables.py --check`、31/31 tests | 推送并用 `git ls-remote` 核实 Gitee `main` |
 | 数据构造 | 已实现；10% seed0 已生成 | `src/regionssod/data/partial.py` | 生成正式 5%/20% split |
 | B0 完整监督 | 配置已加入，未正式训练 | `configs/train_full.yaml` | 复用旧结果或重训 seed 0 |
 | B1 部分监督 | 正式 100 epoch 和独立 30 epoch pilot 均完成；val960 mAP50-95 分别为 0.248835、0.229114 | `runs/partial10_sup_s0/`、`runs/partial10_sup_pilot30_s0/` | 冻结为正式参考与 pilot 对照 |
@@ -66,9 +66,10 @@ P1 尺度感知伪标签与 uncertain-ignore 是否带来稳定收益。
 | 第①组 no-ignore 消融 | 30 epoch、val960、固定操作点 recall 及独立验收完成；相对完整 P1 的 mAP50-95 +0.0217 pp、small recall −0.1392 pp | `outputs/p1_no_ignore_pilot30_s0/{comparison,acceptance_audit}.json`；第 3.13 节 | 不能声称 ignore 独立提高整体 mAP；继续拆分软权重与尺度阈值，补配对 seed |
 | 软权重低成本筛选 | 1024 源图、两组各 5 epoch 和 val960 完成；mAP50-95 +0.0884 pp、small recall +0.0790 pp，低于 0.3 pp 候选线 | `outputs/screens/p1_soft_weights_1024_e5/{comparison,acceptance_audit}.json`；第 3.15 节 | 中性，不启动 30 epoch 去软权重确认；继续下一项低成本机制筛选 |
 | 尺度阈值低成本筛选 | 统一 0.50 对比尺度分层：mAP50-95 +0.2237 pp、small recall −3.1230 pp | `outputs/screens/p1_global_t050_1024_v2_e5/{comparison,acceptance_audit}.json`；第 3.16 节 | 自动候选线未触发，但小目标信号值得全量 30 epoch 确认；数据已准备，用户手动启动 |
+| 尺度阈值全量确认 | 30 epoch、val960、固定操作点 recall 及独立验收完成；统一 0.50 相对完整 P1 的 mAP50-95 −0.6177 pp、small recall −0.3424 pp，逐类 1 升/9 降 | `outputs/p1_global_t050_pilot30_s0/{comparison,acceptance_audit}.json`；表 4-S2；第 3.18 节 | 全量结果支持尺度分层阈值更有利于总体检测和小目标覆盖；仍为单 split/seed，不扩写为跨 seed 稳定性 |
 | 正式 5/10/20% 数据 | 10% seed0 已生成；20 图同 seed 检查通过；5%/20% 未生成 | `data/visdrone_area10/summary.json`、`audit.json` | 生成 5%/20% split |
 | 正式 100 epoch 主矩阵 | 已完成 B1 10% seed0；B2/P1 未完成 | `runs/partial10_sup_s0`；已有 P1 30 epoch 正向初步结果 | 先整理已有成果，后续按论文需要决定补充验证规模 |
-| 论文正文 | 第 1–4 章及七组结果表已有初稿；S³OD 对照完成，参考文献与 BibTeX 已更新正式发表信息 | `docs/paper/`；第 3.9–3.11 节 | 补案例图、三组核心消融及重复 seed；最终排版时统一引用编号 |
+| 论文正文 | 第 1–4 章及八组结果表已有初稿；S³OD 对照完成，参考文献与 BibTeX 已更新正式发表信息 | `docs/paper/`；第 3.9–3.11、3.18 节 | 补案例图、软权重的正式消融及重复 seed；最终排版时统一引用编号 |
 
 ### 3.1 已完成的烟测
 
@@ -297,7 +298,7 @@ P1 的 30 epoch 训练、完整原图 val960 和固定操作点小目标 recall 
   教师、原始 tile 尺度阈值、置信度分类软权重、ignore 掩码及总体损失公式；
   描述与现有 P1 实现对应。`experiments.md` 已写出设置、整体结果、分尺寸
   recall、伪标签精度与覆盖取舍、逐类别表现和运行开销分析。
-- `results_tables.md` 包含表 4-1 至 4-6 和表 4-S1，共七组：主结果/差值、
+- `results_tables.md` 包含表 4-1 至 4-6、表 4-S1 和 4-S2，共八组：主结果/差值、
   分尺寸 recall、伪标签覆盖、伪标签质量、逐类别 AP50-95、学生规模/耗时，
   以及单列的 B1 30/100 epoch 参考。主对照只使用三个独立 30 epoch 学生，
   未混入工程烟测；百分数保留三位小数，差值用未舍入值计算。
@@ -506,8 +507,48 @@ P1 的 30 epoch 训练、完整原图 val960 和固定操作点小目标 recall 
   尺度阈值统一为 0.50；学生仍为 COCO 初始化、640、30 epoch、batch8、SGD、
   seed0、`close_mosaic=10`。脚本将自动完成训练、val960、分尺寸 recall 和与完整
   P1 对比。
-- **当前仅数据准备与预检完成，全量训练尚未启动。**按用户最新约束，给出
+- **当时仅完成数据准备与预检，全量训练尚未启动。**按用户最新约束，给出
   `python -u scripts/run_p1_global_t050.py` 后停止，不自动占用 GPU 跑 30 epoch。
+
+### 3.18 全量尺度阈值确认完成验收（2026-10-27）
+
+- 用户执行全量确认，自动流程于北京时间 **20:00:53** 完成。新 run 为
+  `runs/partial10_p1_global_t050_pilot30_s0`；CSV 为连续 1–30 epoch、全部数值有限，
+  累计训练日志耗时 6915.15 秒。实际学生超参数与完整 P1 相同，配置差异仅指向
+  阈值策略生成的另一数据集；两组共用冻结教师、软权重和 ignore 处理。
+- 阈值策略只把 small/medium/large 正阈值从 0.30/0.50/0.50 改为
+  0.50/0.50/0.50，从同一教师候选重新生成数据：新组为 4624 个伪标签 tile、
+  27667 个正框、57219 个 ignore 框，合并 11095 个训练 tile。完整 P1 为 4839 个
+  伪标签 tile、35067 个正框、52117 个 ignore 框、11310 个训练 tile。阈值造成的
+  正/ignore 划分差异会改变入训 tile 数和每轮 batch 数，因此不能写成等计算量对照。
+- 差值为“统一 0.50 − 完整 P1”，单位为百分点：
+
+| 指标 | 完整 P1 / % | 统一 0.50 / % | 差值 / pp |
+|---|---:|---:|---:|
+| mAP50 | 39.4990 | 38.6992 | −0.7998 |
+| mAP50-95 | 23.7883 | 23.1706 | −0.6177 |
+| Small recall | 35.6925 | 35.3501 | −0.3424 |
+| Medium recall | 77.5709 | 77.9847 | +0.4139 |
+| Large recall | 89.4096 | 89.5033 | +0.0937 |
+
+- recall 操作点仍为 conf=0.25、匹配 IoU=0.50、NMS IoU=0.70、max_det=500，
+  两组使用相同 548 张完整原图。small 匹配数由 9486 降至 9395，少 91 个；medium
+  和 large 分别由 8622→8668、954→955。该指标不是 AP_small 或官方 AR500。
+- 逐类别 AP50-95 为 **1 类升、9 类降**。统一 0.50 仅使 tricycle 提高 0.6425 pp；
+  people、motor、bus、car、van、pedestrian 分别下降 1.2516、1.1630、1.0498、
+  0.8112、0.8046、0.8024 pp。总体和小目标差异不是由单一类别或中等/大目标支配。
+- 独立验收入口 `outputs/audit_p1_global_t050_acceptance_20261027.py` 已通过：24 个
+  dataset/run 输入及输出哈希匹配，30 epoch、实际参数、教师和损失开关配对，完整
+  val960 与 recall 协议一致；对两组各自 548 图保存预测重新进行 GT 匹配，分尺寸
+  计数与报告一致。验收记录为 `outputs/p1_global_t050_pilot30_s0/acceptance_audit.json`，
+  run 审计为 `runs/partial10_p1_global_t050_pilot30_s0/audit.json`。
+- best.pt / last.pt SHA256 分别为
+  `94571aae799119becc033fa6a7296eb0326dbf7fb83e44f650ef7ab488728a4a` /
+  `cd96237d62d121ec8132cdfd30dbce94aefe39afd887bfde6a39759ebae3b5ff`。
+  结果已接入 `scripts/build_paper_tables.py` 并生成表 4-S2。
+- **结论：**全量 30 epoch 与此前 5 epoch 筛选方向一致，支持尺度分层阈值相对统一
+  0.50 同时改善总体检测和固定操作点小目标覆盖。证据仍限定为单 split/seed 的
+  Ultralytics 开发对照，不改变原 Gate 3，不据此声称尺度阈值首次提出或跨 seed 稳定。
 
 ## 4. 固定实验协议
 
@@ -690,6 +731,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-10-27 17:53 | `4fe664d` + working tree | 完成软权重 1024 源图×两组各 5 epoch 配对筛选、val960、分尺寸 recall 和独立审计；按预算约束停止全量确认 | `outputs/screens/p1_soft_weights_1024_e5/{comparison,acceptance_audit}.json`；第 3.15 节 | 27 项审计通过；去掉软权重 mAP50-95 +0.0884 pp、small recall +0.0790 pp、mAP50 −0.2249 pp，低于 0.3 pp 筛选线；总学生耗时 417.319 秒 | 中性、不进论文表、不启动 30 epoch；本轮代码与记录用中文提交并推送 Gitee；继续下一项低成本机制筛选 |
 
 | 2026-10-27 18:01 | `919d71e` + working tree | 完成尺度阈值 1024 图单臂 5 epoch 筛选和独立审计；准备全量统一阈值数据与训练入口，按成本约束不启动 30 epoch | `outputs/screens/p1_global_t050_1024_v2_e5/{comparison,acceptance_audit}.json`；`data/.../p1_global_t050_from_candidates_20261027`；`scripts/run_p1_global_t050.py --prepare-only` | 新组 1737 tile/238.414 s；mAP50-95 +0.2237 pp 但 small recall −3.1230 pp；全量数据 11095 tile、4624 伪标签 tile、27667 正框、57219 ignore，预检通过 | 自动候选线未触发但小目标信号值得确认；30 epoch 尚未启动，向用户给命令后停止；本轮代码中文提交并推送 |
+
+| 2026-10-27 20:21 | `ad298ce` + working tree | 验收用户完成的统一 0.50 阈值全量 30 epoch、val960、分尺寸 recall，并接入论文表 4-S2 | `outputs/p1_global_t050_pilot30_s0/{comparison,acceptance_audit}.json`；`outputs/audit_p1_global_t050_acceptance_20261027.py`；`scripts/build_paper_tables.py`；第 3.18 节 | 24 项哈希/参数检查及 548 图预测重放通过；mAP50-95 −0.6177 pp、small recall −0.3424 pp（−91），逐类 1 升/9 降；best hash `94571a…28a4a`；表格 36 个来源及 31/31 tests 通过 | 全量确认支持尺度分层更有利于总体和小目标覆盖；仍为单 seed 开发结果，原 Gate 3 不变；中文提交并推送，不自动扩训 |
 
 ### 10.1 新会话开始流程
 

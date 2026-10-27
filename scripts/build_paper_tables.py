@@ -36,6 +36,11 @@ def pct(value):
 def main(check=False):
     gate2 = load(ROOT / "outputs/gate2_20261027/comparison.json")
     gate3 = load(ROOT / "outputs/gate3_20261027/comparison.json")
+    ablation = load(ROOT / "outputs/p1_global_t050_pilot30_s0/comparison.json")
+    ablation_acceptance = load(ROOT / "outputs/p1_global_t050_pilot30_s0/acceptance_audit.json")
+    assert ablation_acceptance["acceptance_checks_passed"] is True
+    assert ablation_acceptance["parameter_differences"] == {}
+    assert ablation["reference"]["weights_sha256"] == gate3["best_sha256"]
     models = [(r["method"], ROOT / "runs" / r["run"], Path(r["validation"]), r["best_sha256"])
               for r in gate2["runs"]]
     models.append(("P1", Path(gate3["run"]), Path(gate3["p1_validation"]), gate3["best_sha256"]))
@@ -66,6 +71,52 @@ def main(check=False):
     for method in ("B2", "P1"):
         assert all(actual_args[method].get(key) == value for key,value in actual_args["B1"].items()
                    if key not in {"data", "name", "save_dir"}), "student hyperparameters differ"
+    ablation_run = Path(ablation["global_t050"]["run"])
+    ablation_weights = ablation_run / "weights/best.pt"
+    ablation_eval_path = ROOT / "runs/val/partial10_p1_global_t050_pilot30_s0_val960/metrics.json"
+    ablation_recall_path = ROOT / "runs/size_recall/p1_global_t050_pilot30_s0/metrics.json"
+    ablation_results_path = ablation_run / "results.csv"
+    ablation_args_path = ablation_run / "args.yaml"
+    ablation_experiment_path = ablation_run / "experiment.json"
+    ablation_eval = load(ablation_eval_path)
+    ablation_recall = load(ablation_recall_path)
+    assert digest(ablation_weights) == ablation["global_t050"]["weights_sha256"]
+    assert Path(ablation_eval["weights"]).resolve() == ablation_weights.resolve()
+    assert ablation_eval["imgsz"] == 960
+    assert ablation_recall["weights_sha256"] == digest(ablation_weights)
+    assert ablation_recall["images"] == 548 and ablation_recall["imgsz"] == 960
+    assert ablation_recall["conf"] == .25 and ablation_recall["match_iou"] == .5
+    assert ablation_recall["nms_iou"] == .7 and ablation_recall["max_det"] == 500
+    assert [ablation_recall["per_size"][size]["gt"] for size in ("small", "medium", "large")] == [26577, 11115, 1067]
+    ablation_rows_log = list(csv.DictReader(ablation_results_path.open(encoding="utf-8-sig")))
+    assert [int(row["epoch"]) for row in ablation_rows_log] == list(range(1, 31))
+    assert all(math.isfinite(float(value)) for row in ablation_rows_log for value in row.values())
+    ablation_args = yaml.safe_load(ablation_args_path.read_text(encoding="utf-8"))
+    assert ablation_args["seed"] == 0 and ablation_args["epochs"] == 30
+    assert ablation_args["imgsz"] == 640 and ablation_args["batch"] == 8
+    assert all(ablation_args.get(key) == value for key,value in actual_args["P1"].items()
+               if key not in {"data", "name", "save_dir"}), "ablation hyperparameters differ"
+    p1_experiment = load(ROOT / "runs/partial10_p1_pilot30_s0/experiment.json")
+    ablation_experiment = load(ablation_experiment_path)
+    assert p1_experiment["train_args"] == ablation_experiment["train_args"]
+    assert p1_experiment["p1"] == ablation_experiment["p1"] == {"soft_weights": True, "uncertain_ignore": True}
+    assert p1_experiment["pseudo_summary"]["teacher_sha256"] == ablation_experiment["pseudo_summary"]["teacher_sha256"]
+    assert ablation_experiment["pseudo_summary"]["policy"]["small_threshold"] == .5
+    assert ablation_experiment["pseudo_summary"]["policy"]["medium_threshold"] == .5
+    assert ablation_experiment["pseudo_summary"]["policy"]["large_threshold"] == .5
+    for metric_key in ("mAP50", "mAP50_95"):
+        result_key = "metrics/mAP50(B)" if metric_key == "mAP50" else "metrics/mAP50-95(B)"
+        assert math.isclose(ablation["global_t050"]["metrics"][metric_key], ablation_eval["results"][result_key], abs_tol=1e-12)
+        assert math.isclose(ablation["reference"]["metrics"][metric_key], metrics["P1"]["results"][result_key], abs_tol=1e-12)
+    for size in ("small", "medium", "large"):
+        assert math.isclose(ablation["global_t050"]["metrics"][f"{size}_recall"], ablation_recall["per_size"][size]["recall"], abs_tol=1e-12)
+        assert math.isclose(ablation["reference"]["metrics"][f"{size}_recall"], recalls["P1"]["per_size"][size]["recall"], abs_tol=1e-12)
+    for path in [ablation_weights, ablation_run / "weights/last.pt", ablation_eval_path,
+                 ablation_recall_path, ablation_results_path, ablation_args_path,
+                 ablation_experiment_path, ROOT / "outputs/p1_global_t050_pilot30_s0/comparison.json",
+                 ROOT / "outputs/p1_global_t050_pilot30_s0/acceptance_audit.json"]:
+        hashes[str(path)] = digest(path)
+    assert digest(ablation_run / "weights/last.pt") == ablation_acceptance["weights"]["last_sha256"]
     q = {method: load(ROOT / "data/visdrone_area10/pseudo" / folder / "quality_audit.json")
          for method, folder in [("B2", "naive_t050"), ("P1", "p1_s030_m050_l050")]}
     summaries = {method: load(ROOT / "data/visdrone_area10/pseudo" / folder / "summary.json")
@@ -145,6 +196,29 @@ def main(check=False):
          ["B1",100,pct(long["results"][keys[2]]),pct(long["results"][keys[3]]),"教师与较长训练参考"]]),
         "注：B1 100 epoch 是部分监督模型，不能称为全监督上界 B0，也不能与 30 epoch 的 B2/P1 直接比较方法增益。"
         "两次 B1 均独立使用完整训练轮数的调度；100 epoch run 的第 30 行不替代独立 30 epoch run。"]
+    ablation_table_rows = [
+        ["全体", "mAP50", pct(metrics["P1"]["results"][keys[2]]), pct(ablation_eval["results"][keys[2]]),
+         f"{100*(ablation_eval['results'][keys[2]]-metrics['P1']['results'][keys[2]]):+.3f}"],
+        ["全体", "mAP50-95", pct(metrics["P1"]["results"][keys[3]]), pct(ablation_eval["results"][keys[3]]),
+         f"{100*(ablation_eval['results'][keys[3]]-metrics['P1']['results'][keys[3]]):+.3f}"],
+    ]
+    for size, label in (("small", "Small"), ("medium", "Medium"), ("large", "Large")):
+        ablation_table_rows.append([label, "recall", pct(recalls["P1"]["per_size"][size]["recall"]),
+                                    pct(ablation_recall["per_size"][size]["recall"]),
+                                    f"{100*(ablation_recall['per_size'][size]['recall']-recalls['P1']['per_size'][size]['recall']):+.3f}"])
+    for cls in ablation_eval["class_indices"]:
+        index = ablation_eval["class_indices"].index(cls)
+        p1_index = metrics["P1"]["class_indices"].index(cls)
+        p1_value = metrics["P1"]["class_maps"][p1_index]
+        global_value = ablation_eval["class_maps"][index]
+        ablation_table_rows.append(["类别", ablation_eval["names"][str(cls)], pct(p1_value),
+                                    pct(global_value), f"{100*(global_value-p1_value):+.3f}"])
+    sections += ["## 表 4-S2 尺度阈值全量确认", table(
+        ["范围", "指标", "完整 P1 / %", "统一 0.50 / %", "统一−P1 / pp"], ablation_table_rows),
+        "注：两组均为同一训练种子、数据源和教师下的独立 30 epoch 学生，并在 548 张完整原图上以 960 输入评估。"
+        "唯一方法变量是伪标签正阈值为 0.30/0.50/0.50（完整 P1）或 0.50/0.50/0.50（统一阈值），两组均保留软权重与 ignore。"
+        f"固定操作点 small 匹配数为 {recalls['P1']['per_size']['small']['matched']}→{ablation_recall['per_size']['small']['matched']}；"
+        "recall 操作点及口径同表 4-2。类别行使用 Ultralytics 逐类别 AP50-95，差值为统一阈值减完整 P1。"]
     text="\n\n".join(sections)+"\n"
     dest=ROOT/"docs/paper/results_tables.md"
     if check:
@@ -156,9 +230,10 @@ def main(check=False):
     output.mkdir(parents=True,exist_ok=True)
     receipt={"checked_at":datetime.now(ZoneInfo("Asia/Shanghai")).isoformat(),"table_file":str(dest),
              "table_sha256":digest(dest),"tables_match_frozen_evaluations":True,"input_sha256":hashes,
-             "metrics":metrics,"recalls":recalls,"times":times,"pseudo_quality":q}
+             "metrics":metrics,"recalls":recalls,"times":times,"pseudo_quality":q,
+             "global_threshold_ablation":{"comparison":ablation,"acceptance":ablation_acceptance}}
     (output/"audit.json").write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
-    print(f"{'Verified' if check else 'Wrote'} {dest}; {len(hashes)} sources hashed; 3 recall evaluations share GT counts.")
+    print(f"{'Verified' if check else 'Wrote'} {dest}; {len(hashes)} sources hashed; 4 recall evaluations share GT counts.")
 
 
 if __name__=="__main__":

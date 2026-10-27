@@ -288,13 +288,13 @@ tile，合并后 1737 个训练 tile，5 epoch、640、batch8、SGD、seed0、
 基于本文小目标覆盖目标，这里将 3.1230 个百分点的固定操作点召回下降视为值得
 做一次全量确认的机制信号，而不是统计显著或正式方法结论。
 
-全量确认入口：
+全量确认已于 2026-10-27 20:00 完成，20:21 独立审计通过。复现入口：
 
 ```bash
 python -u scripts/run_p1_global_t050.py
 ```
 
-脚本从冻结候选生成新数据，不覆盖尺度分层产物。当前已预生成并验证：
+脚本从冻结候选生成新数据，不覆盖尺度分层产物。已生成并验证：
 
 - `data/visdrone_area10/pseudo/p1_global_t050_from_candidates_20261027/`
 - `data/visdrone_area10/combined_p1_global_t050.txt`
@@ -302,9 +302,18 @@ python -u scripts/run_p1_global_t050.py
 
 新数据有 4624 个伪标签 tile、27667 个正框和 57219 个 ignore 框，合并 11095 个
 训练 tile。确认组保留 `soft_weights=true`、`uncertain_ignore=true`，仅将三个尺度
-阈值统一为 0.50，仍为 30 epoch、同一 COCO 初始化、所有实际训练参数和完整
-val960/recall 协议与完整 P1 相同。脚本拒绝覆盖已有 run，并自动生成与完整 P1
-的对比表；当前尚未启动该 30 epoch 训练。
+阈值统一为 0.50，仍为 30 epoch、同一 COCO 初始化，实际训练超参数、完整 val960
+和 recall 协议与完整 P1 相同。阈值变化会改变正/ignore 划分、入训 tile 数和每轮
+batch 数，因此比较的是完整机制方案，而不是同数据量下的等计算量对照。
+
+差值为“统一 0.50 − 完整 P1”：mAP50 −0.7998 个百分点、mAP50-95 −0.6177
+个百分点、small recall −0.3424 个百分点，medium/large recall 分别提高
+0.4139/0.0937 个百分点。small 固定操作点匹配数由 9486 降至 9395，逐类别 AP50-95
+为 1 类升、9 类降。全量结果支持尺度分层阈值更有利于总体检测和小目标覆盖。
+best/last 权重 SHA256 分别为
+`94571aae799119becc033fa6a7296eb0326dbf7fb83e44f650ef7ab488728a4a` 与
+`cd96237d62d121ec8132cdfd30dbce94aefe39afd887bfde6a39759ebae3b5ff`。
+比较与验收记录在 `outputs/p1_global_t050_pilot30_s0/`。
 
 ## 5. 对照规则
 

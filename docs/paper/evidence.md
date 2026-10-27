@@ -31,6 +31,7 @@ B1 分尺寸 recall 在本次写作整理时使用已冻结的 30 epoch best.pt 
 | 表 4-5 逐类别 AP50-95 | 三份 val960 `metrics.json` 的 `class_indices`、`class_maps` 和 `names` |
 | 表 4-6 规模与耗时 | 学生样本清单、`summary.json`、各 run 的 `results.csv` 最后一行 `time` |
 | 表 4-S1 较长训练参考 | B1 30/100 epoch 的独立 val960 结果；对应各自独立的 `results.csv` |
+| 表 4-S2 尺度阈值全量确认 | `outputs/p1_global_t050_pilot30_s0/{comparison,acceptance_audit}.json`；两组 val960、分尺寸 recall 和逐类别结果 |
 
 P1 的完整性验收为 `outputs/gate3_20261027/acceptance_audit.json`，19 项检查通过；原自动比较为同目录 `comparison.json`。原 Gate 3 的 mAP 条件未达到，小目标条件达到；用户结果后的工作决策另记在 `decision_note.json`，不作为实验数值来源。
 
@@ -44,6 +45,22 @@ SHA256 为 `9c98ea42a1d656135ca562e84c86adf8ab53894fbaed4f0e6487643611f8aef0`。
 哈希、实际参数、两组保存预测的 GT 匹配重算和逐类别差值；自动对比表为
 同目录 `comparison.md`，差值为“去掉 ignore − 完整 P1”。本组尚未并入原表
 4-1 至 4-6 的生成器，单列于实验章节第 4.9 节。
+
+## 尺度阈值全量确认证据
+
+统一 0.50 阈值确认组已完成 30 epoch 训练。训练为
+`runs/partial10_p1_global_t050_pilot30_s0`，完整原图评估为
+`runs/val/partial10_p1_global_t050_pilot30_s0_val960/metrics.json`，分尺寸评估为
+`runs/size_recall/p1_global_t050_pilot30_s0/metrics.json`。其 best.pt SHA256 为
+`94571aae799119becc033fa6a7296eb0326dbf7fb83e44f650ef7ab488728a4a`，
+last.pt SHA256 为 `cd96237d62d121ec8132cdfd30dbce94aefe39afd887bfde6a39759ebae3b5ff`。
+
+独立验收见 `outputs/p1_global_t050_pilot30_s0/acceptance_audit.json`。验收确认
+连续 30 epoch、训练值有限、实际超参数配对、同一教师、相同软权重和 ignore 开关、
+完整 val960 与固定操作点 recall 协议一致，并重放两组保存预测进行 GT 匹配。
+自动对比为同目录 `comparison.json` / `comparison.md`，差值为“统一 0.50 − 完整
+P1”。结果已由 `scripts/build_paper_tables.py` 纳入表 4-S2，包含整体指标、
+分尺寸 recall 与逐类别 AP50-95。
 
 ## 方法描述与代码对应
 
@@ -61,7 +78,7 @@ SHA256 为 `9c98ea42a1d656135ca562e84c86adf8ab53894fbaed4f0e6487643611f8aef0`。
 
 ## 数字核对与完整精度记录
 
-运行 `python scripts/build_paper_tables.py --check` 会核对三组 best.pt 哈希、各 run 的完整 30 行日志、验证分辨率、相同 GT 分组计数和操作点，并逐字比较表格与重新计算的文本。表格使用的 27 个源文件哈希及完整精度指标保存在 `outputs/paper_tables_20261027/audit.json`。
+运行 `python scripts/build_paper_tables.py --check` 会核对主对照及尺度阈值确认组的 best.pt 哈希、各 run 的完整 30 行日志、验证分辨率、相同 GT 分组计数和操作点，并逐字比较表格与重新计算的文本。表格使用的全部源文件哈希及完整精度指标保存在 `outputs/paper_tables_20261027/audit.json`。
 
 ## 引言与相关工作核对
 
