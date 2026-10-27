@@ -1,0 +1,7 @@
+# Uniform positive threshold; used to materialize the threshold ablation from frozen candidates.
+small_threshold: 0.50
+medium_threshold: 0.50
+large_threshold: 0.50
+conf_floor: 0.05
+small_area: 1024.0
+large_area: 9216.0

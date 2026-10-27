@@ -1,0 +1,27 @@
+name: partial10_p1_global_t050_pilot30_s0
+method: p1
+model: D:/Python/YOLO/yolo11s.pt
+data: data/visdrone_area10/dataset_p1_global_t050.yaml
+project: runs
+p1:
+  soft_weights: true
+  uncertain_ignore: true
+train:
+  epochs: 30
+  batch: 8
+  imgsz: 640
+  device: "0"
+  workers: 0
+  seed: 0
+  deterministic: true
+  optimizer: SGD
+  lr0: 0.01
+  lrf: 0.01
+  momentum: 0.937
+  weight_decay: 0.0005
+  amp: true
+  plots: false
+  max_det: 500
+  close_mosaic: 10
+  patience: 0
+  pretrained: true

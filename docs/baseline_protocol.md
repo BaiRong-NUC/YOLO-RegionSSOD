@@ -265,6 +265,47 @@ recall 同向变化。仅用于判断是否值得全量确认；不得放入论�
 val960、分尺寸 recall 和与完整 P1 的对比。当前未出现达到筛选线的信号，因此
 保留该入口但不执行；只有改变证据条件后才应重新评估是否使用。
 
+### 4.6 尺度阈值低成本筛选与全量确认
+
+固定沿用软权重筛选的 1024 张训练原图。尺度分层 5 epoch 结果直接复用；新训练
+一组统一阈值 0.50，软权重和 ignore 均保留。新组从冻结的
+`p1_s030_m050_l050/candidates.jsonl` 重划正/ignore 状态，不重跑教师在 1024 张
+原图上的推理，也不读取隐藏 GT。全量训练确认的数据也从同一冻结教师候选生成。
+
+低成本筛选入口：
+
+```bash
+python -u scripts/screen_p1_scale_threshold.py
+```
+
+新组配置为 `configs/screen_p1_global_t050_5ep.yaml`：1024 图内接受 713 个伪标签
+tile，合并后 1737 个训练 tile，5 epoch、640、batch8、SGD、seed0、
+`close_mosaic=0`。完整 val960 与 recall 操作点与尺度分层组相同。结果差值为
+“统一 0.50 − 尺度分层”：mAP50-95 +0.2237 个百分点、small recall
+−3.1230 个百分点、medium/large recall +1.1066/+1.7807 个百分点。
+
+自动候选规则未触发（总体增益小于 0.3 个百分点，且小目标与总体方向不一致）。
+基于本文小目标覆盖目标，这里将 3.1230 个百分点的固定操作点召回下降视为值得
+做一次全量确认的机制信号，而不是统计显著或正式方法结论。
+
+全量确认入口：
+
+```bash
+python -u scripts/run_p1_global_t050.py
+```
+
+脚本从冻结候选生成新数据，不覆盖尺度分层产物。当前已预生成并验证：
+
+- `data/visdrone_area10/pseudo/p1_global_t050_from_candidates_20261027/`
+- `data/visdrone_area10/combined_p1_global_t050.txt`
+- `data/visdrone_area10/dataset_p1_global_t050.yaml`
+
+新数据有 4624 个伪标签 tile、27667 个正框和 57219 个 ignore 框，合并 11095 个
+训练 tile。确认组保留 `soft_weights=true`、`uncertain_ignore=true`，仅将三个尺度
+阈值统一为 0.50，仍为 30 epoch、同一 COCO 初始化、所有实际训练参数和完整
+val960/recall 协议与完整 P1 相同。脚本拒绝覆盖已有 run，并自动生成与完整 P1
+的对比表；当前尚未启动该 30 epoch 训练。
+
 ## 5. 对照规则
 
 - B1 与 B2 必须从同一 `yolo11s.pt` 初始化。

@@ -309,6 +309,38 @@ mAP50-95 与小目标 recall 的方向为正，但都低于预先设定的 0.3 �
 筛选线，mAP50 反而下降。结论为**中性、未达到继续全量训练的标准**；不启动
 30 epoch 去软权重实验。完整记录见 `outputs/screens/p1_soft_weights_1024_e5/`。
 
+## 尺度阈值筛选与全量确认入口
+
+同一 1024 张训练原图上，将全部伪标签阈值改为 0.50、仍保留软权重和 ignore，
+运行：
+
+```bash
+python -u scripts/screen_p1_scale_threshold.py
+```
+
+2026-10-27 18:00 已完成，独立审计通过。统一 0.50 相对尺度分层：mAP50-95
+从 15.3751% 升至 15.5988%（+0.2237 个百分点），但 small recall 从
+28.0129% 降至 24.8899%（−3.1230 个百分点），medium/large recall 则分别
+提高 1.1066/1.7807 个百分点。自动候选规则因方向不一致而未触发。
+
+由于小目标 recall 的下降与本文核心问题直接相关，且幅度明显大于总体 mAP
+变化，值得用全量数据做一次 30 epoch 确认。确认数据已从冻结教师候选中生成并
+核对：4624 个伪标签 tile、27667 个正框，合并后 11095 个训练 tile；不重跑教师。
+训练、完整 val960、分尺寸 recall 和与完整 P1 的对比由以下命令串行完成：
+
+```bash
+python -u scripts/run_p1_global_t050.py
+```
+
+只复核数据、不启动 GPU 训练：
+
+```bash
+python scripts/run_p1_global_t050.py --prepare-only
+```
+
+训练会写入 `runs/partial10_p1_global_t050_pilot30_s0/`，比较表写入
+`outputs/p1_global_t050_pilot30_s0/comparison.md`。该命令当前尚未执行。
+
 全量 30 epoch 的去软权重确认配置和入口已准备，但不由筛选脚本自动启动：
 
 ```bash
