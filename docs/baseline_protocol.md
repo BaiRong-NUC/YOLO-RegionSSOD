@@ -231,6 +231,40 @@ regionssod size-recall --weights runs/partial10_p1_no_ignore_pilot30_s0/weights/
 ignore 后指标更高；报告不预设哪一组获胜。训练时间取 CSV 最后一行累计时间，
 不解释为独立 ignore 模块的精确耗时；指标仍属于 Ultralytics 开发评测。
 
+### 4.5 软权重的低成本配对筛选与全量确认
+
+用户最新执行要求是：每次验证实验成本受控，发现值得后续训练的方向后提供
+训练指令并停止；每个完成的实验用中文提交信息提交并推送 Gitee。
+
+本次先运行 `python -u scripts/screen_p1_soft_weights.py`：从固定 10% 区域数据中
+随机选取 1024 张源训练图（选择 seed=20261027），保留其人工标注 tile 与已接受
+伪标签 tile；不使用隐藏 GT 的计数或框进行选择。两组共用同一份 1765-tile
+列表与裁减后的置信度/ignore 元信息，仅 `soft_weights` 开关不同，ignore 均开启。
+
+配对配置为 `configs/screen_p1_soft_weights_5ep.yaml` 和
+`configs/screen_p1_no_soft_weights_5ep.yaml`。两组均为 COCO 初始化、5 epoch、
+640/batch8/SGD/seed0，统一 `close_mosaic=0`，其余超参数与完整 P1 相同；
+训练后各自以 best.pt 在相同 548 图完整原图 val960 和固定操作点评估。
+默认 warmup 仍为 3 epoch，短程结果受学习率调度和子集影响。
+
+提前固定的筛选信号为：mAP50-95 变化绝对值≥0.003（0.3 个百分点），小目标
+recall 同向变化。仅用于判断是否值得全量确认；不得放入论文正式表，也不得
+与旧 30 epoch 模型直接比较。结果为
+`outputs/screens/p1_soft_weights_1024_e5/comparison.json`，总训练预算固定为两组
+各 5 epoch，不自动扩大数据量、轮数或启动全量确认。
+
+本轮已完成并独立验收。去掉软权重相对保留软权重的 mAP50-95 为
+15.4635% 对 15.3751%（+0.0884 个百分点），small recall 为 28.0920% 对
+28.0129%（+0.0790 个百分点），mAP50 为 26.5932% 对 26.8181%
+（−0.2249 个百分点）。变化未达到 0.3 个百分点候选线，结论为中性，
+**不启动全量去软权重 30 epoch 训练**。验收记录为同目录 `acceptance_audit.json`。
+
+全量确认入口 `python -u scripts/run_p1_no_soft_weights.py` 使用
+`configs/train_p1_no_soft_weights_10.yaml`，只关闭软权重，保留 ignore，与完整 P1
+一样使用全部 11310 个 tile、30 epoch、同一教师和 COCO 初始化，并自动完成
+val960、分尺寸 recall 和与完整 P1 的对比。当前未出现达到筛选线的信号，因此
+保留该入口但不执行；只有改变证据条件后才应重新评估是否使用。
+
 ## 5. 对照规则
 
 - B1 与 B2 必须从同一 `yolo11s.pt` 初始化。

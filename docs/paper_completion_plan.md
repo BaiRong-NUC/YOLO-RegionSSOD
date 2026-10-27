@@ -64,6 +64,7 @@ P1 尺度感知伪标签与 uncertain-ignore 是否带来稳定收益。
 | B2 朴素自训练 | 30 epoch pilot 完成；val960 mAP50-95=0.234534；100 epoch 尚未运行 | `runs/partial10_naive_t050_pilot30_s0/` | 保留为冻结的配对对照 |
 | P1 尺度感知方法 | 30 epoch 和完整评估已验收；mAP50-95=0.237883、小目标 recall=0.356925，均优于 B2 | `outputs/gate3_20261027/{comparison,acceptance_audit}.json`；第 3.8 节 | 保留积极的单 seed 初步结果，整理方法/结果/分析；原 Gate 3 未达预设门槛 |
 | 第①组 no-ignore 消融 | 30 epoch、val960、固定操作点 recall 及独立验收完成；相对完整 P1 的 mAP50-95 +0.0217 pp、small recall −0.1392 pp | `outputs/p1_no_ignore_pilot30_s0/{comparison,acceptance_audit}.json`；第 3.13 节 | 不能声称 ignore 独立提高整体 mAP；继续拆分软权重与尺度阈值，补配对 seed |
+| 软权重低成本筛选 | 1024 源图、两组各 5 epoch 和 val960 完成；mAP50-95 +0.0884 pp、small recall +0.0790 pp，低于 0.3 pp 候选线 | `outputs/screens/p1_soft_weights_1024_e5/{comparison,acceptance_audit}.json`；第 3.15 节 | 中性，不启动 30 epoch 去软权重确认；继续下一项低成本机制筛选 |
 | 正式 5/10/20% 数据 | 10% seed0 已生成；20 图同 seed 检查通过；5%/20% 未生成 | `data/visdrone_area10/summary.json`、`audit.json` | 生成 5%/20% split |
 | 正式 100 epoch 主矩阵 | 已完成 B1 10% seed0；B2/P1 未完成 | `runs/partial10_sup_s0`；已有 P1 30 epoch 正向初步结果 | 先整理已有成果，后续按论文需要决定补充验证规模 |
 | 论文正文 | 第 1–4 章及七组结果表已有初稿；S³OD 对照完成，参考文献与 BibTeX 已更新正式发表信息 | `docs/paper/`；第 3.9–3.11 节 | 补案例图、三组核心消融及重复 seed；最终排版时统一引用编号 |
@@ -417,6 +418,54 @@ P1 的 30 epoch 训练、完整原图 val960 和固定操作点小目标 recall 
   有效或无效。保留两组结果，下一步优先做去掉软权重的同条件对照，随后补
   尺度阈值消融及重复 seed；本次没有启动新训练或 GPU 评估，原 Gate 3 不变。
 
+### 3.14 用户约束更新与软权重低成本筛选启动（2026-10-27）
+
+- 用户要求按步骤继续实验，每个完成实验提交并推送 Gitee，提交信息用中文；
+  随后补充“每次验证实验成本不要太大，当找到了值得后续训练的东西后给出
+  训练指令停止”。后续以这项低成本及停止条件为当前执行范围，不自动扩训
+  30/100 epoch 或完整主矩阵。
+- 第①组验收内容已在 `4fe664d`，本次用 `git ls-remote origin refs/heads/main`
+  核实 Gitee main 为同一提交，初始工作区干净，不重复提交已有结果。
+- 准备了全量去软权重配置/入口 `configs/train_p1_no_soft_weights_10.yaml`、
+  `scripts/run_p1_no_soft_weights.py`，仅关闭软权重、保留 ignore。23781 个冻结
+  文件预检通过，但按用户更新要求**没有启动这组全量 30 epoch 训练**。
+- 已于北京时间 **17:44:44** 启动 `scripts/screen_p1_soft_weights.py`，PID **5784**。
+  固定抽取 1024 张源训练图，样本选择 seed=20261027，不读取隐藏 GT 作筛选。
+  对应 1024 个标注 tile、741 个已接受伪标签 tile，共 1765 个训练 tile，
+  两组共用同一列表与相同元信息；分别保留/去掉软权重，均保留 ignore。
+- 两组从同一 COCO 权重独立训练 5 epoch，640/batch8/SGD/seed0；短程对照
+  统一 `close_mosaic=0`，默认 warmup=3 epoch。每组完成后各做完整原图 val960
+  和固定操作点 recall。提前固定的候选信号为：mAP50-95 差绝对值至少 0.3 pp，
+  small recall 同向。它是探索性筛选标准，不是论文效应门槛或显著性检验。
+- 31/31 tests 通过，其中新增独立梯度检查，验证仅关闭某一开关时另一个机制
+  仍起作用。原论文表格的 27 个来源核对通过，原 Gate 3 判定不变。
+- 当时仅已启动筛选，尚无结果；阶段和日志在
+  `outputs/screens/p1_soft_weights_1024_e5/status.json`、同层 stdout/stderr 日志。
+  此轮结果不得进入正式论文表或与既有 30 epoch 结果直接作方法增益比较。
+
+### 3.15 软权重低成本配对筛选完成（2026-10-27）
+
+- 配对筛选于北京时间 **17:53:05** 完成，PID 5784 已结束。两组各完成连续
+  5 epoch，CSV 数值有限；共享固定 1024 张源图、1765 个训练 tile 和相同
+  val960/recall 操作点，唯一方法变量为 `soft_weights`。
+- 保留软权重与去掉软权重结果如下；15% 左右的 mAP 和 28% 左右的 recall 是
+  1024 图子集、5 epoch 模型的探索值，不能与已有全量 30 epoch 数字并列：
+
+| 指标 | 保留软权重 / % | 去掉软权重 / % | 差值 / pp |
+|---|---:|---:|---:|
+| mAP50 | 26.8181 | 26.5932 | −0.2249 |
+| mAP50-95 | 15.3751 | 15.4635 | +0.0884 |
+| Small recall | 28.0129 | 28.0920 | +0.0790 |
+
+- 去掉软权重后 mAP50-95 与 small recall 同向为正，但绝对值均小于预先固定的
+  0.3 个百分点筛选线，mAP50 下降，因此 `promising_direction=null`。**结论为
+  中性，不启动全量去软权重 30 epoch 训练**；不能据此说软权重无效。
+- 独立审计 27 项检查全部通过：1024 图/1765 tile、两开关、5 epoch、权重哈希、
+  完整 val960、548 图 recall 操作点和差值复算均一致；本轮总日志学生耗时
+  417.319 秒。记录在 `outputs/screens/p1_soft_weights_1024_e5/`。
+- 全量确认配置和入口保留，但只作为之后需要时的人工入口，不自动派发。下一步
+  继续下一项低成本候选筛选，仍须先固定筛选信号，完成一个实验后提交并推送。
+
 ## 4. 固定实验协议
 
 ### 4.1 训练与评估
@@ -592,6 +641,10 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-10-27 | `9dd79f7` + working tree | 准备第①组 no-ignore 配置及训练→val960→分尺寸 recall→完整 P1 对比脚本，提供用户执行命令 | `configs/train_p1_no_ignore_10.yaml`；`scripts/run_p1_no_ignore.py --check-only`；README、baseline 第 4.4 节 | 23781 个冻结文件核对通过；11310 tile 与完整 P1 条件一致，仅关闭 uncertain-ignore；28/28 tests | 仅准备和预检完成，训练尚未启动；用户执行 `python -u scripts/run_p1_no_ignore.py` 后自动评估对比；原 Gate 3 不变 |
 
 | 2026-10-27 | `1e2ef5a` + working tree | 验收用户完成的 no-ignore 30 epoch、val960 和分尺寸 recall；独立核对输入/输出哈希、参数与保存预测匹配；记录首组消融结果 | `outputs/p1_no_ignore_pilot30_s0/{comparison,acceptance_audit}.json`；`outputs/audit_p1_no_ignore_acceptance_20261027.py`；第 3.13 节 | 23795 冻结/产物哈希和 19 个 run 输入匹配；两组各 548 图 recall 重算一致；去掉 ignore 的 mAP50-95 +0.0217 pp、small recall −0.1392 pp（−37）；逐类 4 升/6 降 | 第一组正式配对消融已完成，非烟测；整体 mAP 近似持平，不支持 ignore 独立提高整体 mAP；继续软权重/尺度消融及重复 seed，本次未启动新训练 |
+
+| 2026-10-27 17:44 | `4fe664d` + working tree | 按用户低成本/候选出现后停止约束，启动软权重 1024 源图×两组各 5 epoch 配对筛选，准备全量确认指令但不启动 | `scripts/screen_p1_soft_weights.py`，PID 5784；`outputs/screens/p1_soft_weights_1024_e5/`；README/baseline 第 4.5 节 | 全量配置 23781 文件预检通过；31/31 tests；当前 1765 tile 配对筛选已启动、尚无最终结果；Gitee main 已核实为 4fe664d | 等待筛选完成及验收，发现值得确认的方向后用中文提交并推送，给训练指令并停止；不自动扩训 |
+
+| 2026-10-27 17:53 | `4fe664d` + working tree | 完成软权重 1024 源图×两组各 5 epoch 配对筛选、val960、分尺寸 recall 和独立审计；按预算约束停止全量确认 | `outputs/screens/p1_soft_weights_1024_e5/{comparison,acceptance_audit}.json`；第 3.15 节 | 27 项审计通过；去掉软权重 mAP50-95 +0.0884 pp、small recall +0.0790 pp、mAP50 −0.2249 pp，低于 0.3 pp 筛选线；总学生耗时 417.319 秒 | 中性、不进论文表、不启动 30 epoch；本轮代码与记录用中文提交并推送 Gitee；继续下一项低成本机制筛选 |
 
 ### 10.1 新会话开始流程
 
