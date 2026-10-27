@@ -188,6 +188,10 @@ AP_small/AR500。最终论文仍需官方评测。原计划以两个 Gate 3 条�
 
 ### 4.4 第①组：P1 去掉 uncertain-ignore
 
+本组已于 2026-10-27 完成并通过独立验收，现有 run 和评估可直接复用。去掉
+ignore 相对完整 P1 的 mAP50-95 +0.0217 个百分点、固定操作点 small recall
+−0.1392 个百分点；不支持将整体 mAP 收益归因于 ignore，详见进度文档第 3.13 节。
+
 使用独立配置 `configs/train_p1_no_ignore_10.yaml`：
 
 ```yaml

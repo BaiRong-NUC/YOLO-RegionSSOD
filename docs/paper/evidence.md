@@ -34,6 +34,17 @@ B1 分尺寸 recall 在本次写作整理时使用已冻结的 30 epoch best.pt 
 
 P1 的完整性验收为 `outputs/gate3_20261027/acceptance_audit.json`，19 项检查通过；原自动比较为同目录 `comparison.json`。原 Gate 3 的 mAP 条件未达到，小目标条件达到；用户结果后的工作决策另记在 `decision_note.json`，不作为实验数值来源。
 
+## 第①组 no-ignore 消融证据
+
+第①组 no-ignore 消融已完成：训练为 `runs/partial10_p1_no_ignore_pilot30_s0`，
+完整原图评估为 `runs/val/partial10_p1_no_ignore_pilot30_s0_val960/metrics.json`，
+分尺寸评估为 `runs/size_recall/p1_no_ignore_pilot30_s0/metrics.json`。其 best.pt
+SHA256 为 `9c98ea42a1d656135ca562e84c86adf8ab53894fbaed4f0e6487643611f8aef0`。
+独立验收见 `outputs/p1_no_ignore_pilot30_s0/acceptance_audit.json`，含冻结文件
+哈希、实际参数、两组保存预测的 GT 匹配重算和逐类别差值；自动对比表为
+同目录 `comparison.md`，差值为“去掉 ignore − 完整 P1”。本组尚未并入原表
+4-1 至 4-6 的生成器，单列于实验章节第 4.9 节。
+
 ## 方法描述与代码对应
 
 | 方法内容 | 实现或配置 |

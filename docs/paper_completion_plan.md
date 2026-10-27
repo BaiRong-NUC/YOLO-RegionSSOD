@@ -1,7 +1,7 @@
 # 论文完成计划与项目交接
 
 > 最后更新：2026-10-27<br>
-> 当前阶段：第 1–4 章初稿、结果表和 S³OD 方法差异对照已完成；S³OD 引用已更新为 2025 年期刊版，下一阶段补案例图、核心消融和重复 seed 证据<br>
+> 当前阶段：第 1–4 章初稿及 S³OD 对照已完成；第①组 no-ignore 消融已验收，整体 mAP 近似持平、固定操作点召回下降；下一阶段补软权重/尺度阈值消融、案例图和重复 seed<br>
 > 论文暂定题目：**面向高分辨率航拍图像的区域局部标注小目标半监督检测方法**  
 > 仓库：`D:\Python\YOLO-RegionSSOD`  
 > 计划起点：2026-10-26，可按实际启动日期整体平移
@@ -63,6 +63,7 @@ P1 尺度感知伪标签与 uncertain-ignore 是否带来稳定收益。
 | B1 部分监督 | 正式 100 epoch 和独立 30 epoch pilot 均完成；val960 mAP50-95 分别为 0.248835、0.229114 | `runs/partial10_sup_s0/`、`runs/partial10_sup_pilot30_s0/` | 冻结为正式参考与 pilot 对照 |
 | B2 朴素自训练 | 30 epoch pilot 完成；val960 mAP50-95=0.234534；100 epoch 尚未运行 | `runs/partial10_naive_t050_pilot30_s0/` | 保留为冻结的配对对照 |
 | P1 尺度感知方法 | 30 epoch 和完整评估已验收；mAP50-95=0.237883、小目标 recall=0.356925，均优于 B2 | `outputs/gate3_20261027/{comparison,acceptance_audit}.json`；第 3.8 节 | 保留积极的单 seed 初步结果，整理方法/结果/分析；原 Gate 3 未达预设门槛 |
+| 第①组 no-ignore 消融 | 30 epoch、val960、固定操作点 recall 及独立验收完成；相对完整 P1 的 mAP50-95 +0.0217 pp、small recall −0.1392 pp | `outputs/p1_no_ignore_pilot30_s0/{comparison,acceptance_audit}.json`；第 3.13 节 | 不能声称 ignore 独立提高整体 mAP；继续拆分软权重与尺度阈值，补配对 seed |
 | 正式 5/10/20% 数据 | 10% seed0 已生成；20 图同 seed 检查通过；5%/20% 未生成 | `data/visdrone_area10/summary.json`、`audit.json` | 生成 5%/20% split |
 | 正式 100 epoch 主矩阵 | 已完成 B1 10% seed0；B2/P1 未完成 | `runs/partial10_sup_s0`；已有 P1 30 epoch 正向初步结果 | 先整理已有成果，后续按论文需要决定补充验证规模 |
 | 论文正文 | 第 1–4 章及七组结果表已有初稿；S³OD 对照完成，参考文献与 BibTeX 已更新正式发表信息 | `docs/paper/`；第 3.9–3.11 节 | 补案例图、三组核心消融及重复 seed；最终排版时统一引用编号 |
@@ -376,10 +377,45 @@ P1 的 30 epoch 训练、完整原图 val960 和固定操作点小目标 recall 
   预检在 `outputs/p1_no_ignore_pilot30_s0/preflight.json`，不表示训练已完成。
 - `python -m pytest --basetemp outputs/pytest_p1_no_ignore_20261027` 28/28 通过；
   README 和 baseline 协议第 4.4 节已加入自动入口与独立训练/评估命令。
-- **当前状态仅为配置、脚本与预检完成，尚未启动训练**，按用户“给我训练指令”
+- **当时状态仅为配置、脚本与预检完成，尚未启动训练**，按用户“给我训练指令”
   提供可直接运行的 `python -u scripts/run_p1_no_ignore.py`。启动后的阶段文件为
   `outputs/p1_no_ignore_pilot30_s0/status.json`；全部完成后查看同目录
-  `comparison.md`、`comparison.json`，尚无本组方法效果结论。
+  `comparison.md`、`comparison.json`；本组现已完成并验收，见第 3.13 节。
+
+### 3.13 第①组 no-ignore 消融完成验收（2026-10-27）
+
+- 用户已完成 `runs/partial10_p1_no_ignore_pilot30_s0`，自动流程于北京时间
+  **17:12:53** 完成。CSV 为连续 1–30 epoch，所有数值有限；best/last 权重齐全，
+  实际训练参数与完整 P1 除 name/save_dir 外一致。唯一方法变量为
+  `p1.uncertain_ignore=true→false`，软权重、数据、教师和训练源码保持一致。
+- 完整原图 val960 与固定操作点分尺寸 recall 均已完成。差值定义为“去掉
+  ignore − 完整 P1”，单位为百分点：
+
+| 指标 | 完整 P1 / % | 去掉 ignore / % | 差值 / pp |
+|---|---:|---:|---:|
+| mAP50 | 39.4990 | 39.5405 | +0.0415 |
+| mAP50-95 | 23.7883 | 23.8100 | +0.0217 |
+| Small recall | 35.6925 | 35.5533 | −0.1392 |
+| Medium recall | 77.5709 | 77.1390 | −0.4318 |
+| Large recall | 89.4096 | 88.0037 | −1.4058 |
+
+- recall 操作点保持 conf=0.25、匹配 IoU=0.50、NMS IoU=0.70、max_det=500，
+  两组为相同 548 张完整原图和 38759 个 GT。small 匹配数 9486→9449（−37），
+  medium 为 8622→8574（−48），large 为 954→939（−15）；此指标不是 AP_small。
+- 逐类别 AP50-95 为 4 类升、6 类降。去掉 ignore 后，bus +1.2027 pp、
+  tricycle +0.8362 pp；truck −0.7854 pp、van −0.7845 pp。总体近似持平包含
+  不同类别的增减抵消，不能描述为所有类别一致改善。
+- 日志累计学生耗时为 7169.38 秒，完整 P1 为 7286.61 秒；单次运行的差值不能
+  解释为 ignore 模块的精确耗时。no-ignore best.pt SHA256 为
+  `9c98ea42a1d656135ca562e84c86adf8ab53894fbaed4f0e6487643611f8aef0`。
+- 独立审计 `outputs/audit_p1_no_ignore_acceptance_20261027.py` 已通过：23795 个
+  冻结输入/源码/参考及输出文件哈希匹配，run 记录的 19 个输入哈希匹配；
+  用两组保存预测分别重算全部 548 图的 GT 匹配，分尺寸计数与报告一致。
+  审计为 `outputs/p1_no_ignore_pilot30_s0/acceptance_audit.json`。
+- **结论：**本轮去掉 ignore 后整体 mAP 几乎不变，固定操作点召回下降。
+  不支持将整体 mAP 收益主要归因于 ignore，也不能从单 seed 断言该机制稳定
+  有效或无效。保留两组结果，下一步优先做去掉软权重的同条件对照，随后补
+  尺度阈值消融及重复 seed；本次没有启动新训练或 GPU 评估，原 Gate 3 不变。
 
 ## 4. 固定实验协议
 
@@ -554,6 +590,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-10-27 | `9dd79f7` + working tree | 完成 S³OD 方法差异对照和第 1 章引言；核对正式发表版本、早期预印本与公开代码；修正 Soft Teacher 权重对象 | `docs/paper/{introduction,s3od_comparison}.md`；`references.md`、BibTeX 与论文入口/证据索引；第 3.11 节 | 第 1–4 章初稿齐备；S³OD 更新为 ISPRS Journal 2025 期刊文献；预印本百分位与公开代码 GMM 阈值分开描述；表格 27 来源及文稿链接/文献/引言数字核对通过；仅文稿，无新训练 | 原 Gate 3 判定不变；后续补案例图、核心消融和重复 seed，期刊全文细节与最终引用排序待补 |
 
 | 2026-10-27 | `9dd79f7` + working tree | 准备第①组 no-ignore 配置及训练→val960→分尺寸 recall→完整 P1 对比脚本，提供用户执行命令 | `configs/train_p1_no_ignore_10.yaml`；`scripts/run_p1_no_ignore.py --check-only`；README、baseline 第 4.4 节 | 23781 个冻结文件核对通过；11310 tile 与完整 P1 条件一致，仅关闭 uncertain-ignore；28/28 tests | 仅准备和预检完成，训练尚未启动；用户执行 `python -u scripts/run_p1_no_ignore.py` 后自动评估对比；原 Gate 3 不变 |
+
+| 2026-10-27 | `1e2ef5a` + working tree | 验收用户完成的 no-ignore 30 epoch、val960 和分尺寸 recall；独立核对输入/输出哈希、参数与保存预测匹配；记录首组消融结果 | `outputs/p1_no_ignore_pilot30_s0/{comparison,acceptance_audit}.json`；`outputs/audit_p1_no_ignore_acceptance_20261027.py`；第 3.13 节 | 23795 冻结/产物哈希和 19 个 run 输入匹配；两组各 548 图 recall 重算一致；去掉 ignore 的 mAP50-95 +0.0217 pp、small recall −0.1392 pp（−37）；逐类 4 升/6 降 | 第一组正式配对消融已完成，非烟测；整体 mAP 近似持平，不支持 ignore 独立提高整体 mAP；继续软权重/尺度消融及重复 seed，本次未启动新训练 |
 
 ### 10.1 新会话开始流程
 
