@@ -349,6 +349,34 @@ python scripts/run_p1_global_t050.py --prepare-only
 `outputs/p1_global_t050_pilot30_s0/{comparison.md,comparison.json,acceptance_audit.json}`。
 入口因已有 run 而拒绝重复启动；完整结果与边界见进度文档第 3.18 节。
 
+### 尺度阈值配对学生 seed 复验
+
+2026-10-27 23:47 已完成学生 seed1 的两组独立 30 epoch 对照及自动验收，后续独立复核通过。
+固定已有 split seed0、B1 教师、两套伪标签与损失机制；仅学生训练 seed 改为 1。
+这不生成新的标注 split，也不重新训练教师或生成伪标签。
+
+```bash
+python scripts/run_p1_scale_seed_pair.py --check-only
+python -u scripts/run_p1_scale_seed_pair.py
+```
+
+入口顺序运行尺度分层与统一 0.50 两组，每组训练结束后自动进行完整 548 图
+val960 和固定操作点分尺寸 recall，最终重放两组保存预测进行 GT 匹配验收。
+日志、状态、比较和验收记录位于 `outputs/p1_scale_threshold_pair_s1/`。
+训练目录分别为 `runs/partial10_p1_pilot30_s1` 和
+`runs/partial10_p1_global_t050_pilot30_s1`。已有训练或派发记录时拒绝重复启动。
+仅重做结果收集与验收可用 `--collect-only`；该选项不训练或推理。
+
+论文表生成器已加入表 4-S3：报告 seed0/1 的单次结果、各方案
+均值±样本标准差及种子内配对差的均值±样本标准差（ddof=1）。结果仍限于一个
+split、同一教师和两个学生 seed，不作显著性结论，不改变原 Gate 3。
+
+seed1 中尺度分层相对统一 0.50：mAP50-95 +0.2420 pp、small recall +0.6434 pp
+（多匹配 171 个小目标），与 seed0 的两项收益方向一致。两学生 seed 的配对增益
+均值±样本 SD 分别为 +0.4299±0.2657 pp 和 +0.4929±0.2128 pp。
+独立验收命令为 `python scripts/audit_p1_scale_seed_pair.py`：36 项检查、33,047
+冻结文件及两组各 548 图预测重放通过。结果、证据和限制见论文第 4.11 节。
+
 全量 30 epoch 的去软权重确认配置和入口已准备，但不由筛选脚本自动启动：
 
 ```bash

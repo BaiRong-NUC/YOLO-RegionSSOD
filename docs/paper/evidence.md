@@ -32,6 +32,7 @@ B1 分尺寸 recall 在本次写作整理时使用已冻结的 30 epoch best.pt 
 | 表 4-6 规模与耗时 | 学生样本清单、`summary.json`、各 run 的 `results.csv` 最后一行 `time` |
 | 表 4-S1 较长训练参考 | B1 30/100 epoch 的独立 val960 结果；对应各自独立的 `results.csv` |
 | 表 4-S2 尺度阈值全量确认 | `outputs/p1_global_t050_pilot30_s0/{comparison,acceptance_audit}.json`；两组 val960、分尺寸 recall 和逐类别结果 |
+| 表 4-S3 固定 split 配对学生 seed | `outputs/p1_scale_threshold_pair_s1/{comparison,acceptance_audit,independent_audit}.json`；seed0 来源同表 4-S2，seed1 来源及哈希见下文 |
 
 P1 的完整性验收为 `outputs/gate3_20261027/acceptance_audit.json`，19 项检查通过；原自动比较为同目录 `comparison.json`。原 Gate 3 的 mAP 条件未达到，小目标条件达到；用户结果后的工作决策另记在 `decision_note.json`，不作为实验数值来源。
 
@@ -62,6 +63,37 @@ last.pt SHA256 为 `cd96237d62d121ec8132cdfd30dbce94aefe39afd887bfde6a39759ebae3
 P1”。结果已由 `scripts/build_paper_tables.py` 纳入表 4-S2，包含整体指标、
 分尺寸 recall 与逐类别 AP50-95。
 
+## 尺度阈值配对学生 seed 复验证据
+
+2026-10-27 23:47 已完成两组 seed1 的训练、完整评估和自动验收，随后独立复核通过。
+split seed 仍为 0，教师和两套伪标签均复用；只将学生训练 seed 改为 1。
+
+| seed1 方案 | 训练目录（`runs/` 下） | best.pt SHA256 | last.pt SHA256 |
+|---|---|---|---|
+| 尺度分层 | `partial10_p1_pilot30_s1` | `18b241f1dea83c9fba6dbf23bc10c6d57c3ee7fb7bd13c3ed17db38d8b6667b4` | `07efa451d614ece5b10ed6236f5e567a814312b781e9ac2f849af1db8f53f048` |
+| 统一 0.50 | `partial10_p1_global_t050_pilot30_s1` | `5a2f82de198d1d7326d179b56c899b9ea70f54fe9bc5eeb1ac3d1f9d8a2d761c` | `1e4e12d86388d578c8b18aec70099534c755e5bf44398970349cadb7f5943e4a` |
+
+两组 val960 来源分别为
+`runs/val/partial10_p1_pilot30_s1_val960/metrics.json` 和
+`runs/val/partial10_p1_global_t050_pilot30_s1_val960/metrics.json`；固定操作点 recall
+分别为 `runs/size_recall/p1_pilot30_s1/` 和
+`runs/size_recall/p1_global_t050_pilot30_s1/` 下的 `metrics.json`、`images.txt`、
+`predictions.jsonl`。两 run 均保存 `experiment.json`、`args.yaml`、连续 30 行
+`results.csv`、`audit.json` 和 `SHA256SUMS.txt`。
+
+可复现入口为 `scripts/run_p1_scale_seed_pair.py`；既有 run 防重复覆盖，
+`--collect-only` 仅重做已有评估的验收和汇总。执行脚本的 SHA256 保存于
+`outputs/p1_scale_threshold_pair_s1/preflight.json`，本次训练期间未修改该脚本或方法源码。
+另以 `python scripts/audit_p1_scale_seed_pair.py` 独立复核 36 项检查，记录为
+同目录 `independent_audit.json`：33,047 个冻结文件、实际参数仅改变学生 seed、
+同一教师/伪标签/损失、best/last 与评估对应、548 图/38759 GT，以及两组保存预测
+重放均通过。配对统计还使用 NumPy 独立核算均值和 ddof=1 的标准差。
+
+表 4-S3 来自 `comparison.json` 中的 seed0/1 单次值和配对差；论文生成器复查
+自动验收产物哈希、原始评估与两种统计口径，独立验收的哈希另纳入论文表证据。
+这是一个 split/固定教师下两个学生 seed 的尺度阈值复验，不补齐 B1/B2/P1 的
+多 seed 主表，不报告统计显著性，不改变原 Gate 3。各项数值和不一致方向见实验第 4.11 节。
+
 ## 方法描述与代码对应
 
 | 方法内容 | 实现或配置 |
@@ -78,7 +110,7 @@ P1”。结果已由 `scripts/build_paper_tables.py` 纳入表 4-S2，包含整�
 
 ## 数字核对与完整精度记录
 
-运行 `python scripts/build_paper_tables.py --check` 会核对主对照及尺度阈值确认组的 best.pt 哈希、各 run 的完整 30 行日志、验证分辨率、相同 GT 分组计数和操作点，并逐字比较表格与重新计算的文本。表格使用的全部源文件哈希及完整精度指标保存在 `outputs/paper_tables_20261027/audit.json`。
+运行 `python scripts/build_paper_tables.py --check` 会核对主对照及尺度阈值 seed0/1 结果的 best.pt 哈希、各 run 的完整 30 行日志、验证分辨率、相同 GT 分组计数和操作点，并逐字比较表格与重新计算的文本。表 4-S3 另核对种子内配对差、各方案均值及样本标准差。表格使用的全部源文件哈希及完整精度指标保存在 `outputs/paper_tables_20261027/audit.json`。
 
 ## 引言与相关工作核对
 

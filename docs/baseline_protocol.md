@@ -315,6 +315,47 @@ best/last 权重 SHA256 分别为
 `cd96237d62d121ec8132cdfd30dbce94aefe39afd887bfde6a39759ebae3b5ff`。
 比较与验收记录在 `outputs/p1_global_t050_pilot30_s0/`。
 
+### 4.7 尺度阈值配对学生 seed 复验
+
+2026-10-27 用户授权在当前全量配置下补学生 seed1。split 仍为 seed0，教师、
+候选与两套伪标签均复用；不把本次复验写成新增 split 或独立教师实验。
+配置为 `configs/train_p1_10_seed1.yaml` 和
+`configs/train_p1_global_t050_10_seed1.yaml`，分别只对对应 seed0 配置修改
+学生 seed 和 run 名，保留 COCO 初始化、640、30 epoch、batch8、SGD、
+`close_mosaic=10`、软权重与 ignore。两组顺序运行：
+
+```bash
+python scripts/run_p1_scale_seed_pair.py --check-only
+python -u scripts/run_p1_scale_seed_pair.py
+```
+
+预检核对冻结输入和 seed0 产物 SHA256、统一阈值 metadata/标签对应关系。
+每组连续完成 30 epoch 后使用 best.pt 做 548 图完整 val960、conf=0.25、
+匹配 IoU=0.50、NMS IoU=0.70、max_det=500 的 recall，保存预测并重放 GT 匹配。
+最终复查运行前后输入哈希、实际参数配对、教师/损失和验证列表；产物在
+`outputs/p1_scale_threshold_pair_s1/`，日志为 `stdout.log`、`stderr.log`。
+不得重复派发；`--collect-only` 仅从已有完整评估重做验收和汇总。
+
+两 seed 汇总采用样本标准差（ddof=1），配对差先按每个学生 seed 计算
+“统一 0.50 − 尺度分层”再汇总。两 seed 不作显著性主张，不替代 AP_small
+或正式 100 epoch 主矩阵；本组尺度消融不重新判定原 Gate 3。
+
+2026-10-27 23:47 两组完成自动验收，独立复核命令为：
+
+```bash
+python scripts/audit_p1_scale_seed_pair.py
+python scripts/build_paper_tables.py
+python scripts/build_paper_tables.py --check
+```
+
+36 项独立检查通过，复核 33,047 个冻结文件及两组各 548 图保存预测的 GT 匹配。
+seed1 中尺度分层相对统一 0.50：mAP50-95 +0.2420 pp，small recall +0.6434 pp
+（9605 对 9434 个 small 匹配），与 seed0 的两项方向一致。两个学生 seed 的配对
+增益均值±样本 SD 为 +0.4299±0.2657 pp、+0.4929±0.2128 pp。
+medium recall 的方向在两 seed 间发生变化，large recall 均是统一阈值更高；
+完整数值见表 4-S3，不声称所有尺寸或类别全面获益。独立验收记录为
+`outputs/p1_scale_threshold_pair_s1/independent_audit.json`。
+
 ## 5. 对照规则
 
 - B1 与 B2 必须从同一 `yolo11s.pt` 初始化。

@@ -12,6 +12,8 @@ from zoneinfo import ZoneInfo
 
 import yaml
 
+from scale_seed_tables import OUT as SEED_PAIR_OUT, load_pair, table_sections
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -219,6 +221,10 @@ def main(check=False):
         "唯一方法变量是伪标签正阈值为 0.30/0.50/0.50（完整 P1）或 0.50/0.50/0.50（统一阈值），两组均保留软权重与 ignore。"
         f"固定操作点 small 匹配数为 {recalls['P1']['per_size']['small']['matched']}→{ablation_recall['per_size']['small']['matched']}；"
         "recall 操作点及口径同表 4-2。类别行使用 Ultralytics 逐类别 AP50-95，差值为统一阈值减完整 P1。"]
+    seed_pair = None
+    if (SEED_PAIR_OUT / "acceptance_audit.json").exists():
+        seed_pair = load_pair(hashes)
+        sections += table_sections(seed_pair, table)
     text="\n\n".join(sections)+"\n"
     dest=ROOT/"docs/paper/results_tables.md"
     if check:
@@ -231,9 +237,11 @@ def main(check=False):
     receipt={"checked_at":datetime.now(ZoneInfo("Asia/Shanghai")).isoformat(),"table_file":str(dest),
              "table_sha256":digest(dest),"tables_match_frozen_evaluations":True,"input_sha256":hashes,
              "metrics":metrics,"recalls":recalls,"times":times,"pseudo_quality":q,
-             "global_threshold_ablation":{"comparison":ablation,"acceptance":ablation_acceptance}}
+             "global_threshold_ablation":{"comparison":ablation,"acceptance":ablation_acceptance},
+             "scale_threshold_seed_pair":seed_pair}
     (output/"audit.json").write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
-    print(f"{'Verified' if check else 'Wrote'} {dest}; {len(hashes)} sources hashed; 4 recall evaluations share GT counts.")
+    recall_count = 6 if seed_pair else 4
+    print(f"{'Verified' if check else 'Wrote'} {dest}; {len(hashes)} sources hashed; {recall_count} recall evaluations share GT counts.")
 
 
 if __name__=="__main__":
