@@ -511,6 +511,28 @@ stdout/stderr与exit_code；启动训练后创建临时监控，结束/失败处
 虽small recall提高1.5464pp，仍未过固定继续线；不开展全量确认。
 结果及成本见`docs/paper/small_nwd_results.md`。
 
+### 4.14 用户更新预算后的NWD全量30epoch
+
+上节“不开展全量确认”为五轮验收当时的决定。用户随后明确至少30epoch
+才判断性能；此要求覆盖后续预算安排，旧失败记录不变，短程不再用于淘汰机制。
+独立协议`docs/paper/small_nwd30_protocol.md`固定唯一新增30epoch学生，
+复用完整P1参考、11310tile、seed0、COCO初始化、640/batch8/SGD/close_mosaic10。
+不续接五轮，原C=20.22804306/mix0.5/面积边界及损失源码保持不变。
+
+```bash
+python scripts/run_p1_small_nwd.py --check-only
+python scripts/audit_p1_small_nwd.py
+```
+
+第一条只预检；第二条仅在正常完整终态后独立验收，不会启动训练。
+实际启动入口为`scripts/run_small_nwd30_background.py`，首次独占输出目录；
+日志/进程身份/状态在`outputs/p1_small_nwd_pilot30_s0/`，run为
+`runs/partial10_p1_small_nwd_pilot30_s0`，val960和recall依次自动执行。
+启动后创建临时定时监控，结束或失败处置后删除；不因超时自动重启。
+后续线在本轮未知时登记：AP≥+0.30pp且small recall非负，
+或small recall≥+1.00pp且AP≥−0.10pp；过线只准备大规模训练交接。
+中文提交并push由用户最新授权；当前仅A。
+
 ## 5. 对照规则
 
 - B1 与 B2 必须从同一 `yolo11s.pt` 初始化。

@@ -526,7 +526,23 @@ python scripts/screen_p1_small_nwd.py --geometry-only
 验收为`python scripts/audit_small_nwd_screen.py`，必须包装进程exit0且全部阶段完成；
 此筛查不自动派发30/100epoch，也不进入正式论文结果表。
 2026-10-30已完成独立验收：mAP50-95−0.1746pp、small recall+1.5464pp，
-固定继续线失败，不扩训；详细结果和限制见`docs/paper/small_nwd_results.md`。
+原固定继续线失败、验收当时停止扩训；详细结果和限制见`docs/paper/small_nwd_results.md`。
+
+用户随后明确至少30epoch才判断性能，旧5epoch仅保留探索记录。
+当前新增唯一全量NWD30确认，固定原C/mix/面积边界与完整P1同预算配对，
+协议`docs/paper/small_nwd30_protocol.md`。短程不再作为性能淘汰依据，
+当前自主单候选固定30epoch，更多训练仍由用户执行。中文提交后按最新授权push。
+
+```bash
+python scripts/run_p1_small_nwd.py --check-only
+python scripts/audit_small_nwd_tradeoff.py --check
+```
+
+第一条仅预检；首次由后台包装`scripts/run_small_nwd30_background.py`运行唯一
+30epoch，再做548原图val960/recall。状态、启动记录与日志位于
+`outputs/p1_small_nwd_pilot30_s0/`；已有状态/dispatch/产物时拒绝重启。
+完成后运行`python scripts/audit_p1_small_nwd.py`独立验收。
+训练启动时创建临时监控，终态处置后删除，不并行第二组或自动扩训。
 
 ## Baseline 定义
 

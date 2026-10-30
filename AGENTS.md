@@ -54,6 +54,12 @@ Never revert user or other-session changes without authorization.
 ## Working protocol
 
 - Use the existing `yolo` Conda environment.
+- As of 2026-10-30, the user requires at least 30 complete paired epochs before
+  performance decisions. Short runs are engineering checks only. Autonomous
+  candidate runs currently use exactly 30 epochs; larger training is handed off.
+- Commit meaningful changes with Chinese messages and push, as newly authorized
+  on 2026-10-30. Create a temporary monitor when training starts and remove it
+  after terminal-state handling.
 - Run `python -m pytest` after source changes.
 - Store checkpoints, logs, generated data, and caches only in ignored directories.
 - After a meaningful work session, append a dated entry to section 10 of

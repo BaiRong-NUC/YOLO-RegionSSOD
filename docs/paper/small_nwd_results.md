@@ -20,7 +20,9 @@
 
 预先要求mAP50-95至少+0.30pp且small recall非负，本组整体mAP下降，
 **继续线未通过**。保留小目标召回提高这一探索性观测及large/整体指标的取舍，
-不调整C/mix/面积阈值追试，不新增全量30epoch或长期训练命令。
+该次验收当时决定不调整C/mix/面积阈值追试、不新增全量30epoch。
+后续用户明确至少30epoch才判断性能，现按独立协议
+`small_nwd30_protocol.md`补做唯一全量30epoch；不把旧五轮判定改为过线。
 本结果不证明所有NWD变体均无效，也不能将子集5epoch直接等同于全量30/100epoch。
 不进入正式论文主结果表，不改原Gate3判定；recall不是官方AP_small/AR500。
 
@@ -37,3 +39,31 @@ python scripts/audit_small_nwd_screen.py
 工程检查曾通过94项测试；真实YOLO11s AMP前反传的255梯度张量有限、
 优化器更新0步。工程可行与方法有效分开记录。临时监控a-nwd在本次收尾后删除，
 不会自动启动第二个候选或扩大训练。
+
+## 缓存误检与定位取舍补充
+
+用户追问继续线后，以`scripts/audit_small_nwd_tradeoff.py`在CPU重放两组
+548原图预测，未增加推理/训练。事后分析协议为`small_nwd_tradeoff_protocol.md`。
+固定conf0.25/匹配IoU0.50时，P1/NWD的总TP为15806/16216、总FP为9449/10337，
+诊断precision为62.5856%/61.0703%；小目标多匹配411个，同时总FP多888个。
+这是当前YOLO标签与贪心匹配下的统计，不能与val最优操作点precision或官方指标混用。
+
+将NWD的全尺寸FP限制为P1相应操作点的数量，结果如下：
+
+| 匹配IoU | P1 conf0.25的FP预算 | NWD small recall差值 / pp | P1 conf0.50的FP预算 | NWD small recall差值 / pp |
+|---|---:|---:|---:|---:|
+| 0.50 | 9449 | +0.6321 | 2376 | +0.7713 |
+| 0.75 | 14287 | +0.2521 | 4394 | +0.3951 |
+| 0.90 | 21176 | −0.0489 | 9450 | −0.0564 |
+
+因此，中等匹配要求下的召回信号在限制误检后仍存在；更严格IoU下未保留同向收益。
+这只能提示定位要求与类别取舍需要关注，不能据此把AP下降归因到唯一原因。
+10类AP50-95为5升5降，van+0.8393pp，tricycle−1.3601pp、
+awning-tricycle−0.9670pp、truck−0.9229pp；类别差值均值恢复整体−0.1746pp。
+
+缓存仅有conf≥0.25，不能重建完整PR/逐IoU AP；等FP阈值由val GT事后选出，
+不是部署阈值或独立确认，不能据此追认原继续线成功。
+新30epoch的必要性来自用户更新的性能判断预算要求，并保留原C/mix/面积边界。
+所有输出和输入哈希位于`outputs/screens/p1_small_nwd_tradeoff_20261030_v3/analysis.json`；
+初次工程输出保留在无后缀和v2目录，v3冻结用户更新后的协议与类型检查修正。
+`python scripts/audit_small_nwd_tradeoff.py --check`重算全部结果并核对来源。
