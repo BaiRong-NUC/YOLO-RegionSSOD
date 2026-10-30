@@ -854,6 +854,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 
 | 2026-10-30 13:05（验收收尾） | `9295c3e` + 本次提交 | 验收用户终端完成的 B2 seed1 连续30epoch及完整评估，复用P1 seed1；完成两seed主对照统计、四类案例和论文/复现记录 | `outputs/b2_pilot30_s1/{comparison,acceptance_audit,independent_audit}.json`；表4-S4；实验4.12–4.13；`outputs/paper_cases_b2_p1_s0/` | seed1 P1−B2：mAP50-95 +0.2438 pp、small recall +1.6932 pp（+450匹配），large −0.6560 pp；两seed配对差 +0.2893±0.0644/+1.7854±0.1304 pp；116检查/37,695冻结文件/四组预测重放、案例1,106输入核验、论文表123来源及7组recall、pytest39/39均通过；中断35文件归档不入统计 | 总体/小目标两seed同向，large方向不同；单split/固定教师/B1未重复，不作显著性或AP_small主张；原Gate3不变；按授权本地Git提交、不push，清理已暂停心跳，不自动扩训 |
 
+| 2026-10-30（跨视图离线验证） | 本次提交 | 固定随机256 tile进行同教师水平翻转推理，重放少量候选的精度与覆盖 | `scripts/audit_cross_view_flip.py`；`docs/paper/cross_view_flip_analysis.md`；`outputs/cross_view_flip_20261030/` | 原入训196 tile；small conf≥0.25新增97框/30匹配，翻转conf≥0.25及IoU≥0.50新增63框/22匹配；新增匹配比例30.93%→34.92%，small匹配增量29→22；pytest 48/48 | 探索性小样本，组合精度低于原基线；不训练、不改变Gate 3，不下发训练命令 |
+
 ### 10.1 新会话开始流程
 
 1. 进入 `D:\Python\YOLO-RegionSSOD`，运行 `git status --short --branch`。
