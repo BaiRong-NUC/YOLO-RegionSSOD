@@ -18,7 +18,8 @@
 | [positive_localization_analysis.md](positive_localization_analysis.md) | 已有正伪框跨尺度定位稳定性诊断；预先协议与分层样本不足的停止结论，不进入训练 |
 | [case_studies.md](case_studies.md) | 已冻结 seed0 的成功/退化/共同漏检/未匹配预测四类案例，含可复现选图规则、裁剪坐标和全验证集事件计数 |
 | [s3od_comparison.md](s3od_comparison.md) | S³OD 差异对照：正式发表版本、预印本公式、公开代码与 P1 实现、贡献范围及待验证问题 |
-| [references.md](references.md) | 16 篇核心文献、阅读优先级、引用边界；[references.bib](references.bib) 供文献管理工具导入 |
+| [references.md](references.md) | 17篇核心/候选依据文献、阅读优先级、引用边界；[references.bib](references.bib)供文献管理工具导入 |
+| [nwd_mechanism_positioning.md](nwd_mechanism_positioning.md) | NWD原文、S³OD与当前候选的作用位置，12/24epoch原文观察、单因素归因与后续对照边界 |
 
 表格采用三个独立 30 epoch 学生进行主对照。B1 100 epoch 单列为教师和较长训练参考；20 图工程烟测不进入这些结果表。表 4-1 至 4-6 的 B1/B2/P1 主对照仍为 seed0；表 4-S4 和第 4.12 节单列 B2/P1 的两学生 seed 复验，B1 未重复，全部为 Ultralytics 开发结果；尺度阈值另有固定 split/教师、学生 seed0/1 的配对复验（表 4-S3、第 4.11 节）。尺度分层在两学生 seed 中的 mAP50-95 和 small recall 均高于统一 0.50，平均配对增益为 +0.4299±0.2657 pp 和 +0.4929±0.2128 pp（样本 SD）。小目标诊断 recall 与官方 AP_small/AR500 分别表述，不将两学生 seed 解释为统计显著性或多 split 验证。
 

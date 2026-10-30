@@ -60,6 +60,11 @@ Never revert user or other-session changes without authorization.
 - Commit meaningful changes with Chinese messages and push, as newly authorized
   on 2026-10-30. Create a temporary monitor when training starts and remove it
   after terminal-state handling.
+- During real training, the user allows either waiting with the persistent goal
+  paused or using the wait to verify relevant papers. Keep the actual training
+  process and its monitor running; avoid repetitive progress-only turns and
+  parallel experiments. If a paused goal cannot be resumed by available
+  controls, report that instead of claiming it was resumed.
 - Run `python -m pytest` after source changes.
 - Store checkpoints, logs, generated data, and caches only in ignored directories.
 - After a meaningful work session, append a dated entry to section 10 of
