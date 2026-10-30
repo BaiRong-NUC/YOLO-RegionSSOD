@@ -484,6 +484,18 @@ python scripts/audit_p1_no_soft_weights.py
 python scripts/audit_positive_localization.py --check
 ```
 
+原图上下文类别纠正的执行前协议、固定继续线和版本依据见
+`docs/paper/context_rectification_analysis.md`，只检验已有small正伪框，不训练。
+首次执行只做128张原图推理；已有结果只读重放：
+
+```bash
+python scripts/audit_context_rectification.py --check
+```
+
+探索通过继续线后，`--confirm`才允许另128张不重叠原图确认；未过线时拒绝执行。
+当前代码/协议已准备，尚未获得此项效果证据。论文归档在Zotero顶层
+`YOLO-RegionSSOD`，清单与PDF版本说明见`docs/paper/zotero_literature_library.md`。
+
 ## Baseline 定义
 
 | 名称 | 训练数据 | 作用 |

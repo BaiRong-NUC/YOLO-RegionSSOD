@@ -806,6 +806,22 @@ P1 的 30 epoch 训练、完整原图 val960 和固定操作点小目标 recall 
   不合并无匹配组重试、不改组阈值，不实现或训练新回归加权。
   全套pytest61/61通过；只读复核`python scripts/audit_positive_localization.py --check`。
 
+### 3.29 原图上下文类别纠正（2026-10-30，执行前固定）
+
+- 跨尺度定位诊断停止后，下一项只检查新的观察范围：同一B1教师的原图960预测
+  映射回既有未标注tile，能否纠正低置信度small正伪框的类别。
+  不增加正框、不改几何/置信度/ignore，不引入新教师、模块或训练。
+- 协议`docs/paper/context_rectification_analysis.md`及
+  `configs/context_rectification_diagnostic.yaml`固定128原图探索、过线后另128图确认；
+  排除历史640尺度与NMS样本。类别冲突/匹配选择无隐藏GT输入；
+  隐藏GT只离线计数，未导出训练标签。与CrossRectify/密集裁片SSOD重叠已说明。
+- 入口`python scripts/audit_context_rectification.py`；`--check`只读验收；
+  确认组`--confirm`必须先重放并通过探索继续线。协议和代码先提交再推理。
+  当前全套pytest73/73通过，尚无本项结果，不代表值得训练。
+- Zotero已按用户要求调整为“我的文库”下并列的`YOLO-RegionSSOD`和
+  `YOLO-VisDrone Research`；前者28篇均有PDF，S³OD附件为注明的2023早期预印本。
+  文献清单见`docs/paper/zotero_literature_library.md`；扩展关键词归档不代表启动B/C。
+
 ## 4. 固定实验协议
 
 ### 4.1 训练与评估
@@ -1021,6 +1037,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-10-30（正伪框定位诊断协议） | 本次提交 | 固定已有正伪框跨尺度匹配、置信度/类别分层和两样本继续线，再开始读取本项GT统计 | `configs/positive_localization_diagnostic.yaml`；`docs/paper/positive_localization_analysis.md`；第3.28节 | 仅协议，无该项结果；两组各256tile缓存已存在且不重叠 | 下一步实现GT-free匹配与只读离线诊断；不改现有训练输入、不新增推理或训练，原Gate3不变 |
 
 | 2026-10-30（正伪框定位诊断完成） | `2a42fa5` + 本次提交 | 实现GT-free一对一稳定性特征，复用缓存完成探索/确认，按预先继续线停止 | `scripts/audit_positive_localization.py --check`；`outputs/positive_localization_20261030/`；第3.28节 | 2710正框/1442来源重放，pytest61/61；small不稳定两组各6框，分层证据不足；稳定组严格定位质量比例52.7981%/49.4737% | 不增推理/训练，不改分组重试、不直接删除无匹配框；下一项需新信息来源，原Gate3不变；中文本地提交、不push |
+
+| 2026-10-30（原图上下文纠错协议与Zotero归档） | 本次提交 | 固定128原图探索、过线后独立确认的单规则；实现GT-free映射/类别纠错及只读验收；按用户要求将Zotero分类调整为并列顶层 | `scripts/audit_context_rectification.py`；第3.29节；`docs/paper/zotero_literature_library.md` | pytest73/73；28论文均有PDF；尚无本项推理/纠错效果 | 先提交再推理；探索未过线则不做确认、不训练；当前仅A，不push，原Gate3不变 |
 
 ### 10.1 新会话开始流程
 

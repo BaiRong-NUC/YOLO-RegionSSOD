@@ -1,0 +1,27 @@
+version: 1
+teacher_sha256: 58f40e1e7b397c3f0b873bbc9cbd9e50660b41c48c9cadb1e7ef3d0f0b0ebf54
+min_visibility: 0.35
+sample_size: 128
+discovery_seed: 20261101
+confirmation_seed: 20261102
+exclude_caches:
+  - outputs/scale_support_discovery_20261030/protocol.json
+  - outputs/scale_support_confirm_20261030/protocol.json
+  - outputs/candidate_retention_128_20261030_v2/protocol.json
+output: outputs/context_rectification_20261030
+imgsz: 960
+conf: 0.05
+nms_iou: 0.70
+max_det: 500
+batch: 2
+context_conf: 0.50
+original_below: 0.50
+match_iou: 0.50
+only_scale: small
+gate:
+  min_corrected: 20
+  min_corrected_quality: 0.70
+  min_corrected_quality_gain: 0.20
+  min_unique_matches_gain: 10
+  min_small_matches_gain: 10
+  max_small_matches_lost: 3

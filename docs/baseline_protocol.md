@@ -450,6 +450,23 @@ floor0.25/support0.30候选后，另取不与既有384tile重叠的256tile确认
 `docs/paper/scale_support_analysis.md`。总执行安排以
 `docs/publication_and_edge_deployment_plan.md`第10节为准。
 
+### 4.11 原图上下文辅助类别纠正（零训练诊断）
+
+冻结协议见`docs/paper/context_rectification_analysis.md`。先提交协议/代码，
+再用同一B1教师、960/conf0.05/NMS0.70/max_det500/batch2预测128张固定随机原图；
+仅将原已接受的small/conf<0.50正伪框与原图conf≥0.50支持匹配后纠正冲突类别。
+所有原正框先占用独立支持；保留原几何、置信度和正框数。隐藏GT只用于诊断。
+
+```bash
+python -u scripts/audit_context_rectification.py
+python scripts/audit_context_rectification.py --check
+```
+
+首次运行拒绝覆盖输出；`--check`不推理，只重放纠错/质量/覆盖统计并核对SHA256。
+探索通过固定六项继续线后，`--confirm`才允许另128张独立原图确认，
+`--confirm --check`只读验收两组。两组即使过线，也不能代替学生val960效果，
+需单独固定学生预算。本项当前尚未推理，不启动训练或长期训练监控。
+
 ## 5. 对照规则
 
 - B1 与 B2 必须从同一 `yolo11s.pt` 初始化。
