@@ -33,6 +33,7 @@ B1 分尺寸 recall 在本次写作整理时使用已冻结的 30 epoch best.pt 
 | 表 4-S1 较长训练参考 | B1 30/100 epoch 的独立 val960 结果；对应各自独立的 `results.csv` |
 | 表 4-S2 尺度阈值全量确认 | `outputs/p1_global_t050_pilot30_s0/{comparison,acceptance_audit}.json`；两组 val960、分尺寸 recall 和逐类别结果 |
 | 表 4-S3 固定 split 配对学生 seed | `outputs/p1_scale_threshold_pair_s1/{comparison,acceptance_audit,independent_audit}.json`；seed0 来源同表 4-S2，seed1 来源及哈希见下文 |
+| 表 4-S4 B2/P1 主对照配对学生 seed | `outputs/b2_pilot30_s1/{comparison,acceptance_audit,independent_audit}.json`；两 seed 四组原始评估及样本 SD，来源/权重见下文 |
 
 P1 的完整性验收为 `outputs/gate3_20261027/acceptance_audit.json`，19 项检查通过；原自动比较为同目录 `comparison.json`。原 Gate 3 的 mAP 条件未达到，小目标条件达到；用户结果后的工作决策另记在 `decision_note.json`，不作为实验数值来源。
 
@@ -110,7 +111,7 @@ split seed 仍为 0，教师和两套伪标签均复用；只将学生训练 see
 
 ## 数字核对与完整精度记录
 
-运行 `python scripts/build_paper_tables.py --check` 会核对主对照及尺度阈值 seed0/1 结果的 best.pt 哈希、各 run 的完整 30 行日志、验证分辨率、相同 GT 分组计数和操作点，并逐字比较表格与重新计算的文本。表 4-S3 另核对种子内配对差、各方案均值及样本标准差。表格使用的全部源文件哈希及完整精度指标保存在 `outputs/paper_tables_20261027/audit.json`。
+运行 `python scripts/build_paper_tables.py --check` 会核对主对照及尺度阈值 seed0/1 结果的 best.pt 哈希、各 run 的完整 30 行日志、验证分辨率、相同 GT 分组计数和操作点，并逐字比较表格与重新计算的文本。表 4-S3、4-S4 另核对种子内配对差、各方案均值及样本标准差；当前核对 123 个来源及 7 组不同目录的 recall（GT 分组计数一致）。表格使用的全部源文件哈希及完整精度指标保存在 `outputs/paper_tables_20261027/audit.json`。
 
 ## 引言与相关工作核对
 
@@ -121,3 +122,65 @@ split seed 仍为 0，教师和两套伪标签均复用；只将学生训练 see
 Soft Teacher 的权重对象依据其[第 3.2 节式(4)–(5)](https://arxiv.org/html/2106.09018v3#S3.SS2)核对，方法和相关工作已明确区分其背景可靠性权重与 P1 正伪框前景置信度权重。详细对照没有产生新的训练或同协议相关方法结果。
 
 论文表格之外的复现命令见 [baseline_protocol.md](../baseline_protocol.md)，研究进度见 [paper_completion_plan.md](../paper_completion_plan.md)。引用文献与最终章节编号可在整合论文时统一处理，当前正文不使用虚构的文献编号或缺失结果。
+
+## B2 学生 seed1 与案例图来源（2026-10-30，验收完成）
+
+用户在终端执行 `scripts/run_b2_seed1.py`，2026-10-30 **10:33:25** 派发，
+**12:11:53** 完成训练、完整评估和自动验收。训练日志连续 1–30 epoch、数值有限，
+B2 seed1 累计训练日志耗时 5845.51 秒；P1 seed1 复用既有完整运行，没有重训。
+
+新增配置为 `configs/train_naive_10_seed1.yaml`。预检冻结 37,695 个文件，含原训练/
+验证数据、B1 教师、B2 伪标签、COCO 初始化、P1 两 seed 产物、方法源码及执行配置。
+B2 原伪标签生成时的历史源码哈希单列于 `preflight.json` 的
+`historical_pseudo_generation_source_sha256`，不将历史生成脚本当成本次训练源码。
+执行入口 `scripts/run_b2_seed1.py` 的 SHA256 为
+`7671ebdbb131e211e8245f74d7eeef876480c0da78c38f4e5a1a985a6f5bfb95`，与各次
+归档快照一致，训练期间配置和方法源码均未修改；教师与伪标签未重生成。
+
+| 方法/学生 seed | 训练目录（`runs/` 下） | best.pt SHA256 | last.pt SHA256 |
+|---|---|---|---|
+| B2_s0 | `partial10_naive_t050_pilot30_s0` | `f22629ae5aae1fd61ac83dc3a2bcd165ac3a542847198c25780c84744688d45e` | `b5c5ed3af29392726871a7cceda9c689380adce61ee3ade7fc4771e85b0a04b1` |
+| P1_s0 | `partial10_p1_pilot30_s0` | `8d20c9645328d9f1a18429c7223d40e3a123f211ec04e86b2f697a844a51e115` | `03cf3b6c4f9bb238001179a44667610c5a9344935fd3ed9cc820add79c7253ca` |
+| B2_s1 | `partial10_naive_t050_pilot30_s1` | `558c086f1f8d11de9c6cb2062c5d2b5d08ff749f221ecd88e873797112172a10` | `2ae4bea8ca7d89e0e98632f619ccf2ec77d57dc20194367d272ce656c3d0317e` |
+| P1_s1 | `partial10_p1_pilot30_s1` | `18b241f1dea83c9fba6dbf23bc10c6d57c3ee7fb7bd13c3ed17db38d8b6667b4` | `07efa451d614ece5b10ed6236f5e567a814312b781e9ac2f849af1db8f53f048` |
+
+四组完整评估为 `runs/val/<上述训练目录名>_val960/metrics.json`，固定操作点
+来源为 `runs/size_recall/{b2,p1}_pilot30_s{0,1}/` 下的 `metrics.json`、`images.txt`
+和 `predictions.jsonl`。B2 seed1 的 run 另保存 `audit.json`、`SHA256SUMS.txt`、
+`args.yaml`、`experiment.json` 和 `results.csv`。对照主表的旧 B2 seed0
+`validation/metrics.json` 与本次 `runs/val/.../metrics.json` 数值一致，独立来源均保留。
+
+`scripts/audit_b2_seed1.py` 独立复核 **116 项检查**通过：全部冻结输入、四组连续
+训练调度/有限值、同 seed 的实际超参数配对、同方法 seed0 到 seed1 仅 seed/name
+变化、标准损失与 P1 损失开关、best/last 和评估权重哈希、548 图顺序、原图尺寸
+GT 计数 26,577/11,115/1,067、recall 操作点与四组保存预测 GT 匹配重放，以及
+NumPy 独立计算的配对均值和 ddof=1 样本 SD。固定 conf=0.25、匹配 IoU=0.50、
+NMS IoU=0.70、max_det=500。自动与独立记录为
+`outputs/b2_pilot30_s1/{comparison,acceptance_audit,independent_audit}.json`；表 4-S4
+与完整精度/来源哈希由论文表生成器核对，不手填或筛选不利结果。
+
+### 中断与手动交接来源
+
+此前三次未完成运行完整保留，均不拼接到最终日志，不进入论文统计：
+
+| 归档目录（`outputs/` 下） | 情况 | 完整保留的文件数 |
+|---|---|---:|
+| `b2_seed1_interrupted_20261030_091251/` | 10 月 28 日运行在第 3 epoch 中断，CSV 完成 1–2，无能确认原因的异常栈 | 10 |
+| `b2_seed1_interrupted_20261030_101330/` | 10 月 30 日 09:13 重跑在第 16 epoch 中断，CSV 完成 1–15；系统未重启，退出原因未确认 | 12 |
+| `b2_seed1_interrupted_20261030_102720/` | 10:15 独立进程启动，10:27 按用户手动训练要求主动停止，CSV 完成 1–3 | 13 |
+
+当前 `outputs/b2_pilot30_s1/recovery.json` 链接第三次归档，其内部递归链接前两次；
+独立验收逐一核对三份 receipt、35 个归档文件的原路径哈希、脚本/配置快照。
+第三次归档中保存 WMI 启动的 `launch_receipt.json` 及包装源码哈希；最终完整运行
+由用户终端直接执行原入口，其日志为当前 `stdout.log`/`stderr.log`。未把外层启动
+包装调整解释为训练方法变动。进度日志保留原中断、交接及完成时间。
+
+### 案例图来源
+
+案例来自事先冻结的 seed0 B2/P1 `runs/size_recall/{b2,p1}_pilot30_s0/` 保存预测，
+不按新增 seed1 结果重新选图。manifest 保存 1,106 个输入 SHA256、四类关注位置/
+裁剪坐标、全验证事件计数与 5 张 PNG 的 SHA256。总览 `cases_overview.png` 哈希为
+`36116e8ab3a59b58fcd316a313102e8d4911697fdda0f0bba94f6e722cd84a9d`。
+`python scripts/build_detection_cases.py --check` 再次通过选图、全验证计数和输出图
+核验；人工查看总览确认 GT/B2/P1 三列及关注位置可读。图像位于忽略目录
+`outputs/paper_cases_b2_p1_s0/`，图注及边界见 `case_studies.md`。

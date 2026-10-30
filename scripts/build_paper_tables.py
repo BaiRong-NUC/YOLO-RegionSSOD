@@ -13,6 +13,7 @@ from zoneinfo import ZoneInfo
 import yaml
 
 from scale_seed_tables import OUT as SEED_PAIR_OUT, load_pair, table_sections
+from main_seed_tables import OUT as MAIN_PAIR_OUT, load_main_pair, main_pair_sections
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -225,6 +226,10 @@ def main(check=False):
     if (SEED_PAIR_OUT / "acceptance_audit.json").exists():
         seed_pair = load_pair(hashes)
         sections += table_sections(seed_pair, table)
+    main_pair = None
+    if (MAIN_PAIR_OUT / "acceptance_audit.json").exists():
+        main_pair = load_main_pair(hashes)
+        sections += main_pair_sections(main_pair, table)
     text="\n\n".join(sections)+"\n"
     dest=ROOT/"docs/paper/results_tables.md"
     if check:
@@ -238,9 +243,9 @@ def main(check=False):
              "table_sha256":digest(dest),"tables_match_frozen_evaluations":True,"input_sha256":hashes,
              "metrics":metrics,"recalls":recalls,"times":times,"pseudo_quality":q,
              "global_threshold_ablation":{"comparison":ablation,"acceptance":ablation_acceptance},
-             "scale_threshold_seed_pair":seed_pair}
+             "scale_threshold_seed_pair":seed_pair,"main_method_seed_pair":main_pair}
     (output/"audit.json").write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
-    recall_count = 6 if seed_pair else 4
+    recall_count = (6 if seed_pair else 4) + (1 if main_pair else 0)
     print(f"{'Verified' if check else 'Wrote'} {dest}; {len(hashes)} sources hashed; {recall_count} recall evaluations share GT counts.")
 
 

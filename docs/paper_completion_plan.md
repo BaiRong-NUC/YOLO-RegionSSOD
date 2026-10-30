@@ -1,7 +1,7 @@
 # 论文完成计划与项目交接
 
-> 最后更新：2026-10-27<br>
-> 当前阶段：第 1–4 章初稿及 S³OD 对照已完成；尺度阈值全量 30 epoch 的学生 seed0/1 配对复验完成，两 seed 均支持尺度分层提高 mAP50-95 与小目标固定操作点召回；软权重仍仅有中性短程筛查，原 Gate 3 不变<br>
+> 最后更新：2026-10-30<br>
+> 当前阶段：B2/P1 学生 seed0/1 主对照复验及四类案例已完成验收；mAP50-95 与 small recall 两 seed 同向，平均配对增益 +0.2893/+1.7854 pp；large recall 方向不同。论文表 4-S4、第 4.12–4.13 节及证据更新，原 Gate 3 不变<br>
 > 论文暂定题目：**面向高分辨率航拍图像的区域局部标注小目标半监督检测方法**  
 > 仓库：`D:\Python\YOLO-RegionSSOD`  
 > 计划起点：2026-10-26，可按实际启动日期整体平移
@@ -52,17 +52,17 @@ P1 尺度感知伪标签与 uncertain-ignore 是否带来稳定收益。
 
 ## 3. 当前状态
 
-以下状态以 2026-10-27 为快照。后续会话必须先运行 `git status` 并核对实际产物，
+以下状态以 2026-10-30 为快照。后续会话必须先运行 `git status` 并核对实际产物，
 不能只依赖本文档的旧描述。
 
 | 项目 | 状态 | 证据或位置 | 下一步 |
 |---|---|---|---|
-| Git 仓库 | 前序全量确认已提交至 `5d0d514`；本轮配对 seed 复验、验收工具、结果表与文稿纳入本次提交 | `scripts/build_paper_tables.py --check`；独立验收及 pytest 结果见第 3.19 节 | 按用户指令提交本地 Git |
+| Git 仓库 | 前序 `9295c3e`；本轮 B2 seed1 验收、案例与论文更新纳入本次提交 | 第 3.20 节；`git status --short --branch` | 完成全部最终检查后按用户要求本地 Git 提交，不推送 |
 | 数据构造 | 已实现；10% seed0 已生成 | `src/regionssod/data/partial.py` | 生成正式 5%/20% split |
 | B0 完整监督 | 配置已加入，未正式训练 | `configs/train_full.yaml` | 复用旧结果或重训 seed 0 |
 | B1 部分监督 | 正式 100 epoch 和独立 30 epoch pilot 均完成；val960 mAP50-95 分别为 0.248835、0.229114 | `runs/partial10_sup_s0/`、`runs/partial10_sup_pilot30_s0/` | 冻结为正式参考与 pilot 对照 |
-| B2 朴素自训练 | 30 epoch pilot 完成；val960 mAP50-95=0.234534；100 epoch 尚未运行 | `runs/partial10_naive_t050_pilot30_s0/` | 保留为冻结的配对对照 |
-| P1 尺度感知方法 | 30 epoch 和完整评估已验收；mAP50-95=0.237883、小目标 recall=0.356925，均优于 B2 | `outputs/gate3_20261027/{comparison,acceptance_audit}.json`；第 3.8 节 | 保留积极的单 seed 初步结果，整理方法/结果/分析；原 Gate 3 未达预设门槛 |
+| B2 朴素自训练 | seed0/1 独立 30 epoch 均已验收；seed1 val960 mAP50-95=23.3688%、small recall=34.4471%；100 epoch 未运行 | `outputs/b2_pilot30_s1/{comparison,acceptance_audit,independent_audit}.json`；第 3.20 节 | 冻结两 seed 对照，保留单 split/固定教师边界 |
+| P1 尺度感知方法 | seed0/1 相对 B2 的 mAP50-95 与 small recall 均提高；平均配对增益 +0.2893±0.0644/+1.7854±0.1304 pp；large recall 方向不同 | 表 4-S4；第 3.8、3.20 节；实验第 4.12 节 | 保留两个学生 seed 的正向总体/小目标结果，不作显著性或跨 split 主张；原 Gate 3 不变 |
 | 第①组 no-ignore 消融 | 30 epoch、val960、固定操作点 recall 及独立验收完成；相对完整 P1 的 mAP50-95 +0.0217 pp、small recall −0.1392 pp | `outputs/p1_no_ignore_pilot30_s0/{comparison,acceptance_audit}.json`；第 3.13 节 | 不能声称 ignore 独立提高整体 mAP；继续拆分软权重与尺度阈值，补配对 seed |
 | 软权重低成本筛选 | 1024 源图、两组各 5 epoch 和 val960 完成；mAP50-95 +0.0884 pp、small recall +0.0790 pp，低于 0.3 pp 候选线 | `outputs/screens/p1_soft_weights_1024_e5/{comparison,acceptance_audit}.json`；第 3.15 节 | 中性，不启动 30 epoch 去软权重确认；继续下一项低成本机制筛选 |
 | 尺度阈值低成本筛选 | 统一 0.50 对比尺度分层：mAP50-95 +0.2237 pp、small recall −3.1230 pp | `outputs/screens/p1_global_t050_1024_v2_e5/{comparison,acceptance_audit}.json`；第 3.16 节 | 自动候选线未触发，但小目标信号值得全量 30 epoch 确认；数据已准备，用户手动启动 |
@@ -70,7 +70,7 @@ P1 尺度感知伪标签与 uncertain-ignore 是否带来稳定收益。
 | 尺度阈值配对学生 seed | seed1 两组各 30 epoch、完整 val960 和预测重放完成；尺度分层相对统一 0.50 的 mAP50-95 +0.2420 pp、small recall +0.6434 pp，与 seed0 两项同向 | `outputs/p1_scale_threshold_pair_s1/{comparison,acceptance_audit,independent_audit}.json`；表 4-S3；第 3.19 节 | 保留尺度分层；单 split/固定教师下两学生 seed 的平均配对增益为 +0.4299/+0.4929 pp，不作显著性或跨 split 主张 |
 | 正式 5/10/20% 数据 | 10% seed0 已生成；20 图同 seed 检查通过；5%/20% 未生成 | `data/visdrone_area10/summary.json`、`audit.json` | 生成 5%/20% split |
 | 正式 100 epoch 主矩阵 | 已完成 B1 10% seed0；B2/P1 未完成 | `runs/partial10_sup_s0`；已有 P1 30 epoch 正向初步结果 | 先整理已有成果，后续按论文需要决定补充验证规模 |
-| 论文正文 | 第 1–4 章及九组结果表已有初稿；新增尺度阈值表 4-S3 和第 4.11 节；S³OD 对照及正式引用已完成 | `docs/paper/`；第 3.9–3.11、3.18–3.19 节 | 补案例图、软权重的正式消融及主对照重复 seed；最终排版时统一引用编号 |
+| 论文正文 | 第 1–4 章、表 4-S4/第 4.12 节的 B2/P1 两 seed 统计、第 4.13 节/四类案例及来源已更新；原 seed0 主表保留 | `docs/paper/{experiments,results_tables,evidence,case_studies}.md`；第 3.20 节 | 软权重全量单因素消融、正式矩阵及最终排版仍待补，不自动扩训 |
 
 ### 3.1 已完成的烟测
 
@@ -593,6 +593,73 @@ P1 的 30 epoch 训练、完整原图 val960 和固定操作点小目标 recall 
   这不是烟测；结论限于单 split、固定教师下两个学生 seed，仍是 Ultralytics
   开发评测，不等同于 AP_small、统计显著或跨 split 泛化，不改变原 Gate 3。
 
+### 3.20 B2 学生 seed1 与主对照案例图（2026-10-30，验收完成）
+
+- 用户授权补 B2 学生 seed1 并整理案例，完成后验收、更新论文及本地 Git 提交。
+  固定 split seed0、原 B1 教师、B2 的全局 0.50 伪标签和标准损失；30 epoch、
+  640、batch8、SGD、COCO 初始化及 `close_mosaic=10` 沿用已有 B2 pilot。
+  P1 seed1 已完成，直接复用；不训练 B1 seed1，不扩大正式 100 epoch 矩阵。
+- 10 月 28 日 09:27 的原进程 PID 42232 已退出，日志停在第 3 epoch，CSV 仅有
+  连续 1–2 两行，无异常栈，原因尚不能由日志确定。10 月 30 日核实无对应训练
+  进程后，将原 run 与流水线目录的 10 个文件、来源脚本/配置和哈希归档至
+  `outputs/b2_seed1_interrupted_20261030_091251/`。中断权重不作为论文结果。
+- 10 月 30 日 **09:13:39** 以未修改的执行脚本和原初始化重新启动，PID 31944；
+  37,695 个冻结输入再次通过预检。`outputs/b2_pilot30_s1/recovery.json` 链接归档；
+  新运行不拼接旧 epoch，不覆盖已完成 run。
+- 10 月 30 日 **10:10** 心跳发现 PID 31944 再次消失：日志最后更新于 10:07:29，
+  停在第 16 epoch，CSV 完成 1–15，stderr 为空；操作系统未重启，也没有能确认
+  训练退出原因的应用异常记录。将该次 12 个文件、原脚本和配置/哈希另行归档至
+  `outputs/b2_seed1_interrupted_20261030_101330/`，原档案链均保留。
+- **10:15:05** 改由本机 `Win32_Process.Create` 启动 yolo 环境的 `pythonw.exe`，
+  PID 14304，父进程为 WMI 服务进程而非 Codex 子进程。仅启动和日志包装不同，
+  仍执行原 `scripts/run_b2_seed1.py`、相同配置/源码、同一初始化，37,695 文件
+  预检再次通过；从 epoch1 重跑连续 30 epoch。`launch_receipt.json` 保存启动包装
+  文件及哈希，独立验收递归复核两次归档链。该次运行已按用户要求停止并归档，转交终端手动训练；当时尚未验收，后续完整结果见下文。
+- 流水线自动完成 548 图完整 val960、固定操作点 recall，以及 B2/P1 seed0/1
+  四组各 548 图保存预测的 GT 匹配重放。随后运行 `scripts/audit_b2_seed1.py`，
+  核对连续 1–30 epoch/有限值、实际参数配对、教师/伪标签/损失、best/last 和评估
+  哈希，再生成表 4-S4 的单次值、各方法均值±样本 SD 及种子内配对差均值±SD。
+- 已在新增 B2 seed1 结果出现前，从冻结 seed0 验证预测选定四类案例：P1 新检出、
+  P1 丢失 B2 已检出、共同漏检、P1 未匹配预测。选图按原验证顺序及固定事件顺序，
+  取首个合格目标，并排除重复文件名前缀和相同图像内容；验证集本身不变。
+  总览为 1776×1910、300 dpi PNG，输入/输出哈希及裁剪坐标均记录在 manifest；
+  详见 `docs/paper/case_studies.md`。图像、日志和权重均留在忽略目录。
+- seed0 的 26,577 个 small GT 中，两者均检出 8,151、仅 P1 1,335、仅 B2 836、
+  均漏检 16,255，净多匹配 499。案例解释覆盖成功与失败，不据此推断因果或
+  官方错误分类；主结果继续以完整验证集指标为准。原 Gate 3 不变。
+
+- **10:27** 按用户要求停止后台 PID14304，原 run 的 13 个文件及来源链保存在
+  `outputs/b2_seed1_interrupted_20261030_102720/`；前两次归档也完整保留，心跳暂停。
+  **10:33:25** 用户终端直接执行原入口，从同一 COCO 初始化开始，最终 CSV
+  连续 1–30 epoch 且全部数值有限，累计训练日志耗时 5845.51 秒。
+- **12:11:53** 完整训练、548 图 val960、recall 和自动验收完成。新增 seed1：
+
+| 指标 | B2 seed1 / % | P1 seed1 / % | P1−B2 / pp |
+|---|---:|---:|---:|
+| mAP50 | 38.9843 | 39.5056 | +0.5214 |
+| mAP50-95 | 23.3688 | 23.6126 | +0.2438 |
+| Small recall | 34.4471 | 36.1403 | +1.6932 |
+| Medium recall | 76.3383 | 77.6428 | +1.3045 |
+| Large recall | 89.5970 | 88.9410 | -0.6560 |
+
+- P1 seed1 多匹配 450 个 small（9605 对 9155）、145 个 medium（8630 对 8485），
+  少匹配 7 个 large（949 对 956）。seed0/1 的 mAP50、mAP50-95、small/medium
+  recall 均为 P1 更高，large recall 则一升一降；seed1 逐类 AP50-95 为 6 升/4 降。
+- 两 seed 种子内 P1−B2 的 mAP50-95 平均差±样本 SD 为
+  **+0.2893±0.0644 pp**，small recall 为 **+1.7854±0.1304 pp**（ddof=1）。
+  B2/P1 各自 mAP50-95 均值为 23.4111±0.0598% / 23.7005±0.1243%；small recall
+  为 34.1310±0.4470% / 35.9164±0.3166%。全部单次值/指标见表 4-S4，不选报。
+- 独立验收 **116 项检查**通过：37,695 个冻结文件、四 run 连续 30 epoch/有限值、
+  实际参数及原初始化配对、同教师/既有伪标签/损失、best/last 与评估哈希、完整
+  548 图/38,759 GT 和固定 recall 操作点、四组保存预测 GT 重放、独立配对统计；
+  三层归档的 35 个文件和执行脚本/配置快照均核对。中断日志不拼接、不入论文。
+- `build_detection_cases.py --check` 再核对四类案例、1,106 输入哈希及图像输出。
+  论文表 4-S4、第 4.12–4.13 节、证据和复现入口均已同步；表格核对 123 个来源、
+  7 组不同 recall 目录；最终 `python -m pytest --basetemp outputs/pytest_b2_seed1_final_20261030_1308`
+  **39/39 通过**，`git diff --check` 通过。B1 未重复，原主表仍为 seed0；仅是单 split/固定教师
+  下两个学生 seed 的开发复验，不等同于独立教师、多 split、显著性或官方 AP_small，
+  不完成正式 100 epoch 主矩阵，也不改变原 Gate 3；不自动启动新 seed/消融。
+
 ## 4. 固定实验协议
 
 ### 4.1 训练与评估
@@ -778,6 +845,14 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-10-27 20:21 | `ad298ce` + working tree | 验收用户完成的统一 0.50 阈值全量 30 epoch、val960、分尺寸 recall，并接入论文表 4-S2 | `outputs/p1_global_t050_pilot30_s0/{comparison,acceptance_audit}.json`；`outputs/audit_p1_global_t050_acceptance_20261027.py`；`scripts/build_paper_tables.py`；第 3.18 节 | 24 项哈希/参数检查及 548 图预测重放通过；mAP50-95 −0.6177 pp、small recall −0.3424 pp（−91），逐类 1 升/9 降；best hash `94571a…28a4a`；表格 36 个来源及 31/31 tests 通过 | 全量确认支持尺度分层更有利于总体和小目标覆盖；仍为单 seed 开发结果，原 Gate 3 不变；中文提交并推送，不自动扩训 |
 | 2026-10-27 20:31 | `5d0d514` + working tree | 按用户授权启动尺度阈值配对学生 seed1；固定 split seed0/教师/两套伪标签与损失，顺序运行两组各 30 epoch | `python -u scripts/run_p1_scale_seed_pair.py`；PID 29248；`outputs/p1_scale_threshold_pair_s1/`；第 3.19 节 | 33,047 冻结文件与 metadata 预检通过；36/36 tests；已有论文表 36 来源核对通过；第一组运行中，尚无 seed1 结果 | 完成两组训练/val960/recall/保存预测重放后更新论文两 seed 配对统计并提交 Git；原 Gate 3 不变 |
 | 2026-10-27 23:47（后续收尾见本次提交） | `5d0d514` + working tree | 完成尺度阈值配对学生 seed1 两组 30 epoch、548 图 val960/recall 与独立验收；更新论文表 4-S3、第 4.11 节、证据及复现路径，并纠正短程筛选与全量总体 mAP 方向不同的表述 | `scripts/audit_p1_scale_seed_pair.py`；`outputs/p1_scale_threshold_pair_s1/{comparison,acceptance_audit,independent_audit}.json`；`python scripts/build_paper_tables.py --check` | seed1 尺度−统一：mAP50-95 +0.2420 pp、small recall +0.6434 pp（+171 匹配）；两 seed 平均配对增益 +0.4299±0.2657/+0.4929±0.2128 pp；36 项独立验收、33,047 冻结文件、两组预测重放、59 来源表格与 36/36 tests 通过 | 尺度阈值总体与小目标方向在两学生 seed 保持，支持保留；medium 方向不一致，large 均为统一阈值更高；单 split/固定教师，无显著性或官方 AP_small 主张，原 Gate 3 不变；按用户要求本地 Git 提交 |
+
+| 2026-10-30 09:13（进行中） | `9295c3e` + working tree | 跟进 B2 seed1：原训练第 3 epoch 中断且进程已退出；归档后同配置从初始化重跑完整 30 epoch；整理 seed0 四类案例 | `outputs/b2_seed1_interrupted_20261030_091251/recovery.json`；`outputs/b2_pilot30_s1/`；PID 31944；`docs/paper/case_studies.md` | 37,695 冻结文件核对通过；四类案例和来源 manifest 已生成；尚无 B2 seed1 完整结果 | 等待 30 epoch/完整 val960/recall/四组预测重放，独立验收后更新论文两 seed 统计、测试并本地提交；不推送，原 Gate 3 不变 |
+
+| 2026-10-30 10:15（进行中） | `9295c3e` + working tree | 心跳发现第二次进程中断：日志停于第16epoch且PID31944消失；归档12个文件后用WMI独立启动原入口，避免依赖Codex子进程存续 | `outputs/b2_seed1_interrupted_20261030_101330/recovery.json`；`outputs/b2_pilot30_s1/launch_receipt.json`；PID14304 | 37,695冻结文件再次核对通过；原训练脚本/配置未改；独立验收已支持两级归档来源链及包装哈希 | 当前从原初始化重跑完整30epoch；不使用两次中断指标；完成后按原标准验收、更新论文并本地提交，原Gate3不变 |
+
+| 2026-10-30 10:27（手动交接） | `9295c3e` + working tree | 用户要求由自己终端执行训练；核实PID14304身份后停止后台进程，完整归档当前run和来源链，暂停自动跟进 | `outputs/b2_seed1_interrupted_20261030_102720/`；`python -u scripts/run_b2_seed1.py` | 37,695冻结输入复核通过；13个文件及脚本/配置来源已保留；标准输出/错误由用户终端记录 | 等待用户手动完成连续30epoch及自动评估后，继续独立验收、更新论文和本地Git提交；不得自动重启训练 |
+
+| 2026-10-30 13:05（验收收尾） | `9295c3e` + 本次提交 | 验收用户终端完成的 B2 seed1 连续30epoch及完整评估，复用P1 seed1；完成两seed主对照统计、四类案例和论文/复现记录 | `outputs/b2_pilot30_s1/{comparison,acceptance_audit,independent_audit}.json`；表4-S4；实验4.12–4.13；`outputs/paper_cases_b2_p1_s0/` | seed1 P1−B2：mAP50-95 +0.2438 pp、small recall +1.6932 pp（+450匹配），large −0.6560 pp；两seed配对差 +0.2893±0.0644/+1.7854±0.1304 pp；116检查/37,695冻结文件/四组预测重放、案例1,106输入核验、论文表123来源及7组recall、pytest39/39均通过；中断35文件归档不入统计 | 总体/小目标两seed同向，large方向不同；单split/固定教师/B1未重复，不作显著性或AP_small主张；原Gate3不变；按授权本地Git提交、不push，清理已暂停心跳，不自动扩训 |
 
 ### 10.1 新会话开始流程
 

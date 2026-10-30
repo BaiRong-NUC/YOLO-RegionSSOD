@@ -6,12 +6,14 @@
 不能被视为纯背景。目标是复用 VisDrone、YOLO11 和航拍小目标经验，在单张
 RTX 4070 Ti 12 GB 上完成毕业/中文核心所需的完整实验。
 
-当前状态（2026-10-27）：P1 的 30 epoch、完整原图 val960 和小目标 recall 已完成
-验收，19/19 检查通过。相对 B2，mAP50-95 从 23.4534% 升至 23.7883%
-（+0.3349 个百分点），小目标 recall 从 33.8150% 升至 35.6925%
-（+1.8776 个百分点）。原 Gate 3 的 +0.5 个百分点门槛未达到；按用户当前目标，
-保留本轮积极的单 seed 初步成果，优先整理方法、结果和分析。验收及证据见
-`docs/paper_completion_plan.md` 第 3.8 节。
+当前状态（2026-10-30）：B2/P1 固定 split/教师、学生 seed0/1 的独立 30 epoch
+配对复验已完成验收。P1 相对 B2 的 mAP50-95 两 seed 均提高，平均配对增益为
+**+0.2893±0.0644 个百分点**；small recall 为 **+1.7854±0.1304 个百分点**
+（样本 SD，ddof=1）。seed1 分别提高 0.2438/1.6932 个百分点，多匹配 450 个
+小目标，但 large recall 降低 0.6560 个百分点。116 项独立检查通过。
+表 4-1 至 4-6 保留 seed0 主对照，新增表 4-S4 单列两 seed 统计；B1 未重复，
+这不是多 split、显著性或官方 AP_small 证据。原 Gate 3 未达门槛的判定不变，
+详见 `docs/paper_completion_plan.md` 第 3.8、3.20 节。
 
 论文初稿入口：[论文写作](docs/paper/README.md)。已有
 [引言初稿](docs/paper/introduction.md)和 [S³OD 方法差异对照](docs/paper/s3od_comparison.md)，以及
@@ -385,6 +387,42 @@ python -u scripts/run_p1_no_soft_weights.py
 
 它只关闭 `p1.soft_weights`，保留 `p1.uncertain_ignore=true` 和完整 P1 的其他条件。
 
+## B2 学生 seed1 与主对照案例图
+
+2026-10-30 12:11，用户终端完成 B2 seed1 的连续 30 epoch、548 图完整 val960 和
+固定操作点 recall，复用已有 P1 seed1 后，两 seed 均支持 P1 的总体检测和小目标
+召回增益；large recall 在两 seed 中方向不同，完整统计见表 4-S4 和实验第 4.12 节。
+固定 split seed0、原 B1 教师及各自既有伪标签，640、batch8、SGD 和原增强不变。
+
+已有结果直接核验：
+
+```bash
+python scripts/audit_b2_seed1.py
+python scripts/build_detection_cases.py --check
+python scripts/build_paper_tables.py --check
+```
+
+完整数值、自动/独立验收和日志保存在 `outputs/b2_pilot30_s1/`，训练为
+`runs/partial10_naive_t050_pilot30_s1`。`--collect-only` 只重做完整已有评估的验收/
+汇总，不训练或推理；重做后须再运行独立验收及表格生成/核对。入口有防重复保护，
+在具有相同冻结输入且尚无本组 run/派发记录的环境中，训练复现命令为：
+
+```bash
+python scripts/run_b2_seed1.py --check-only
+python -u scripts/run_b2_seed1.py
+```
+
+最终完整运行前的两次异常中断及一次手动交接，均已连同权重、日志、脚本/配置
+快照和哈希保留在 `outputs/b2_seed1_interrupted_20261030_{091251,101330,102720}/`。
+独立验收复核三层来源链，中断 epoch 不拼接或进入论文。用户手动训练已完成，
+本组完整运行已冻结，不自动扩大训练或启动新 seed。
+
+四类 seed0 成功与失败案例在新增 B2 seed1 结果出现前选定，图注、选图规则及
+边界见[案例图](docs/paper/case_studies.md)。生成器只重放保存预测，在没有输出的
+环境可用 `python scripts/build_detection_cases.py` 生成；已有输出时用 `--check`。
+300 dpi PNG、单行图和 manifest 位于忽略目录 `outputs/paper_cases_b2_p1_s0/`；
+Git 保存配置、脚本、测试与文稿，数据/日志/权重/图像均保留于忽略目录。
+
 ## Baseline 定义
 
 | 名称 | 训练数据 | 作用 |
@@ -418,7 +456,7 @@ data/visdrone_area10/
 
 - Ultralytics 的 mAP 不是 VisDrone 官方 AP；论文最终表仍需官方工具或服务器。
 - 现有 VisDrone test-dev 已被旧项目多次查看，不能继续当作盲测集。
-- P1 的 30 epoch 配对结果可作为单 seed 初步成果；原 Gate 3 的判定和结果后的工作决策见进度文档第 3.8 节。
+- 表 4-1 至 4-6 仍为 seed0 主对照，表 4-S4 是固定 split/教师下 B2/P1 的两学生 seed 复验；原 Gate 3 不变，见进度文档第 3.8、3.20 节。
 - 首轮不要把网络结构、P2、注意力和推理分辨率一起修改，否则无法归因。
 
 详细实验计划见 `docs/experiment_plan_8weeks.md`，命令协议见

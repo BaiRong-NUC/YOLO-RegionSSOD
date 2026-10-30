@@ -356,6 +356,50 @@ medium recall 的方向在两 seed 间发生变化，large recall 均是统一�
 完整数值见表 4-S3，不声称所有尺寸或类别全面获益。独立验收记录为
 `outputs/p1_scale_threshold_pair_s1/independent_audit.json`。
 
+### 4.8 B2 学生 seed1、主对照配对统计与案例图
+
+2026-10-30 12:11 完成用户终端训练及完整评估，随后 116 项独立验收通过。固定原
+split seed0、B1 教师和 B2 全局 0.50 伪标签，只改学生 seed/name；新配置为
+`configs/train_naive_10_seed1.yaml`，独立 30 epoch、640、batch8、SGD、原初始化
+与增强不变。P1 seed1 直接复用；B2 仍用标准损失，不使用 P1 元信息或损失。
+
+仅在具有相同冻结输入、没有本组 run/派发记录的环境中运行：
+
+```bash
+python scripts/run_b2_seed1.py --check-only
+python -u scripts/run_b2_seed1.py
+```
+
+入口核对 37,695 个冻结文件，拒绝重复启动或覆盖。完成后使用各自 best.pt 在
+548 图完整原图上做 val960；recall 使用 conf=0.25、匹配 IoU=0.50、NMS IoU=0.70、
+max_det=500，重放 B2/P1 seed0/1 四组保存预测，原图尺寸 GT 共 38,759。
+日志、比较和验收保存在 `outputs/b2_pilot30_s1/`。
+
+已有完整结果的独立验收、案例核验及论文生成：
+
+```bash
+python scripts/audit_b2_seed1.py
+python scripts/build_detection_cases.py --check
+python scripts/build_paper_tables.py
+python scripts/build_paper_tables.py --check
+```
+
+`--collect-only` 仅从已有完整评估重做汇总，不重训或推理；之后须重新运行独立
+验收和表格生成/核验，使来源哈希同步。此前两次异常中断、一次手动交接的 run、
+日志和脚本/配置哈希完整归档于
+`outputs/b2_seed1_interrupted_20261030_{091251,101330,102720}/`；不拼接 epoch。
+最终运行于 10:33 用户终端从原初始化开始，连续完成 30 epoch。
+
+表 4-S4 的差值为 P1−B2。seed1 的 mAP50-95 +0.2438 pp、small recall +1.6932 pp
+（多匹配 450）；两 seed 均值±样本 SD 为 +0.2893±0.0644 pp、+1.7854±0.1304 pp。
+large recall 方向不一致，seed1 为 −0.6560 pp。各方法单次/均值±SD 和全部指标均
+在表中报告，ddof=1；B1 未重复，原 seed0 主表不变，不作多 split/显著性或官方
+AP_small 主张，不改变原 Gate 3，也不替代正式 100 epoch 主矩阵。
+
+案例图从事先冻结的 seed0 预测生成，成功/失败均保留，详见
+`docs/paper/case_studies.md`。没有输出时可用 `python scripts/build_detection_cases.py`
+生成；已有输出用 `--check` 核验，PNG 与 manifest 均只保留于忽略目录。
+
 ## 5. 对照规则
 
 - B1 与 B2 必须从同一 `yolo11s.pt` 初始化。
