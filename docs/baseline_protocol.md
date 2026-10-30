@@ -470,6 +470,21 @@ python scripts/audit_context_rectification.py --check
 确认入口已验证拒绝，无确认组/训练；完整结果见
 `docs/paper/context_rectification_results.md`。
 
+### 4.12 开放区域拟合的分类置信度校准（诊断）
+
+```bash
+python -u scripts/audit_confidence_calibration.py
+python scripts/audit_confidence_calibration.py --check
+```
+
+固定规则见`docs/paper/confidence_calibration_protocol.md`及
+`configs/confidence_calibration_diagnostic.yaml`。先提交再运行：512开放tile用原B1
+教师960推理，拟合只读`labeled/labels`；来源不重叠256tile探索及过线后另256tile
+确认均复用既有正框，不推理或训练。全局校准是简化对照，分组映射不能仅优于
+原分数就进训练。`--check`核对所有来源和输出并从开放标签重拟合重放；
+`--confirm`必须先重放且通过探索，不允许在缺少探索时启动新的拟合。
+输出位于`outputs/confidence_calibration_20261030/{fit,discovery,confirmation}/`。
+
 ## 5. 对照规则
 
 - B1 与 B2 必须从同一 `yolo11s.pt` 初始化。

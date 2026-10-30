@@ -829,6 +829,19 @@ P1 的 30 epoch 训练、完整原图 val960 和固定操作点小目标 recall 
   `YOLO-VisDrone Research`；前者28篇均有PDF，S³OD附件为注明的2023早期预印本。
   文献清单见`docs/paper/zotero_literature_library.md`；扩展关键词归档不代表启动B/C。
 
+### 3.30 开放区域拟合的置信度校准（2026-10-30，执行前固定）
+
+- 基于已读Calibrated Teacher方法页，单独检验分类置信度可靠性；不复现其在线EMA、
+  IoU队列或FIoU，不宣称校准概念新颖。执行前协议
+  `docs/paper/confidence_calibration_protocol.md`和固定配置先提交，再推理。
+- 512个开放标注tile拟合全局分数段/类别×尺寸单调收缩映射；拟合仅用已有
+  `labeled/labels`，与探索/确认源图不重叠，不用隐藏GT拟合或调整分数段。
+  探索/确认各256个未标注tile，仅复用已有正伪框；类别/几何/原分数/ignore不改。
+- 八项继续线同时要求分组Brier优于原分数和全局简化对照、small同向、
+  足够样本/覆盖且错误权重占比不明显恶化。探索失败不执行确认，不调规则追试。
+  入口`python scripts/audit_confidence_calibration.py`，`--check`只读重放拟合和诊断。
+  当前84/84tests通过，尚无校准拟合或此项隐藏GT结果，不训练。
+
 ## 4. 固定实验协议
 
 ### 4.1 训练与评估
@@ -1048,6 +1061,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-10-30（原图上下文纠错协议与Zotero归档） | 本次提交 | 固定128原图探索、过线后独立确认的单规则；实现GT-free映射/类别纠错及只读验收；按用户要求将Zotero分类调整为并列顶层 | `scripts/audit_context_rectification.py`；第3.29节；`docs/paper/zotero_literature_library.md` | pytest73/73；28论文均有PDF；尚无本项推理/纠错效果 | 先提交再推理；探索未过线则不做确认、不训练；当前仅A，不push，原Gate3不变 |
 
 | 2026-10-30（原图上下文探索完成） | `f1c997e` + 本次提交 | 固定128原图上下文类别纠正探索、只读重放及失败确认阻断；修复历史数据源码误忽略 | `scripts/audit_context_rectification.py --check`；`docs/paper/context_rectification_results.md` | 98接受tile/799正框，仅改1框且改错；总匹配及small各−1；372来源一致，推理4.3874秒/训练0epoch；pytest74/74，Git归档源码齐全 | 继续线失败，不运行确认、不调阈值或训练；当前未找到值得扩训的新机制，原Gate3不变；中文提交、不push |
+
+| 2026-10-30（置信度校准协议与代码） | 本次提交 | 固定开放区域拟合、来源不重叠探索/确认、全局简化对照和八项继续线；实现单调收缩校准/验收 | `scripts/audit_confidence_calibration.py`；第3.30节 | pytest84/84；尚未推理或拟合，不改既有训练输入 | 先提交再运行512开放tile推理；隐藏GT只验收，不绕过简化对照或启动训练 |
 
 ### 10.1 新会话开始流程
 

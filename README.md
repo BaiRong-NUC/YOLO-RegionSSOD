@@ -498,6 +498,18 @@ python scripts/audit_context_rectification.py --check
 论文归档在Zotero顶层
 `YOLO-RegionSSOD`，清单与PDF版本说明见`docs/paper/zotero_literature_library.md`。
 
+开放区域置信度校准的固定协议见`docs/paper/confidence_calibration_protocol.md`。
+只拟合512个已有开放标注tile，再用来源不重叠的256个未标注tile检查；
+若已有结果，只读核对命令为：
+
+```bash
+python scripts/audit_confidence_calibration.py --check
+```
+
+首次生成去掉`--check`，只新增512tile推理、不训练；`--confirm`仅在探索过线后
+允许另256tile确认且不再推理/拟合。校准器不得使用隐藏GT或val标签拟合，
+不更改已有正伪标签集合。通过诊断不等同于学生效果或值得长期训练。
+
 ## Baseline 定义
 
 | 名称 | 训练数据 | 作用 |

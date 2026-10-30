@@ -1,0 +1,32 @@
+version: 1
+output: outputs/confidence_calibration_20261030
+fit_size: 512
+sample_size: 256
+fit_seed: 20261103
+discovery_seed: 20261104
+confirmation_seed: 20261105
+teacher_sha256: 58f40e1e7b397c3f0b873bbc9cbd9e50660b41c48c9cadb1e7ef3d0f0b0ebf54
+exclude_caches:
+  - outputs/scale_support_discovery_20261030/protocol.json
+  - outputs/scale_support_confirm_20261030/protocol.json
+  - outputs/candidate_retention_128_20261030_v2/protocol.json
+  - outputs/context_rectification_20261030/discovery/protocol.json
+imgsz: 960
+conf: 0.05
+nms_iou: 0.70
+max_det: 500
+batch: 2
+calibrator:
+  edges: [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.000001]
+  global_prior: 20
+  group_prior: 50
+  min_group: 50
+gate:
+  min_fit_positives: 2000
+  min_positives: 1000
+  min_small_positives: 400
+  min_conditional_coverage: 0.80
+  min_brier_gain_vs_raw: 0.01
+  min_brier_gain_vs_global: 0.002
+  min_small_brier_gain_vs_raw: 0.005
+  max_error_weight_share_increase: 0.02
