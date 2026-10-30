@@ -493,7 +493,9 @@ python scripts/audit_context_rectification.py --check
 ```
 
 探索通过继续线后，`--confirm`才允许另128张不重叠原图确认；未过线时拒绝执行。
-当前代码/协议已准备，尚未获得此项效果证据。论文归档在Zotero顶层
+128图探索已完成，只触发1次类别纠正且改错，总体/small匹配各−1；
+未过线，不运行确认或训练。结果和成本见`docs/paper/context_rectification_results.md`。
+论文归档在Zotero顶层
 `YOLO-RegionSSOD`，清单与PDF版本说明见`docs/paper/zotero_literature_library.md`。
 
 ## Baseline 定义

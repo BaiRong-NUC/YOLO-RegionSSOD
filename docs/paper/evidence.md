@@ -200,3 +200,16 @@ NMS IoU=0.70、max_det=500。自动与独立记录为
   通过16项检查、23783冻结输入和两组各548图预测重放。
 - 结果方向为去软权重mAP50-95−0.1623pp、small recall+0.9143pp（+243），逐类3升7降。
   只有单split/教师/学生seed；表4-S5及实验4.14保留取舍，不宣称所有模块均提高全部指标。
+
+## 原图上下文类别纠正探索（2026-10-30，不入学生结果表）
+
+- 执行前协议`context_rectification_analysis.md`及配置先由`ef8f565`提交；
+  实际128图推理源码`f1c997e`。原教师、既有正框/权重/ignore均未改。
+- `outputs/context_rectification_20261030/discovery/{protocol,analysis,costs,manifest}.json`
+  保存固定样本、全部统计、4.3874秒推理成本和372来源SHA256；原始预测
+  `context.jsonl`和逐纠正`diagnostics.jsonl`可完整重放。
+- 98接受tile/799正框，仅1次类别纠正且改错；总体匹配562→561、
+  small302→301。固定继续线失败，确认入口重放后拒绝；确认/学生训练均未执行。
+- 只读命令`python scripts/audit_context_rectification.py --check`通过。
+  详细范围与小样本限制见`context_rectification_results.md`；
+  这是伪标签诊断，不是学生检测结果、独立盲测或官方AP_small。

@@ -806,7 +806,7 @@ P1 的 30 epoch 训练、完整原图 val960 和固定操作点小目标 recall 
   不合并无匹配组重试、不改组阈值，不实现或训练新回归加权。
   全套pytest61/61通过；只读复核`python scripts/audit_positive_localization.py --check`。
 
-### 3.29 原图上下文类别纠正（2026-10-30，执行前固定）
+### 3.29 原图上下文类别纠正（2026-10-30，探索失败后停止）
 
 - 跨尺度定位诊断停止后，下一项只检查新的观察范围：同一B1教师的原图960预测
   映射回既有未标注tile，能否纠正低置信度small正伪框的类别。
@@ -817,7 +817,14 @@ P1 的 30 epoch 训练、完整原图 val960 和固定操作点小目标 recall 
   隐藏GT只离线计数，未导出训练标签。与CrossRectify/密集裁片SSOD重叠已说明。
 - 入口`python scripts/audit_context_rectification.py`；`--check`只读验收；
   确认组`--confirm`必须先重放并通过探索继续线。协议和代码先提交再推理。
-  当前全套pytest73/73通过，尚无本项结果，不代表值得训练。
+  协议/代码由`ef8f565`先提交，实际推理commit为`f1c997e`。
+- 唯一128图探索完成：98个已接受tile、799正框，只触发1次类别纠正，
+  将正确van改为car；总体匹配562→561、small302→301，继续线失败。
+  推理含warmup4.3874秒、新增训练0epoch；不执行确认或更改阈值追试。
+  372来源/全部决策与GT统计只读重放通过，确认入口拒绝失败探索已实际验证。
+  结果与限制见`docs/paper/context_rectification_results.md`。
+- 预检修复历史`data/`忽略规则屏蔽四个数据源码的问题；原文件内容不改，
+  Git归档核对源码齐全且不含生成数据，全套pytest74/74通过。
 - Zotero已按用户要求调整为“我的文库”下并列的`YOLO-RegionSSOD`和
   `YOLO-VisDrone Research`；前者28篇均有PDF，S³OD附件为注明的2023早期预印本。
   文献清单见`docs/paper/zotero_literature_library.md`；扩展关键词归档不代表启动B/C。
@@ -1039,6 +1046,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-10-30（正伪框定位诊断完成） | `2a42fa5` + 本次提交 | 实现GT-free一对一稳定性特征，复用缓存完成探索/确认，按预先继续线停止 | `scripts/audit_positive_localization.py --check`；`outputs/positive_localization_20261030/`；第3.28节 | 2710正框/1442来源重放，pytest61/61；small不稳定两组各6框，分层证据不足；稳定组严格定位质量比例52.7981%/49.4737% | 不增推理/训练，不改分组重试、不直接删除无匹配框；下一项需新信息来源，原Gate3不变；中文本地提交、不push |
 
 | 2026-10-30（原图上下文纠错协议与Zotero归档） | 本次提交 | 固定128原图探索、过线后独立确认的单规则；实现GT-free映射/类别纠错及只读验收；按用户要求将Zotero分类调整为并列顶层 | `scripts/audit_context_rectification.py`；第3.29节；`docs/paper/zotero_literature_library.md` | pytest73/73；28论文均有PDF；尚无本项推理/纠错效果 | 先提交再推理；探索未过线则不做确认、不训练；当前仅A，不push，原Gate3不变 |
+
+| 2026-10-30（原图上下文探索完成） | `f1c997e` + 本次提交 | 固定128原图上下文类别纠正探索、只读重放及失败确认阻断；修复历史数据源码误忽略 | `scripts/audit_context_rectification.py --check`；`docs/paper/context_rectification_results.md` | 98接受tile/799正框，仅改1框且改错；总匹配及small各−1；372来源一致，推理4.3874秒/训练0epoch；pytest74/74，Git归档源码齐全 | 继续线失败，不运行确认、不调阈值或训练；当前未找到值得扩训的新机制，原Gate3不变；中文提交、不push |
 
 ### 10.1 新会话开始流程
 

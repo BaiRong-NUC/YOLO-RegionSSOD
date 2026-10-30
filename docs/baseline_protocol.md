@@ -465,7 +465,10 @@ python scripts/audit_context_rectification.py --check
 首次运行拒绝覆盖输出；`--check`不推理，只重放纠错/质量/覆盖统计并核对SHA256。
 探索通过固定六项继续线后，`--confirm`才允许另128张独立原图确认，
 `--confirm --check`只读验收两组。两组即使过线，也不能代替学生val960效果，
-需单独固定学生预算。本项当前尚未推理，不启动训练或长期训练监控。
+需单独固定学生预算。2026-10-30唯一128图探索已完成、继续线失败：
+只纠正1框且改错，总体及small匹配各−1。只读验收372来源通过，
+确认入口已验证拒绝，无确认组/训练；完整结果见
+`docs/paper/context_rectification_results.md`。
 
 ## 5. 对照规则
 
