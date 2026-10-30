@@ -3,7 +3,7 @@
 > 最后更新：2026-10-30<br>
 > 当前执行范围：只推进A第一篇方法稿；B/C、蒸馏剪枝和树莓派部署留在远期规划，不并行启动。<br>
 > 最新补证据：分类软权重全量30epoch消融已完成独立验收；去软权重mAP50-95−0.1623pp、small recall+0.9143pp，未达到扩大训练条件；表4-S5/实验4.14已同步，当前不扩训。<br>
-> 当前有界小试：2026-10-30 18:16启动唯一小框混合NWD五epoch子集筛查，复用已完成P1参考；仍在训练，无本项最终学生结果，临时监控a-nwd已启用。<br>
+> 最新有界筛查：小框混合NWD五epoch已完成独立验收；mAP50-95−0.1746pp、small recall+1.5464pp，未达继续线，不扩训。<br>
 > 当前阶段：B2/P1 学生 seed0/1 主对照复验及四类案例已完成验收；mAP50-95 与 small recall 两 seed 同向，平均配对增益 +0.2893/+1.7854 pp；large recall 方向不同。论文表 4-S4、第 4.12–4.13 节及证据更新，原 Gate 3 不变<br>
 > 论文暂定题目：**面向高分辨率航拍图像的区域局部标注小目标半监督检测方法**  
 > 仓库：`D:\Python\YOLO-RegionSSOD`  
@@ -850,7 +850,7 @@ P1 的 30 epoch 训练、完整原图 val960 和固定操作点小目标 recall 
   失败探索的确认阻断已实测；结果见`docs/paper/confidence_calibration_results.md`。
   当前两项新规则均不支持扩训，后续须有新的可验证信息，不在同批隐藏GT上调参追试。
 
-### 3.31 小框混合NWD回归筛查（2026-10-30，工程预检）
+### 3.31 小框混合NWD回归筛查（2026-10-30，完成后停止）
 
 - 在先前两项规则失败后，单独检验几何损失；原NWD论文式7–9及Sec.3.3已核对，
   其已包含VisDrone及回归/NMS/分配应用，不把接入NWD称为原创。
@@ -871,8 +871,12 @@ P1 的 30 epoch 训练、完整原图 val960 和固定操作点小目标 recall 
   记录`outputs/screens/p1_small_nwd_1024_e5/launch_receipt.json`；
   命令/创建时间经Get-CimInstance核实，CSV实际增长。18:19核查时已完成2epoch，
   stderr为空，仍在原训练，不将中途640指标当作最终val960结果。
-  临时心跳`a-nwd`每2分钟仅观察，正常不重复通知，处置完成/失败后删除；
-  不重启、不拼接或自动扩训。当前无最终学生结果。
+  包装于18:22:23正常退出，exit0；连续5epoch累计299.989秒、完整val960/recall完成。
+  相对同子集P1：mAP50-95−0.1746pp、small recall+1.5464pp、
+  medium+0.0630pp、large−0.7498pp；未达继续线，不扩训或调参追试。
+  独立核验23794来源、源码/参数/产物哈希与两组各548图预测匹配通过；
+  详细结果与限制见`docs/paper/small_nwd_results.md`。
+  临时心跳`a-nwd`收尾后删除，不将本组结果写入正式主表。
 
 ## 4. 固定实验协议
 
@@ -1103,6 +1107,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-10-30（小框NWD预检完成） | `626fa9e` + 本次提交 | 完成23794冻结输入预检和真实YOLO11s GPU AMP前反传；只用开放GT估计常数 | `python scripts/screen_p1_small_nwd.py --geometry-only` | C=20.22804306像素，1024开放tile/7519小框；255梯度张量有限，0优化器步；94tests | 工程可执行，不代表有效；下一步仅新增单组5epoch及临时监控，不自动扩训 |
 
 | 2026-10-30 18:16（小框NWD启动） | `d1da33a` + 本次提交 | 实际启动唯一五epoch子集筛查，复用缓存P1；创建临时监控a-nwd | `outputs/screens/p1_small_nwd_1024_e5/launch_receipt.json`；包装32304/训练28860 | WMI隐藏启动返回0；命令/创建时间验证，CSV增长；18:19已完成2epoch、stderr为空；尚无最终val960/recall | 继续原进程，完成后独立验收；未判定效果，不自动扩训，当前仅A；结束清理监控，中文提交、不push |
+
+| 2026-10-30 18:22（小框NWD验收） | `78b92ae` + 本次提交 | 完成唯一5epoch、val960/recall及独立验收，按固定继续线停止 | `python scripts/audit_small_nwd_screen.py`；`docs/paper/small_nwd_results.md` | exit0/连续5epoch/299.989秒；mAP50-95−0.1746pp、small+1.5464pp、large−0.7498pp；23794输入与两组548图重放 | 继续线失败；不改C/mix/阈值重试、不扩训；清理a-nwd，原Gate3不变；中文提交、不push |
 
 ### 10.1 新会话开始流程
 

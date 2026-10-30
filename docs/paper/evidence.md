@@ -226,3 +226,16 @@ NMS IoU=0.70、max_det=500。自动与独立记录为
   确认入口拒绝已实测，无确认/训练。详细表及分布迁移限制见
   `confidence_calibration_results.md`，只读命令为
   `python scripts/audit_confidence_calibration.py --check`。
+
+## 小框混合NWD五轮筛查（2026-10-30，不入主表）
+
+- 执行前协议`small_nwd_protocol.md`由`626fa9e`先提交，使用同一1024源图/
+  1765tile、原COCO初始化、5epoch/640/batch8/SGD/seed0/close_mosaic0，
+  只新增一组NWD学生；参考为已验收同预算完整P1。
+- `outputs/screens/p1_small_nwd_1024_e5/`保存23794输入预检、GPU检查、
+  启动/退出及独立验收。训练18:16启动、18:22:23包装exit0，CSV累计299.989秒。
+- 两组548原图val960和保存预测匹配重放一致；NWD−P1的mAP50-95−0.1746pp、
+  small recall+1.5464pp，继续线失败。保留取舍、不调参数追试、不扩训。
+  数据、代码/参数、权重/产物SHA256通过独立入口
+  `python scripts/audit_small_nwd_screen.py`核验。
+- 详细表及范围见`small_nwd_results.md`，本组是子集探索，不是全量方法结论或官方AP。

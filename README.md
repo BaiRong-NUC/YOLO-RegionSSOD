@@ -525,6 +525,8 @@ python scripts/screen_p1_small_nwd.py --geometry-only
 随后完整val960和固定操作点recall。已有训练/阶段记录时拒绝重复启动。
 验收为`python scripts/audit_small_nwd_screen.py`，必须包装进程exit0且全部阶段完成；
 此筛查不自动派发30/100epoch，也不进入正式论文结果表。
+2026-10-30已完成独立验收：mAP50-95−0.1746pp、small recall+1.5464pp，
+固定继续线失败，不扩训；详细结果和限制见`docs/paper/small_nwd_results.md`。
 
 ## Baseline 定义
 

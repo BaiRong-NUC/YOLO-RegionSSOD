@@ -507,6 +507,9 @@ stdout/stderr与exit_code；启动训练后创建临时监控，结束/失败处
 独立验收`python scripts/audit_small_nwd_screen.py`只读重放、核对参数和SHA256。
 继续线为相对同子集P1的mAP50-95≥+0.30pp且small recall≥0；
 过线也只意味着值得单独登记全量30epoch确认，不自动扩训或交长期命令。
+本组2026-10-30正常结束并独立验收通过，但mAP50-95下降0.1746pp，
+虽small recall提高1.5464pp，仍未过固定继续线；不开展全量确认。
+结果及成本见`docs/paper/small_nwd_results.md`。
 
 ## 5. 对照规则
 
