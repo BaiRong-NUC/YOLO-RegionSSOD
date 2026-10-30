@@ -3,7 +3,7 @@
 > 最后更新：2026-10-30<br>
 > 当前执行范围：只推进A第一篇方法稿；B/C、蒸馏剪枝和树莓派部署留在远期规划，不并行启动。<br>
 > 最新补证据：分类软权重全量30epoch消融已完成独立验收；去软权重mAP50-95−0.1623pp、small recall+0.9143pp，未达到扩大训练条件；表4-S5/实验4.14已同步，当前不扩训。<br>
-> 最新安排：用户要求至少30epoch才判断性能，中文提交后push；NWD五轮取舍保留为历史探索，按独立协议准备唯一全量30epoch确认。<br>
+> 最新安排：用户要求至少30epoch才判断性能，中文提交后push；唯一全量NWD30已于2026-10-30 18:54启动，五轮保留为历史探索，当前尚无30轮结果。<br>
 > 当前阶段：B2/P1 学生 seed0/1 主对照复验及四类案例已完成验收；mAP50-95 与 small recall 两 seed 同向，平均配对增益 +0.2893/+1.7854 pp；large recall 方向不同。论文表 4-S4、第 4.12–4.13 节及证据更新，原 Gate 3 不变<br>
 > 论文暂定题目：**面向高分辨率航拍图像的区域局部标注小目标半监督检测方法**  
 > 仓库：`D:\Python\YOLO-RegionSSOD`  
@@ -894,12 +894,19 @@ P1 的 30 epoch 训练、完整原图 val960 和固定操作点小目标 recall 
   与已验收完整P1 seed0/30epoch配对；从原COCO权重初始化，
   close_mosaic10，不续接五轮。原NWD源码及C=20.22804306/mix0.5/面积边界均冻结。
   新入口`python scripts/run_p1_small_nwd.py --check-only`、后台包装与独立验收已实现；
-  当前尚未启动，不提前声称性能改善。
+  工程预检通过后于2026-10-30 18:54:03启动，不提前声称性能改善。
 - 后续线在30epoch未知时登记：mAP50-95≥+0.30pp且small recall非负，
   或small recall≥+1.00pp且mAP50-95≥−0.10pp。采用与既有30epoch
   软权重消融相同的两路线；过线才准备更大训练交接，不自动扩训。
   工程检查108/108 tests；新增五个Python模块Pyright零错误/警告。
   缓存诊断1111来源SHA256及两组预测精确重放通过，论文表137来源/8组recall核对通过。
+  `0d75739`已提交并push协议/源码；23793来源预检通过，完整11310tile。
+  包装PID30248、训练PID46428命令行/创建时间通过Get-CimInstance核实；
+  18:55为第1/30轮、batch221/1414，stdout实际增长、stderr为空，
+  首轮尚未结束，results.csv尚无首行，不能把此时缺少CSV判为中断。
+  临时心跳`a-nwd`已创建，每10分钟检查本次全量30epoch，
+  仅终态/需处理通知；结束或失败处置后删除。日志与回执位于
+  `outputs/p1_small_nwd_pilot30_s0/`，不重复启动，不自动更长训练。
 
 ## 4. 固定实验协议
 
@@ -1134,6 +1141,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-10-30 18:22（小框NWD验收） | `78b92ae` + 本次提交 | 完成唯一5epoch、val960/recall及独立验收，按固定继续线停止 | `python scripts/audit_small_nwd_screen.py`；`docs/paper/small_nwd_results.md` | exit0/连续5epoch/299.989秒；mAP50-95−0.1746pp、small+1.5464pp、large−0.7498pp；23794输入与两组548图重放 | 继续线失败；不改C/mix/阈值重试、不扩训；清理a-nwd，原Gate3不变；中文提交、不push |
 
 | 2026-10-30（用户更新30epoch性能判断预算） | 本次提交 | 完成五轮缓存等FP/严格定位诊断；按至少30epoch要求准备唯一全量NWD确认，并接受中文提交后push授权 | `scripts/audit_small_nwd_tradeoff.py --check`；`scripts/run_p1_small_nwd.py --check-only`；第3.32节 | 两组548图/1111来源精确重放；等FP时IoU0.50小目标+0.6321/+0.7713pp，IoU0.90略降；108tests/Pyright零错误/论文表核验通过；全量30epoch尚未启动 | 五轮保留为历史探索，不再据此永久淘汰；完整P1缓存复用，仅新增30epoch，不自动扩训；启动后配置临时监控 |
+
+| 2026-10-30 18:54（NWD全量30epoch启动） | `0d75739` + 本次进度提交，均push | 原C/mix/源码冻结，复用完整P1，实际启动唯一30epoch并创建临时监控a-nwd | `outputs/p1_small_nwd_pilot30_s0/{preflight,launch_receipt,status}.json`；第3.32节 | 23793来源/11310tile预检；包装30248/训练46428创建时间及命令核实；18:55第1轮batch221增长、stderr为空、CSV首行待首轮结束；尚无30轮性能结果 | 继续原进程、不重启/拼接/并行新候选；完整val960/recall和独立验收后判定，终态清理监控；中文提交并push |
 
 ### 10.1 新会话开始流程
 

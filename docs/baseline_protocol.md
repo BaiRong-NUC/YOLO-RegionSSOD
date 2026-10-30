@@ -532,6 +532,8 @@ python scripts/audit_p1_small_nwd.py
 后续线在本轮未知时登记：AP≥+0.30pp且small recall非负，
 或small recall≥+1.00pp且AP≥−0.10pp；过线只准备大规模训练交接。
 中文提交并push由用户最新授权；当前仅A。
+2026-10-30 18:54已实际启动唯一训练，临时监控为`a-nwd`；
+当前等待原进程，不重复启动入口，30epoch后才做性能判断。
 
 ## 5. 对照规则
 

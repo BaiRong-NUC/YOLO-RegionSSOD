@@ -543,6 +543,8 @@ python scripts/audit_small_nwd_tradeoff.py --check
 `outputs/p1_small_nwd_pilot30_s0/`；已有状态/dispatch/产物时拒绝重启。
 完成后运行`python scripts/audit_p1_small_nwd.py`独立验收。
 训练启动时创建临时监控，终态处置后删除，不并行第二组或自动扩训。
+该唯一训练已于2026-10-30 18:54启动，临时监控`a-nwd`已启用，
+当前等待完整30epoch与评估；不要重复运行启动入口。
 
 ## Baseline 定义
 
