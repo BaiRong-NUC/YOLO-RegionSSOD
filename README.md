@@ -423,6 +423,20 @@ python -u scripts/run_b2_seed1.py
 300 dpi PNG、单行图和 manifest 位于忽略目录 `outputs/paper_cases_b2_p1_s0/`；
 Git 保存配置、脚本、测试与文稿，数据/日志/权重/图像均保留于忽略目录。
 
+## 第一篇的低成本诊断
+
+实验缺口和投入顺序见 [第一篇清单](docs/paper1_experiment_gaps.md)，已完成的
+[ignore 可恢复增量](docs/paper/ignore_recovery_analysis.md) 仅重放保存候选，不训练或推理。
+原始数据与诊断产物均在忽略目录；已有结果核验：
+
+```bash
+python scripts/audit_paper1_gaps.py --check
+python scripts/audit_ignore_recovery.py --check
+```
+
+当前结论是有条件恢复空间、但直接降低阈值的新增独立匹配比例较低，尚不据此扩训。
+有可靠筛选信号后再准备单因素有界训练命令，由用户自行运行。
+
 ## Baseline 定义
 
 | 名称 | 训练数据 | 作用 |

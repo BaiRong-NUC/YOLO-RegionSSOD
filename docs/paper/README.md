@@ -10,6 +10,7 @@
 | [experiments.md](experiments.md) | 第 4 章实验分析初稿：实验设置、整体/分尺寸/逐类别结果、伪标签质量和开销 |
 | [results_tables.md](results_tables.md) | 表 4-1 至 4-6 和补充表 4-S1 至 4-S4，含单位、评测口径、尺度阈值及 B2/P1 配对 seed 统计 |
 | [evidence.md](evidence.md) | 表格来源、权重 SHA256、补评估记录和数字核对方式 |
+| [ignore_recovery_analysis.md](ignore_recovery_analysis.md) | 第一篇追加的零训练诊断：锁定已有匹配，核对 ignore 条件容量上界、重复与低阈值候选代价，不作为学生增益 |
 | [case_studies.md](case_studies.md) | 已冻结 seed0 的成功/退化/共同漏检/未匹配预测四类案例，含可复现选图规则、裁剪坐标和全验证集事件计数 |
 | [s3od_comparison.md](s3od_comparison.md) | S³OD 差异对照：正式发表版本、预印本公式、公开代码与 P1 实现、贡献范围及待验证问题 |
 | [references.md](references.md) | 16 篇核心文献、阅读优先级、引用边界；[references.bib](references.bib) 供文献管理工具导入 |
