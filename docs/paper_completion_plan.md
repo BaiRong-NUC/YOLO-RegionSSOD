@@ -2,6 +2,7 @@
 
 > 最后更新：2026-10-30<br>
 > 当前执行范围：只推进A第一篇方法稿；B/C、蒸馏剪枝和树莓派部署留在远期规划，不并行启动。<br>
+> 最新补证据：分类软权重全量30epoch消融已完成独立验收；去软权重mAP50-95−0.1623pp、small recall+0.9143pp，未达到扩大训练条件；表4-S5/实验4.14已同步，当前不扩训。<br>
 > 当前阶段：B2/P1 学生 seed0/1 主对照复验及四类案例已完成验收；mAP50-95 与 small recall 两 seed 同向，平均配对增益 +0.2893/+1.7854 pp；large recall 方向不同。论文表 4-S4、第 4.12–4.13 节及证据更新，原 Gate 3 不变<br>
 > 论文暂定题目：**面向高分辨率航拍图像的区域局部标注小目标半监督检测方法**  
 > 仓库：`D:\Python\YOLO-RegionSSOD`  
@@ -66,13 +67,13 @@ P1 尺度感知伪标签与 uncertain-ignore 是否带来稳定收益。
 | P1 尺度感知方法 | seed0/1 相对 B2 的 mAP50-95 与 small recall 均提高；平均配对增益 +0.2893±0.0644/+1.7854±0.1304 pp；large recall 方向不同 | 表 4-S4；第 3.8、3.20 节；实验第 4.12 节 | 保留两个学生 seed 的正向总体/小目标结果，不作显著性或跨 split 主张；原 Gate 3 不变 |
 | 第①组 no-ignore 消融 | 30 epoch、val960、固定操作点 recall 及独立验收完成；相对完整 P1 的 mAP50-95 +0.0217 pp、small recall −0.1392 pp | `outputs/p1_no_ignore_pilot30_s0/{comparison,acceptance_audit}.json`；第 3.13 节 | 不能声称 ignore 独立提高整体 mAP；继续拆分软权重与尺度阈值，补配对 seed |
 | 软权重低成本筛选 | 1024 源图、两组各 5 epoch 和 val960 完成；mAP50-95 +0.0884 pp、small recall +0.0790 pp，低于 0.3 pp 候选线 | `outputs/screens/p1_soft_weights_1024_e5/{comparison,acceptance_audit}.json`；第 3.15 节 | 保留当时中性停止结论；最新A补证据授权下单独启动正式30epoch消融，见第3.26节，不追认短筛过线 |
-| 软权重全量单因素消融 | 2026-10-30 14:30（北京时间）启动一组30epoch；只关闭分类软权重，训练中，尚无最终结果 | `outputs/p1_no_soft_weights_pilot30_s0/launch_receipt.json`；第3.26节 | 临时心跳a-30每10分钟监控；完整val960/recall及独立验收后决定后续，不自动扩训 |
+| 软权重全量单因素消融 | 30epoch/val960/recall/独立验收完成；去软权重mAP50-95−0.1623pp、small recall+0.9143pp | `outputs/p1_no_soft_weights_pilot30_s0/independent_audit.json`；第3.26节；表4-S5 | 未达扩大训练条件；保留完整P1主配置及取舍结果，不自动扩训 |
 | 尺度阈值低成本筛选 | 统一 0.50 对比尺度分层：mAP50-95 +0.2237 pp、small recall −3.1230 pp | `outputs/screens/p1_global_t050_1024_v2_e5/{comparison,acceptance_audit}.json`；第 3.16 节 | 自动候选线未触发，但小目标信号值得全量 30 epoch 确认；数据已准备，用户手动启动 |
 | 尺度阈值全量确认 | 30 epoch、val960、固定操作点 recall 及独立验收完成；统一 0.50 相对完整 P1 的 mAP50-95 −0.6177 pp、small recall −0.3424 pp，逐类 1 升/9 降 | `outputs/p1_global_t050_pilot30_s0/{comparison,acceptance_audit}.json`；表 4-S2；第 3.18 节 | 全量结果支持尺度分层阈值更有利于总体检测和小目标覆盖；仍为单 split/seed，不扩写为跨 seed 稳定性 |
 | 尺度阈值配对学生 seed | seed1 两组各 30 epoch、完整 val960 和预测重放完成；尺度分层相对统一 0.50 的 mAP50-95 +0.2420 pp、small recall +0.6434 pp，与 seed0 两项同向 | `outputs/p1_scale_threshold_pair_s1/{comparison,acceptance_audit,independent_audit}.json`；表 4-S3；第 3.19 节 | 保留尺度分层；单 split/固定教师下两学生 seed 的平均配对增益为 +0.4299/+0.4929 pp，不作显著性或跨 split 主张 |
 | 正式 5/10/20% 数据 | 10% seed0 已生成；20 图同 seed 检查通过；5%/20% 未生成 | `data/visdrone_area10/summary.json`、`audit.json` | 生成 5%/20% split |
 | 正式 100 epoch 主矩阵 | 已完成 B1 10% seed0；B2/P1 未完成 | `runs/partial10_sup_s0`；已有 P1 30 epoch 正向初步结果 | 先整理已有成果，后续按论文需要决定补充验证规模 |
-| 论文正文 | 第 1–4 章、表 4-S4/第 4.12 节的 B2/P1 两 seed 统计、第 4.13 节/四类案例及来源已更新；原 seed0 主表保留 | `docs/paper/{experiments,results_tables,evidence,case_studies}.md`；第 3.20 节 | 软权重全量单因素消融、正式矩阵及最终排版仍待补，不自动扩训 |
+| 论文正文 | 第1–4章、两seed统计/案例，以及表4-S5/实验4.14软权重全量消融已同步；原seed0主表保留 | `docs/paper/{experiments,results_tables,evidence,case_studies}.md`；第3.20、3.26节 | 正式矩阵与最终排版仍待补，后续先选一个低成本问题，不自动扩训 |
 | 文章与树莓派部署规划 | 用户新增三篇文章目标及最终树莓派部署要求；论文按录用、专利按“申请通过”，硬件与学校节点待确认 | `docs/publication_and_edge_deployment_plan.md`；第 3.21 节 | 先 A 方法稿、C 轻量化/部署稿，再扩展 B 可靠补全稿；树莓派先做导出与板端基线，均未启动 |
 | 第一篇实验缺口 | 已完成零训练漏检归因；6,471 tile/38,245 hidden GT 精确重放，按低成本列出 L0→L1→L2 | `docs/paper1_experiment_gaps.md`；`scripts/audit_paper1_gaps.py`；第 3.22 节 | 先做 ignore 可恢复增量与 NMS/max-det 候选覆盖小试；未过线不启动训练 |
 
@@ -755,7 +756,7 @@ P1 的 30 epoch 训练、完整原图 val960 和固定操作点小目标 recall 
   正式训练预算缺口，不继续横向扩展新教师或B类补全机制。
 - 全套pytest55/55通过，探索722/确认719个输入哈希与各256tile只读重放通过。
 
-### 3.26 A的软权重单因素补证据（2026-10-30，训练中）
+### 3.26 A的软权重单因素补证据（2026-10-30，已验收）
 
 - 收束到A后，优先补现有稿件软权重开关的完整30epoch消融；旧1024图5epoch中性
   筛查不追认为过线。用户最新至多30epoch自主小试授权用于这一组必要机制检验，
@@ -768,7 +769,17 @@ P1 的 30 epoch 训练、完整原图 val960 和固定操作点小目标 recall 
   14:30:20实际启动，包装PID37236、训练PID34612，命令与创建时间见
   `outputs/p1_no_soft_weights_pilot30_s0/launch_receipt.json`。
   临时心跳`a-30`每10分钟核查进程身份、CSV和阶段，只在完成、失败或需处理时通知，
-  完成/失败处置后删除；不自动重启或扩训。当前训练中，完成前不写作已有结果。
+  完成/失败处置后删除；不自动重启或扩训。本组于16:28:18正常退出，exit_code=0。
+- 连续30epoch、完整val960/固定操作点recall、实际参数配对、23783个冻结输入及
+  两组各548图预测重放通过16项独立验收。CSV累计训练7016.44秒；
+  入口`python scripts/audit_p1_no_soft_weights.py`，证据同目录`independent_audit.json`。
+- 去软权重−完整P1：mAP50−0.0585pp、mAP50-95−0.1623pp，
+  small recall+0.9143pp（+243），medium+0.6658pp（+74），large−0.3749pp（−4）；
+  逐类别AP50-95为3升7降。整体mAP与召回有取舍，不满足预先记录的后续线，
+  不启动100epoch或追加训练；保留完整P1主配置，不改写旧5epoch中性筛查或原Gate3。
+- 表4-S5、实验4.14和证据/复现记录已更新；表格核对137个来源/8组recall，
+  全套pytest56/56通过。单split/固定教师/学生seed0，不作显著性或官方AP_small主张。
+- 本轮训练和验收均结束，临时心跳`a-30`已删除；未启动新训练或长期监控。
 
 ### 3.27 A的关键词文献调研（2026-10-30）
 
@@ -778,8 +789,9 @@ P1 的 30 epoch 训练、完整原图 val960 和固定操作点小目标 recall 
 - 优先候选是“固定现有正伪框，仅检验跨视图定位稳定性能否预测定位质量”，
   先做离线诊断，尚未实现或训练。明确与Soft Teacher、RUPL、UTv2重叠，
   NWD只列为独立备选，不先验宣称创新或收益。
-- 当前唯一训练仍是第3.26节软权重消融；LoRA/DINOv3/CLIP未下载模型或运行，
-  蒸馏后结构剪枝留在C，当前不并行启动。消融验收后再决定下一单机制问题。
+- 第3.26节软权重消融已完成，未达到扩大训练条件；LoRA/DINOv3/CLIP未下载模型或运行，
+  蒸馏后结构剪枝留在C。下一步可检验既有正伪框定位稳定性，当前仅文献假设，
+  尚未执行该诊断或启动第二项训练。
 
 ## 4. 固定实验协议
 
@@ -990,6 +1002,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-10-30（A软权重补证据准备） | 本次提交 | 准备唯一一组去软权重30epoch正式消融、后台包装与独立验收，固定预算和继续条件 | `scripts/run_p1_no_soft_weights.py --check-only`；`scripts/audit_p1_no_soft_weights.py` | 23781冻结文件/11310tile预检通过；56/56tests；尚未启动 | 仅A，旧5epoch中性结论不变；启动后创建临时监控，不自动扩训，原Gate3不变 |
 
 | 2026-10-30 14:30（A训练启动与文献调研） | `d218720` + 本次文档提交 | 实际启动唯一一组去软权重30epoch并配置临时监控；检索六类用户关键词，明确A单机制后续假设 | `outputs/p1_no_soft_weights_pilot30_s0/launch_receipt.json`；PID34612/包装37236；心跳a-30；`docs/paper/a_keyword_research.md` | 训练进程和CSV增长核实正常，尚无最终学生指标；7份PDF与哈希，5篇摘要级来源；本次仅改文档，沿用启动前56/56测试 | 等完整训练/val960/recall及独立验收后决定下一项；不并行新损失/基础模型/蒸馏剪枝，不推送，原Gate3不变 |
+
+| 2026-10-30 16:37（A软权重验收收尾） | `dbff977` + 本次提交 | 完成去分类软权重30epoch及独立验收，新增自动表4-S5、实验4.14和来源记录 | `outputs/p1_no_soft_weights_pilot30_s0/{comparison,independent_audit,launch_receipt}.json`；第3.26节 | exit0；16项检查/23783冻结文件/两组548图预测重放通过；去软权重mAP50-95−0.1623pp、small recall+0.9143pp（+243），3类升7类降；137来源/8组recall，pytest56/56 | 体现取舍、未达后续线，保留完整P1主配置；不扩训、不push，临时监控验收后清理；下一项仅为定位可靠性待验证假设，原Gate3不变 |
 
 ### 10.1 新会话开始流程
 

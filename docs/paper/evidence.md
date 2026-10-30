@@ -34,6 +34,7 @@ B1 分尺寸 recall 在本次写作整理时使用已冻结的 30 epoch best.pt 
 | 表 4-S2 尺度阈值全量确认 | `outputs/p1_global_t050_pilot30_s0/{comparison,acceptance_audit}.json`；两组 val960、分尺寸 recall 和逐类别结果 |
 | 表 4-S3 固定 split 配对学生 seed | `outputs/p1_scale_threshold_pair_s1/{comparison,acceptance_audit,independent_audit}.json`；seed0 来源同表 4-S2，seed1 来源及哈希见下文 |
 | 表 4-S4 B2/P1 主对照配对学生 seed | `outputs/b2_pilot30_s1/{comparison,acceptance_audit,independent_audit}.json`；两 seed 四组原始评估及样本 SD，来源/权重见下文 |
+| 表 4-S5 分类软权重全量消融 | `outputs/p1_no_soft_weights_pilot30_s0/{comparison,independent_audit}.json`；同数据、教师、学生seed0、30epoch，来源/权重见下文 |
 
 P1 的完整性验收为 `outputs/gate3_20261027/acceptance_audit.json`，19 项检查通过；原自动比较为同目录 `comparison.json`。原 Gate 3 的 mAP 条件未达到，小目标条件达到；用户结果后的工作决策另记在 `decision_note.json`，不作为实验数值来源。
 
@@ -111,7 +112,7 @@ split seed 仍为 0，教师和两套伪标签均复用；只将学生训练 see
 
 ## 数字核对与完整精度记录
 
-运行 `python scripts/build_paper_tables.py --check` 会核对主对照及尺度阈值 seed0/1 结果的 best.pt 哈希、各 run 的完整 30 行日志、验证分辨率、相同 GT 分组计数和操作点，并逐字比较表格与重新计算的文本。表 4-S3、4-S4 另核对种子内配对差、各方案均值及样本标准差；当前核对 123 个来源及 7 组不同目录的 recall（GT 分组计数一致）。表格使用的全部源文件哈希及完整精度指标保存在 `outputs/paper_tables_20261027/audit.json`。
+运行 `python scripts/build_paper_tables.py --check` 会核对主对照及尺度阈值 seed0/1 结果的 best.pt 哈希、各 run 的完整 30 行日志、验证分辨率、相同 GT 分组计数和操作点，并逐字比较表格与重新计算的文本。表 4-S3、4-S4 另核对种子内配对差、各方案均值及样本标准差；表4-S5要求分类软权重独立验收通过、产物哈希一致并重算差值。当前核对137个来源及8组不同目录的recall（GT分组计数一致）。表格使用的全部源文件哈希及完整精度指标保存在 `outputs/paper_tables_20261027/audit.json`。
 
 ## 引言与相关工作核对
 
@@ -184,3 +185,18 @@ NMS IoU=0.70、max_det=500。自动与独立记录为
 `python scripts/build_detection_cases.py --check` 再次通过选图、全验证计数和输出图
 核验；人工查看总览确认 GT/B2/P1 三列及关注位置可读。图像位于忽略目录
 `outputs/paper_cases_b2_p1_s0/`，图注及边界见 `case_studies.md`。
+
+## 分类软权重全量消融来源（2026-10-30）
+
+- 训练：`runs/partial10_p1_no_soft_weights_pilot30_s0/`，连续30epoch、11310tile，
+  CSV累计7016.44秒；仅关闭分类软权重，保留原教师、正标签、ignore与实际训练参数。
+- best.pt SHA256：`94cbc8f289c4d446ab821e9d2a4fb80d943bd7f1ee117c7d216b2b2bfe5ea883`。
+- last.pt SHA256：`6113b6d8da80e17933e2886aa36dc55cefaa30125c26c6c76970ffbebf44c510`。
+- 全图评估：`runs/val/partial10_p1_no_soft_weights_pilot30_s0_val960/metrics.json`；
+  recall与保存预测：`runs/size_recall/p1_no_soft_weights_pilot30_s0/`。
+- 比较、预检、进程退出和独立验收：
+  `outputs/p1_no_soft_weights_pilot30_s0/{comparison,preflight,launch_receipt,independent_audit}.json`。
+  包装进程于北京时间16:28:18退出，exit_code=0；`python scripts/audit_p1_no_soft_weights.py`
+  通过16项检查、23783冻结输入和两组各548图预测重放。
+- 结果方向为去软权重mAP50-95−0.1623pp、small recall+0.9143pp（+243），逐类3升7降。
+  只有单split/教师/学生seed；表4-S5及实验4.14保留取舍，不宣称所有模块均提高全部指标。

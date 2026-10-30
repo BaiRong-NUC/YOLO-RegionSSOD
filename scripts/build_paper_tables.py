@@ -36,6 +36,57 @@ def pct(value):
     return f"{value * 100:.3f}"
 
 
+def no_soft_sections(hashes):
+    evidence = ROOT / "outputs/p1_no_soft_weights_pilot30_s0"
+    audit = load(evidence / "independent_audit.json")
+    assert audit["acceptance_checks_passed"] and all(audit["checks"].values())
+    for filename, expected in audit["sha256"].items():
+        assert digest(filename) == expected, filename
+        hashes[filename] = expected
+    hashes[str(evidence / "independent_audit.json")] = digest(evidence / "independent_audit.json")
+    comparison = load(evidence / "comparison.json")
+    assert comparison["epochs"] == 30 and comparison["train_tiles"] == 11310
+    reference = comparison["reference"]["metrics"]
+    ablation = comparison["ablation"]["metrics"]
+    delta = comparison["delta_no_soft_weights_minus_full_p1_percentage_points"]
+    matches = {}
+    for method, folder in (("reference", "p1_pilot30_s0"),
+                           ("ablation", "p1_no_soft_weights_pilot30_s0")):
+        recall_path = ROOT / f"runs/size_recall/{folder}/metrics.json"
+        recall = load(recall_path)
+        assert recall["weights_sha256"] == comparison[method]["weights_sha256"]
+        matches[method] = recall["per_size"]
+        hashes[str(recall_path)] = digest(recall_path)
+    count_note = "，".join(
+        f"{size}匹配数{matches['reference'][size]['matched']}→"
+        f"{matches['ablation'][size]['matched']}（"
+        f"{matches['ablation'][size]['matched']-matches['reference'][size]['matched']:+d}）"
+        for size in ("small", "medium", "large"))
+    rows = []
+    for key in reference:
+        expected = 100 * (ablation[key] - reference[key])
+        assert math.isclose(expected, delta[key], abs_tol=1e-12)
+        assert math.isclose(expected, audit["delta_no_soft_minus_full_pp"][key], abs_tol=1e-12)
+        rows.append(["全体" if not key.endswith("_recall") else "尺寸", key,
+                     pct(reference[key]), pct(ablation[key]), f"{expected:+.3f}"])
+    reference_val = load(ROOT / "runs/val/partial10_p1_pilot30_s0_val960/metrics.json")
+    ablation_val = load(ROOT / "runs/val/partial10_p1_no_soft_weights_pilot30_s0_val960/metrics.json")
+    for row in audit["per_class"]:
+        cls = row["class_id"]
+        before, after = reference_val["class_maps"][cls], ablation_val["class_maps"][cls]
+        expected = 100 * (after - before)
+        assert math.isclose(expected, row["delta_no_soft_minus_full_pp"], abs_tol=1e-12)
+        rows.append(["类别", row["name"], pct(before), pct(after), f"{expected:+.3f}"])
+    sections = ["## 表 4-S5 分类软权重的全量单因素消融",
+                table(["范围", "指标", "完整 P1 / %", "去软权重 / %", "去软−P1 / pp"], rows),
+                "注：固定10%面积split seed0、同一教师和11310个训练tile，学生seed0、30epoch；"
+                "仅关闭教师置信度分类软权重，保留尺度阈值和ignore，完整548图val960。"
+                f"{count_note}。"
+                "分尺寸recall操作点同表4-2，不是AP_small。"
+                "去软权重降低mAP50-95并提高small recall，体现取舍；单seed不证明稳定效应，原Gate3不变。"]
+    return comparison, sections
+
+
 def main(check=False):
     gate2 = load(ROOT / "outputs/gate2_20261027/comparison.json")
     gate3 = load(ROOT / "outputs/gate3_20261027/comparison.json")
@@ -230,6 +281,10 @@ def main(check=False):
     if (MAIN_PAIR_OUT / "acceptance_audit.json").exists():
         main_pair = load_main_pair(hashes)
         sections += main_pair_sections(main_pair, table)
+    no_soft = None
+    if (ROOT / "outputs/p1_no_soft_weights_pilot30_s0/independent_audit.json").exists():
+        no_soft, extra_sections = no_soft_sections(hashes)
+        sections += extra_sections
     text="\n\n".join(sections)+"\n"
     dest=ROOT/"docs/paper/results_tables.md"
     if check:
@@ -243,9 +298,10 @@ def main(check=False):
              "table_sha256":digest(dest),"tables_match_frozen_evaluations":True,"input_sha256":hashes,
              "metrics":metrics,"recalls":recalls,"times":times,"pseudo_quality":q,
              "global_threshold_ablation":{"comparison":ablation,"acceptance":ablation_acceptance},
-             "scale_threshold_seed_pair":seed_pair,"main_method_seed_pair":main_pair}
+             "scale_threshold_seed_pair":seed_pair,"main_method_seed_pair":main_pair,
+             "no_soft_weights_ablation":no_soft}
     (output/"audit.json").write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
-    recall_count = (6 if seed_pair else 4) + (1 if main_pair else 0)
+    recall_count = (6 if seed_pair else 4) + (1 if main_pair else 0) + (1 if no_soft else 0)
     print(f"{'Verified' if check else 'Wrote'} {dest}; {len(hashes)} sources hashed; {recall_count} recall evaluations share GT counts.")
 
 

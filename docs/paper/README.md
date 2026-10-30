@@ -7,8 +7,8 @@
 | [introduction.md](introduction.md) | 第 1 章引言初稿：区域标注问题、相关工作衔接、方法概述、三项工作与初步结果 |
 | [related_work.md](related_work.md) | 第 2 章相关工作初稿：SSOD、缺失标注、航拍小目标与最接近工作的关系 |
 | [methods.md](methods.md) | 第 3 章方法初稿：区域协议、固定教师、尺度筛选、分类软权重、ignore 掩码与损失公式 |
-| [experiments.md](experiments.md) | 第 4 章实验分析初稿：实验设置、整体/分尺寸/逐类别结果、伪标签质量和开销 |
-| [results_tables.md](results_tables.md) | 表 4-1 至 4-6 和补充表 4-S1 至 4-S4，含单位、评测口径、尺度阈值及 B2/P1 配对 seed 统计 |
+| [experiments.md](experiments.md) | 第4章实验分析初稿：实验设置、整体/分尺寸/逐类别结果、伪标签质量和开销，含4.14分类软权重消融 |
+| [results_tables.md](results_tables.md) | 表4-1至4-6和补充表4-S1至4-S5，含尺度阈值、B2/P1配对seed及分类软权重全量消融 |
 | [evidence.md](evidence.md) | 表格来源、权重 SHA256、补评估记录和数字核对方式 |
 | [ignore_recovery_analysis.md](ignore_recovery_analysis.md) | 第一篇追加的零训练诊断：锁定已有匹配，核对 ignore 条件容量上界、重复与低阈值候选代价，不作为学生增益 |
 | [cross_view_flip_analysis.md](cross_view_flip_analysis.md) | 固定随机小样本的水平翻转候选筛选，记录精度与覆盖权衡，未进入学生训练 |
@@ -30,4 +30,11 @@ python scripts/build_paper_tables.py --check
 python scripts/build_paper_tables.py
 ```
 
-`--check` 只核对表格与冻结结果是否一致；第二条命令重新生成表格文本。完整精度数值、输入哈希和生成核对记录位于忽略目录 `outputs/paper_tables_20261027/audit.json`。目前已有第 1–4 章初稿和 S³OD 方法差异对照；S³OD 引用已更新为 2025 年 ISPRS Journal 期刊版，详细公式明确标注早期预印本来源，公开代码按固定提交核对。尺度阈值的两学生 seed 复验已完成；四类 seed0 案例图及其可复现来源已整理；B2 学生 seed1 的完整运行及 116 项独立验收已完成，表 4-S4、第 4.12 节及来源证据已更新；large recall 两 seed 方向不同，未省略不利结果；软权重的全量单因素消融和最终排版尚待补充；引用暂沿用现有编号，最终排版时统一按首次出现顺序重排。
+`--check`只核对表格与冻结结果是否一致；第二条命令重新生成表格文本。完整精度数值、
+输入哈希和生成核对记录位于忽略目录`outputs/paper_tables_20261027/audit.json`。
+目前已有第1–4章初稿和S³OD方法差异对照；S³OD引用已更新为2025年期刊版，
+公式明确标注预印本来源，公开代码按固定提交核对。尺度阈值两学生seed复验、
+四类seed0案例、B2学生seed1及116项独立验收已完成。分类软权重全量消融
+现已通过16项独立验收，表4-S5和实验4.14保留mAP与small recall取舍；
+当前表格核对137个来源和8组recall。large recall的不一致方向及所有负面结果保留。
+正式矩阵和最终排版仍待补充；引用暂沿用现有编号，最终按首次出现顺序重排。
