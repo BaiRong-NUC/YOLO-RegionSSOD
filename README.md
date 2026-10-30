@@ -465,6 +465,9 @@ python scripts/audit_scale_support.py --confirm --check
 按最新A范围和30epoch小试授权，本轮只补软权重正式单因素消融，
 预算与后续判据见[第一篇清单第7节](docs/paper1_experiment_gaps.md#7-本轮唯一训练软权重正式单因素消融)。
 旧5epoch中性结论不改写为过线；已有原始训练入口执行后自动完成val960和recall。
+本组已于北京时间2026-10-30 14:30启动，临时心跳`a-30`每10分钟监控，
+当前训练中，请勿重复启动。六类关键词的论文依据、阅读范围与后续假设见
+[A关键词调研](docs/paper/a_keyword_research.md)，未另行启动模型微调或新损失训练。
 完成后的独立复核：
 
 ```powershell

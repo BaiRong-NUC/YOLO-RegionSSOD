@@ -65,7 +65,8 @@ P1 尺度感知伪标签与 uncertain-ignore 是否带来稳定收益。
 | B2 朴素自训练 | seed0/1 独立 30 epoch 均已验收；seed1 val960 mAP50-95=23.3688%、small recall=34.4471%；100 epoch 未运行 | `outputs/b2_pilot30_s1/{comparison,acceptance_audit,independent_audit}.json`；第 3.20 节 | 冻结两 seed 对照，保留单 split/固定教师边界 |
 | P1 尺度感知方法 | seed0/1 相对 B2 的 mAP50-95 与 small recall 均提高；平均配对增益 +0.2893±0.0644/+1.7854±0.1304 pp；large recall 方向不同 | 表 4-S4；第 3.8、3.20 节；实验第 4.12 节 | 保留两个学生 seed 的正向总体/小目标结果，不作显著性或跨 split 主张；原 Gate 3 不变 |
 | 第①组 no-ignore 消融 | 30 epoch、val960、固定操作点 recall 及独立验收完成；相对完整 P1 的 mAP50-95 +0.0217 pp、small recall −0.1392 pp | `outputs/p1_no_ignore_pilot30_s0/{comparison,acceptance_audit}.json`；第 3.13 节 | 不能声称 ignore 独立提高整体 mAP；继续拆分软权重与尺度阈值，补配对 seed |
-| 软权重低成本筛选 | 1024 源图、两组各 5 epoch 和 val960 完成；mAP50-95 +0.0884 pp、small recall +0.0790 pp，低于 0.3 pp 候选线 | `outputs/screens/p1_soft_weights_1024_e5/{comparison,acceptance_audit}.json`；第 3.15 节 | 中性，不启动 30 epoch 去软权重确认；继续下一项低成本机制筛选 |
+| 软权重低成本筛选 | 1024 源图、两组各 5 epoch 和 val960 完成；mAP50-95 +0.0884 pp、small recall +0.0790 pp，低于 0.3 pp 候选线 | `outputs/screens/p1_soft_weights_1024_e5/{comparison,acceptance_audit}.json`；第 3.15 节 | 保留当时中性停止结论；最新A补证据授权下单独启动正式30epoch消融，见第3.26节，不追认短筛过线 |
+| 软权重全量单因素消融 | 2026-10-30 14:30（北京时间）启动一组30epoch；只关闭分类软权重，训练中，尚无最终结果 | `outputs/p1_no_soft_weights_pilot30_s0/launch_receipt.json`；第3.26节 | 临时心跳a-30每10分钟监控；完整val960/recall及独立验收后决定后续，不自动扩训 |
 | 尺度阈值低成本筛选 | 统一 0.50 对比尺度分层：mAP50-95 +0.2237 pp、small recall −3.1230 pp | `outputs/screens/p1_global_t050_1024_v2_e5/{comparison,acceptance_audit}.json`；第 3.16 节 | 自动候选线未触发，但小目标信号值得全量 30 epoch 确认；数据已准备，用户手动启动 |
 | 尺度阈值全量确认 | 30 epoch、val960、固定操作点 recall 及独立验收完成；统一 0.50 相对完整 P1 的 mAP50-95 −0.6177 pp、small recall −0.3424 pp，逐类 1 升/9 降 | `outputs/p1_global_t050_pilot30_s0/{comparison,acceptance_audit}.json`；表 4-S2；第 3.18 节 | 全量结果支持尺度分层阈值更有利于总体检测和小目标覆盖；仍为单 split/seed，不扩写为跨 seed 稳定性 |
 | 尺度阈值配对学生 seed | seed1 两组各 30 epoch、完整 val960 和预测重放完成；尺度分层相对统一 0.50 的 mAP50-95 +0.2420 pp、small recall +0.6434 pp，与 seed0 两项同向 | `outputs/p1_scale_threshold_pair_s1/{comparison,acceptance_audit,independent_audit}.json`；表 4-S3；第 3.19 节 | 保留尺度分层；单 split/固定教师下两学生 seed 的平均配对增益为 +0.4299/+0.4929 pp，不作显著性或跨 split 主张 |
@@ -754,7 +755,7 @@ P1 的 30 epoch 训练、完整原图 val960 和固定操作点小目标 recall 
   正式训练预算缺口，不继续横向扩展新教师或B类补全机制。
 - 全套pytest55/55通过，探索722/确认719个输入哈希与各256tile只读重放通过。
 
-### 3.26 A的软权重单因素补证据（2026-10-30，启动准备）
+### 3.26 A的软权重单因素补证据（2026-10-30，训练中）
 
 - 收束到A后，优先补现有稿件软权重开关的完整30epoch消融；旧1024图5epoch中性
   筛查不追认为过线。用户最新至多30epoch自主小试授权用于这一组必要机制检验，
@@ -763,8 +764,22 @@ P1 的 30 epoch 训练、完整原图 val960 和固定操作点小目标 recall 
   原教师、数据、增强、初始化与ignore。预算一组30epoch，复用已完成完整P1参考。
 - 新增后台包装和独立验收：保存父/子PID与退出码，检查连续epoch、实际参数、
   评估/权重哈希，并重放两组548图预测。全套pytest56/56通过。
-- 预算/预先判据见`docs/paper1_experiment_gaps.md`第7节。当前仅准备完成，
-  训练尚未启动；实际启动后补PID/临时监控记录，完成前不写作已有结果。
+- 预算/预先判据见`docs/paper1_experiment_gaps.md`第7节。北京时间2026-10-30
+  14:30:20实际启动，包装PID37236、训练PID34612，命令与创建时间见
+  `outputs/p1_no_soft_weights_pilot30_s0/launch_receipt.json`。
+  临时心跳`a-30`每10分钟核查进程身份、CSV和阶段，只在完成、失败或需处理时通知，
+  完成/失败处置后删除；不自动重启或扩训。当前训练中，完成前不写作已有结果。
+
+### 3.27 A的关键词文献调研（2026-10-30）
+
+- 使用paper-search MCP围绕漏标补全、定位不确定性、损失和基础模型查询原论文。
+  7份PDF及SHA256清单位于忽略目录；另外5篇目前仅核对元数据/摘要，阅读范围
+  和固定版本逐项见`docs/paper/a_keyword_research.md`，不虚构全文阅读。
+- 优先候选是“固定现有正伪框，仅检验跨视图定位稳定性能否预测定位质量”，
+  先做离线诊断，尚未实现或训练。明确与Soft Teacher、RUPL、UTv2重叠，
+  NWD只列为独立备选，不先验宣称创新或收益。
+- 当前唯一训练仍是第3.26节软权重消融；LoRA/DINOv3/CLIP未下载模型或运行，
+  蒸馏后结构剪枝留在C，当前不并行启动。消融验收后再决定下一单机制问题。
 
 ## 4. 固定实验协议
 
@@ -973,6 +988,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-10-30（跨尺度确认与范围收束） | 本次提交 | 固定教师640视图支持960 uncertain候选；固定唯一规则后用不重叠256tile确认；更新总计划，当前只做A | `scripts/audit_scale_support.py --check`及`--confirm --check`；`docs/publication_and_edge_deployment_plan.md`第10节 | 探索22框/11small匹配，确认23框/9small匹配，未达继续线；55/55tests及两样本重放通过 | 不启动该规则训练；先A的必要证据和稿件，不并行B/C；Codex有界小试/临时监控/中文提交，用户执行有证据的大规模训练；A未完成，原Gate3不变 |
 
 | 2026-10-30（A软权重补证据准备） | 本次提交 | 准备唯一一组去软权重30epoch正式消融、后台包装与独立验收，固定预算和继续条件 | `scripts/run_p1_no_soft_weights.py --check-only`；`scripts/audit_p1_no_soft_weights.py` | 23781冻结文件/11310tile预检通过；56/56tests；尚未启动 | 仅A，旧5epoch中性结论不变；启动后创建临时监控，不自动扩训，原Gate3不变 |
+
+| 2026-10-30 14:30（A训练启动与文献调研） | `d218720` + 本次文档提交 | 实际启动唯一一组去软权重30epoch并配置临时监控；检索六类用户关键词，明确A单机制后续假设 | `outputs/p1_no_soft_weights_pilot30_s0/launch_receipt.json`；PID34612/包装37236；心跳a-30；`docs/paper/a_keyword_research.md` | 训练进程和CSV增长核实正常，尚无最终学生指标；7份PDF与哈希，5篇摘要级来源；本次仅改文档，沿用启动前56/56测试 | 等完整训练/val960/recall及独立验收后决定下一项；不并行新损失/基础模型/蒸馏剪枝，不推送，原Gate3不变 |
 
 ### 10.1 新会话开始流程
 
