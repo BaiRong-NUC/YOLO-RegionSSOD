@@ -189,7 +189,7 @@ def run(*, confirm=False, check=False):
         [i for i in range(len(records)) if i not in excluded], config["sample_size"]))
     tracked = [CONFIG, ROOT / "docs/paper/context_rectification_analysis.md", *CODE]
     if not check:
-        relative = [str(p.relative_to(ROOT)) for p in tracked]
+        relative = [p.relative_to(ROOT).as_posix() for p in tracked]
         subprocess.run(["git", "ls-files", "--error-unmatch", "--", *relative],
                        cwd=ROOT, check=True, capture_output=True)
         subprocess.run(["git", "diff", "HEAD", "--quiet", "--", *relative], cwd=ROOT, check=True)
