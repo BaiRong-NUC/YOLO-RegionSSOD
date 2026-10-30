@@ -13,7 +13,7 @@ def test_generated_data_is_ignored_but_dataset_source_can_be_committed(tmp_path)
     root = Path(__file__).resolve().parents[1]
     shutil.copyfile(root / ".gitignore", tmp_path / ".gitignore")
     result = subprocess.run(
-        [git, "check-ignore", "--no-index", "--stdin"], cwd=tmp_path,
-        input="data/example.txt\nsrc/regionssod/data/annotations.py\n",
-        text=True, capture_output=True, check=True)
-    assert result.stdout.splitlines() == ["data/example.txt"]
+        [git, "check-ignore", "--no-index", "-z", "--stdin"], cwd=tmp_path,
+        input=b"data/example.txt\0src/regionssod/data/annotations.py\0",
+        capture_output=True, check=True)
+    assert result.stdout.split(b"\0") == [b"data/example.txt", b""]
