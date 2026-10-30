@@ -421,6 +421,23 @@ python scripts/audit_candidate_retention.py --check
 明确单组/双组成本，不把短程结果写成正式矩阵。启动训练时创建临时心跳观察，
 完成、失败或需要用户处理时通知，结束后清理，不自动扩大到更长训练。
 
+### 4.10 跨输入尺度支持的探索与确认
+
+固定原B1教师，对256tile的原960候选补充640输入预测。只支持原small uncertain
+候选；正框不变，新增候选保持原坐标与置信度，先做同类正框去重，再做同类跨视图
+一对一IoU支持。隐藏GT只评估新增独立匹配，不进入选择函数或训练标签。
+
+```powershell
+python scripts/audit_scale_support.py --check
+python scripts/audit_scale_support.py --confirm --check
+```
+
+两条均只读重放；新环境首次生成移除`--check`，拒绝覆盖已有输出。探索中固定
+floor0.25/support0.30候选后，另取不与既有384tile重叠的256tile确认，未达继续线，
+不启动学生训练。选择函数见`src/regionssod/pseudo/consistency.py`，计数与边界见
+`docs/paper/scale_support_analysis.md`。总执行安排以
+`docs/publication_and_edge_deployment_plan.md`第10节为准。
+
 ## 5. 对照规则
 
 - B1 与 B2 必须从同一 `yolo11s.pt` 初始化。

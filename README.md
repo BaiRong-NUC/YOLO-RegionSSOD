@@ -450,6 +450,18 @@ python scripts/audit_candidate_retention.py --check
 进度定时任务，完成/失败后清理；更长训练仍须结果支持。该授权替代前述手动启动
 安排，不表示已有新训练启动，每轮代码和文档修改使用中文 Git 提交。
 
+跨输入尺度候选支持已完成探索和不重叠样本确认，固定候选未通过确认线，
+见[跨尺度分析](docs/paper/scale_support_analysis.md)。只读复核：
+
+```powershell
+python scripts/audit_scale_support.py --check
+python scripts/audit_scale_support.py --confirm --check
+```
+
+当前统一执行安排见[三篇文章与部署总计划第10节](docs/publication_and_edge_deployment_plan.md#10-当前可执行安排与职责)：
+当前只推进A第一篇，C/B留作远期规划；有界小试由Codex执行和临时监控，
+值得扩大训练后准备代码与命令交给用户。
+
 ## Baseline 定义
 
 | 名称 | 训练数据 | 作用 |
