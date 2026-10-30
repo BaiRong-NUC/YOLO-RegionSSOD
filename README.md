@@ -462,6 +462,15 @@ python scripts/audit_scale_support.py --confirm --check
 当前只推进A第一篇，C/B留作远期规划；有界小试由Codex执行和临时监控，
 值得扩大训练后准备代码与命令交给用户。
 
+按最新A范围和30epoch小试授权，本轮只补软权重正式单因素消融，
+预算与后续判据见[第一篇清单第7节](docs/paper1_experiment_gaps.md#7-本轮唯一训练软权重正式单因素消融)。
+旧5epoch中性结论不改写为过线；已有原始训练入口执行后自动完成val960和recall。
+完成后的独立复核：
+
+```powershell
+python scripts/audit_p1_no_soft_weights.py
+```
+
 ## Baseline 定义
 
 | 名称 | 训练数据 | 作用 |
