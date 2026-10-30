@@ -484,6 +484,8 @@ python scripts/audit_confidence_calibration.py --check
 原分数就进训练。`--check`核对所有来源和输出并从开放标签重拟合重放；
 `--confirm`必须先重放且通过探索，不允许在缺少探索时启动新的拟合。
 输出位于`outputs/confidence_calibration_20261030/{fit,discovery,confirmation}/`。
+2026-10-30拟合和探索已完成：整体分组Brier0.160310高于原分数0.158864，
+继续线失败；未生成确认目录或训练，完整记录见`docs/paper/confidence_calibration_results.md`。
 
 ## 5. 对照规则
 

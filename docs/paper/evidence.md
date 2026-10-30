@@ -213,3 +213,16 @@ NMS IoU=0.70、max_det=500。自动与独立记录为
 - 只读命令`python scripts/audit_context_rectification.py --check`通过。
   详细范围与小样本限制见`context_rectification_results.md`；
   这是伪标签诊断，不是学生检测结果、独立盲测或官方AP_small。
+
+## 开放区域置信度校准探索（2026-10-30，不入学生结果表）
+
+- `f3d77cd`先提交`confidence_calibration_protocol.md`及固定配置/代码。
+  新推理仅512开放标注tile，使用原B1教师，耗时含warmup8.1703秒；
+  校准目标来自`labeled/labels`，7548正框，未使用源图隐藏GT拟合。
+- `outputs/confidence_calibration_20261030/{fit,discovery}/`保存协议、预测、映射、
+  逐正框统计及SHA256；拟合1045来源/探索474来源只读重放一致。
+- 来源不重叠256tile探索有1421正框、分组覆盖96.4110%；整体Brier原分数
+  0.158864、分组0.160310，固定整体条件失败；small虽改善，不重定义通过。
+  确认入口拒绝已实测，无确认/训练。详细表及分布迁移限制见
+  `confidence_calibration_results.md`，只读命令为
+  `python scripts/audit_confidence_calibration.py --check`。

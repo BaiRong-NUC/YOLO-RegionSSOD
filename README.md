@@ -509,6 +509,8 @@ python scripts/audit_confidence_calibration.py --check
 首次生成去掉`--check`，只新增512tile推理、不训练；`--confirm`仅在探索过线后
 允许另256tile确认且不再推理/拟合。校准器不得使用隐藏GT或val标签拟合，
 不更改已有正伪标签集合。通过诊断不等同于学生效果或值得长期训练。
+2026-10-30探索已完成：整体Brier未改善，虽small改善，仍未过固定继续线；
+不执行确认或训练，完整计数/成本/局限见`docs/paper/confidence_calibration_results.md`。
 
 ## Baseline 定义
 
