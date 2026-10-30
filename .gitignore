@@ -24,7 +24,7 @@ coverage.xml
 htmlcov/
 
 # Datasets, generated crops, and annotation caches
-data/
+/data/
 datasets/
 *.cache
 

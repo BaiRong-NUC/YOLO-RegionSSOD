@@ -1042,6 +1042,12 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 
 ### 10.1 新会话开始流程
 
+2026-10-30原图上下文诊断执行前的Git预检发现，历史`.gitignore`的`data/`
+也屏蔽了`src/regionssod/data`四个源码文件，导致代码无法从Git完整复现。
+本次将生成数据忽略限定为根目录`/data/`，保留原源码内容并补入版本控制；
+新增忽略规则回归测试。两次预检均在GPU/输出创建前拒绝执行，未消耗推理或训练预算。
+此项是复现缺陷修复，不更改split、裁片算法或已冻结的输入文件。
+
 1. 进入 `D:\Python\YOLO-RegionSSOD`，运行 `git status --short --branch`。
 2. 按顺序阅读：`AGENTS.md`、本文件、`docs/experiment_plan_8weeks.md`、
    `docs/baseline_protocol.md`、当前周对应的配置和日志。
