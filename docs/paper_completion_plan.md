@@ -793,6 +793,13 @@ P1 的 30 epoch 训练、完整原图 val960 和固定操作点小目标 recall 
   蒸馏后结构剪枝留在C。下一步可检验既有正伪框定位稳定性，当前仅文献假设，
   尚未执行该诊断或启动第二项训练。
 
+### 3.28 已有正伪框定位可靠性（2026-10-30，协议已固定）
+
+- 下一项只复用两个不重叠256tile缓存，检验跨尺度定位稳定性在控制置信度、
+  类别组成后是否区分已有正框的定位质量，不增加标签、推理或训练。
+- GT-free匹配、固定分层及继续线见`configs/positive_localization_diagnostic.yaml`和
+  `docs/paper/positive_localization_analysis.md`。当前仅协议，尚无该项统计或新损失。
+
 ## 4. 固定实验协议
 
 ### 4.1 训练与评估
@@ -1004,6 +1011,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-10-30 14:30（A训练启动与文献调研） | `d218720` + 本次文档提交 | 实际启动唯一一组去软权重30epoch并配置临时监控；检索六类用户关键词，明确A单机制后续假设 | `outputs/p1_no_soft_weights_pilot30_s0/launch_receipt.json`；PID34612/包装37236；心跳a-30；`docs/paper/a_keyword_research.md` | 训练进程和CSV增长核实正常，尚无最终学生指标；7份PDF与哈希，5篇摘要级来源；本次仅改文档，沿用启动前56/56测试 | 等完整训练/val960/recall及独立验收后决定下一项；不并行新损失/基础模型/蒸馏剪枝，不推送，原Gate3不变 |
 
 | 2026-10-30 16:37（A软权重验收收尾） | `dbff977` + 本次提交 | 完成去分类软权重30epoch及独立验收，新增自动表4-S5、实验4.14和来源记录 | `outputs/p1_no_soft_weights_pilot30_s0/{comparison,independent_audit,launch_receipt}.json`；第3.26节 | exit0；16项检查/23783冻结文件/两组548图预测重放通过；去软权重mAP50-95−0.1623pp、small recall+0.9143pp（+243），3类升7类降；137来源/8组recall，pytest56/56 | 体现取舍、未达后续线，保留完整P1主配置；不扩训、不push，临时监控验收后清理；下一项仅为定位可靠性待验证假设，原Gate3不变 |
+
+| 2026-10-30（正伪框定位诊断协议） | 本次提交 | 固定已有正伪框跨尺度匹配、置信度/类别分层和两样本继续线，再开始读取本项GT统计 | `configs/positive_localization_diagnostic.yaml`；`docs/paper/positive_localization_analysis.md`；第3.28节 | 仅协议，无该项结果；两组各256tile缓存已存在且不重叠 | 下一步实现GT-free匹配与只读离线诊断；不改现有训练输入、不新增推理或训练，原Gate3不变 |
 
 ### 10.1 新会话开始流程
 

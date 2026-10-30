@@ -1,0 +1,26 @@
+version: 1
+scope: accepted_p1_positives_only_diagnostic_gt_never_exported_as_labels
+discovery_cache: outputs/scale_support_discovery_20261030
+confirmation_cache: outputs/scale_support_confirm_20261030
+output: outputs/positive_localization_20261030
+original_imgsz: 960
+view_imgsz: 640
+min_view_conf: 0.05
+min_pair_iou: 0.10
+unstable_below: 0.50
+stable_at: 0.70
+confidence_edges: [0.0, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.000001]
+quality_iou: 0.75
+primary_size: small
+confidence_control:
+  min_per_group_per_stratum: 10
+  min_comparable_per_group: 50
+  min_strata: 2
+  min_comparable_fraction: 0.25
+  min_quality_fraction_gap: 0.10
+class_confidence_control:
+  min_per_group_per_stratum: 5
+  min_comparable_per_group: 25
+  min_strata: 2
+  min_comparable_fraction: 0.10
+  min_quality_fraction_gap: 0.0
