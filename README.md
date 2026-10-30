@@ -543,8 +543,12 @@ python scripts/audit_small_nwd_tradeoff.py --check
 `outputs/p1_small_nwd_pilot30_s0/`；已有状态/dispatch/产物时拒绝重启。
 完成后运行`python scripts/audit_p1_small_nwd.py`独立验收。
 训练启动时创建临时监控，终态处置后删除，不并行第二组或自动扩训。
-该唯一训练已于2026-10-30 18:54启动，临时监控`a-nwd`已启用，
-当前等待完整30epoch与评估；不要重复运行启动入口。
+该唯一训练于2026-10-30 18:54启动，20:11发现中断，20:14二次核实：
+包装/训练进程均不存在，只完成13/30epoch，日志停在第14轮181/1414batch。
+Windows记录原包装进程停止响应并关闭；退出码缺失，根因尚未确定。
+本次未完成30轮及最终评估，不能判断性能或是否值得扩训。
+证据与处理见[中断记录](docs/paper/small_nwd30_interruption.md)；
+临时监控`a-nwd`在中断处置后删除，不重复运行启动入口，不拼接或自动重训。
 
 ## Baseline 定义
 
