@@ -716,6 +716,26 @@ P1 的 30 epoch 训练、完整原图 val960 和固定操作点小目标 recall 
   计数算法不变，两份重生成 analysis.json 已与旧产物逐字节核对一致。全套 pytest 46/46通过、
   两诊断脚本 Pyright 0错误/0警告，既有论文表123来源/7组recall仍通过。当前训练方法和已验收指标未改。
 
+### 3.24 跨视图与候选保留筛查后停止扩训（2026-10-30）
+
+- 已完成 256 tile 翻转探索及另取 128 tile 的 NMS/max-det 检查；后者排除前者
+  全部下标，原入训 89/排除 39 tile 分列，冻结教师和原配置在全部128 tile重现。
+- NMS IoU 0.70→0.90：原入训全候选1647→3438、GT匹配617→628；正框650→860、
+  匹配500→508，precision76.92%→59.07%。新增210正框在锁定基线匹配后仅新增9个
+  small GT，新增匹配比例4.29%；按原正框同类IoU≥0.70过滤后仅余2框/1新增匹配。
+  max-det500→1000无变化，原配置单tile最多213候选。
+- 原初分析误将与任意原候选重叠者全部排除，口径过于保守；保留初始源码/预测/manifest，
+  v2复用推理，区分新增预测身份、未过滤恢复容量和正框重叠过滤，不重新推理。
+  原始和修订来源均保存于忽略目录，详见 `docs/paper/candidate_retention_analysis.md`。
+- 两方案均未达到探索性继续条件，故不训练、不输出新训练标签。只读重放入口为
+  `python scripts/audit_candidate_retention.py --check`，成本和结果在
+  `outputs/candidate_retention_128_20261030_v2/`；不改变原Gate3。
+- 全套pytest52/52通过，359个输入哈希及全部128 tile重放通过；既有论文表
+  123个来源与7组recall计数核对通过，原训练配置和正式结果未改。
+- 用户最新授权替代先前“只由用户手动启动”安排：可靠信号出现后可自主进行至多
+  30 epoch有界训练，启动时建临时进度心跳，完成/失败/需处理时通知、结束清理；
+  更长训练仍由结果决定。每轮修改中文提交。本轮无训练，无需创建进度定时器。
+
 ## 4. 固定实验协议
 
 ### 4.1 训练与评估
@@ -917,6 +937,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-10-30 13:43（ignore增量） | `80e9f2b` + working tree | 按用户指令只做ignore可恢复增量：锁定旧匹配、全尺度联合贪心与最大基数匹配，单列排除tile、重复与低阈值代价 | `scripts/audit_ignore_recovery.py`；`outputs/paper1_ignore_recovery_20261030/`；`docs/paper/ignore_recovery_analysis.md`；第3.23节 | 入训52117 ignore→普通新增5303/条件上界5315，其中普通新增small3627；全纳入新增匹配比例10.18%，small conf≥0.25为27.12%；11322来源哈希与完整6471tile重放 | 有几何恢复空间，尚无足够可靠的无GT转正规则，不下发扩训；隐藏GT只诊断、不是学生AP；先考虑小样本可靠性验证；原Gate3不变 |
 
 | 2026-10-30（跨视图离线验证） | 本次提交 | 固定随机256 tile进行同教师水平翻转推理，重放少量候选的精度与覆盖 | `scripts/audit_cross_view_flip.py`；`docs/paper/cross_view_flip_analysis.md`；`outputs/cross_view_flip_20261030/` | 原入训196 tile；small conf≥0.25新增97框/30匹配，翻转conf≥0.25及IoU≥0.50新增63框/22匹配；新增匹配比例30.93%→34.92%，small匹配增量29→22；pytest 48/48 | 探索性小样本，组合精度低于原基线；不训练、不改变Gate 3，不下发训练命令 |
+
+| 2026-10-30（候选保留检查） | 本次提交 | 128个独立抽样tile比较原NMS/max-det与分别放宽；保留初版和v2重放来源 | `scripts/audit_candidate_retention.py --check`；`outputs/candidate_retention_128_20261030_v2/`；第3.24节 | NMS放宽新增210正框/9独立small匹配，precision76.92%→59.07%；max-det无变化；未达到继续条件；52/52tests、359输入哈希/128tile重放、论文表123来源/7组recall通过 | 不训练、不新增训练标签；更新最多30epoch自主小试/临时监控/中文提交规则；原Gate3不变 |
 
 ### 10.1 新会话开始流程
 

@@ -437,6 +437,19 @@ python scripts/audit_ignore_recovery.py --check
 当前结论是有条件恢复空间、但直接降低阈值的新增独立匹配比例较低，尚不据此扩训。
 有可靠筛选信号后再准备单因素有界训练命令，由用户自行运行。
 
+2026-10-30 后续已完成翻转跨视图筛选及 128 tile 的 NMS/max-det
+[候选覆盖检查](docs/paper/candidate_retention_analysis.md)，两项暂未给出值得学生训练的信号。
+提高 max-det 没有新增候选，放宽 NMS 的新增正框独立匹配比例仅 4.29%；本轮停止该路线。
+已有检查可在 `yolo` 环境只读重放：
+
+```powershell
+python scripts/audit_candidate_retention.py --check
+```
+
+用户最新授权允许有可靠信号时自主做至多 30 epoch 的小规模训练，启动时创建临时
+进度定时任务，完成/失败后清理；更长训练仍须结果支持。该授权替代前述手动启动
+安排，不表示已有新训练启动，每轮代码和文档修改使用中文 Git 提交。
+
 ## Baseline 定义
 
 | 名称 | 训练数据 | 作用 |

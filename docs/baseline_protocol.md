@@ -400,6 +400,27 @@ AP_small 主张，不改变原 Gate 3，也不替代正式 100 epoch 主矩阵�
 `docs/paper/case_studies.md`。没有输出时可用 `python scripts/build_detection_cases.py`
 生成；已有输出用 `--check` 核验，PNG 与 manifest 均只保留于忽略目录。
 
+### 4.9 候选保留的有限推理检查
+
+2026-10-30 已完成同一冻结教师、conf≥0.05、960/batch8 的 128 tile
+NMS/max-det 检查，样本排除先前 256 个翻转验证下标。原 NMS IoU=0.70、
+max_det=500 对照分别与 NMS IoU=0.90 和 max_det=1000 比较，其他因素相同。
+入训 89 tile 与排除 39 tile 分列，隐藏 GT 只用于离线诊断，不输出训练标签。
+具体结果、原始/修订分析来源及停止条件见 `docs/paper/candidate_retention_analysis.md`。
+
+```powershell
+python scripts/audit_candidate_retention.py --check
+```
+
+该命令核对输入/输出哈希并重放已有推理结果，不训练或推理。没有输出的新环境可用
+`python scripts/audit_candidate_retention.py` 首次生成；输出已存在则拒绝覆盖。
+本机 v2 从保留的初次推理生成，来源链由 manifest 固定。
+
+本轮两方案未达到继续条件，暂不进入学生筛选。后续如有可靠候选，可按用户
+最新授权做至多 30 epoch 的有界实验；必须固定配对数据/配置与完整 val960，
+明确单组/双组成本，不把短程结果写成正式矩阵。启动训练时创建临时心跳观察，
+完成、失败或需要用户处理时通知，结束后清理，不自动扩大到更长训练。
+
 ## 5. 对照规则
 
 - B1 与 B2 必须从同一 `yolo11s.pt` 初始化。
