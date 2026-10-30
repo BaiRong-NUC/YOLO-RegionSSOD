@@ -15,6 +15,7 @@
 | [candidate_retention_analysis.md](candidate_retention_analysis.md) | 128 个独立抽样 tile 的 NMS/max-det 候选覆盖检查及停止结论，非学生精度 |
 | [scale_support_analysis.md](scale_support_analysis.md) | 跨输入尺度支持的探索与不重叠样本确认，局部信号未通过确认，不进入学生训练 |
 | [a_keyword_research.md](a_keyword_research.md) | 六类关键词的原论文调研、阅读范围及A的单机制优先级；新假设尚未实施，不是实验结果 |
+| [positive_localization_analysis.md](positive_localization_analysis.md) | 已有正伪框跨尺度定位稳定性诊断；预先协议与分层样本不足的停止结论，不进入训练 |
 | [case_studies.md](case_studies.md) | 已冻结 seed0 的成功/退化/共同漏检/未匹配预测四类案例，含可复现选图规则、裁剪坐标和全验证集事件计数 |
 | [s3od_comparison.md](s3od_comparison.md) | S³OD 差异对照：正式发表版本、预印本公式、公开代码与 P1 实现、贡献范围及待验证问题 |
 | [references.md](references.md) | 16 篇核心文献、阅读优先级、引用边界；[references.bib](references.bib) 供文献管理工具导入 |

@@ -793,12 +793,18 @@ P1 的 30 epoch 训练、完整原图 val960 和固定操作点小目标 recall 
   蒸馏后结构剪枝留在C。下一步可检验既有正伪框定位稳定性，当前仅文献假设，
   尚未执行该诊断或启动第二项训练。
 
-### 3.28 已有正伪框定位可靠性（2026-10-30，协议已固定）
+### 3.28 已有正伪框定位可靠性（2026-10-30，诊断完成）
 
 - 下一项只复用两个不重叠256tile缓存，检验跨尺度定位稳定性在控制置信度、
   类别组成后是否区分已有正框的定位质量，不增加标签、推理或训练。
 - GT-free匹配、固定分层及继续线见`configs/positive_localization_diagnostic.yaml`和
-  `docs/paper/positive_localization_analysis.md`。当前仅协议，尚无该项统计或新损失。
+  `docs/paper/positive_localization_analysis.md`；协议由`2a42fa5`先提交，再执行诊断。
+- 已完成2710个正框、1442来源哈希的逐框重放。探索/确认small正框906/641，
+  稳定822/570、不稳定各6、无匹配50/51；没有足够分层可比样本，未通过继续线。
+  稳定组同类GT IoU≥0.75仅52.7981%/49.4737%，不能由同教师多尺度稳定推出正确。
+- 无匹配组仍有20.0000%/23.5294%原一对一匹配，不直接剔除；
+  不合并无匹配组重试、不改组阈值，不实现或训练新回归加权。
+  全套pytest61/61通过；只读复核`python scripts/audit_positive_localization.py --check`。
 
 ## 4. 固定实验协议
 
@@ -1013,6 +1019,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-10-30 16:37（A软权重验收收尾） | `dbff977` + 本次提交 | 完成去分类软权重30epoch及独立验收，新增自动表4-S5、实验4.14和来源记录 | `outputs/p1_no_soft_weights_pilot30_s0/{comparison,independent_audit,launch_receipt}.json`；第3.26节 | exit0；16项检查/23783冻结文件/两组548图预测重放通过；去软权重mAP50-95−0.1623pp、small recall+0.9143pp（+243），3类升7类降；137来源/8组recall，pytest56/56 | 体现取舍、未达后续线，保留完整P1主配置；不扩训、不push，临时监控验收后清理；下一项仅为定位可靠性待验证假设，原Gate3不变 |
 
 | 2026-10-30（正伪框定位诊断协议） | 本次提交 | 固定已有正伪框跨尺度匹配、置信度/类别分层和两样本继续线，再开始读取本项GT统计 | `configs/positive_localization_diagnostic.yaml`；`docs/paper/positive_localization_analysis.md`；第3.28节 | 仅协议，无该项结果；两组各256tile缓存已存在且不重叠 | 下一步实现GT-free匹配与只读离线诊断；不改现有训练输入、不新增推理或训练，原Gate3不变 |
+
+| 2026-10-30（正伪框定位诊断完成） | `2a42fa5` + 本次提交 | 实现GT-free一对一稳定性特征，复用缓存完成探索/确认，按预先继续线停止 | `scripts/audit_positive_localization.py --check`；`outputs/positive_localization_20261030/`；第3.28节 | 2710正框/1442来源重放，pytest61/61；small不稳定两组各6框，分层证据不足；稳定组严格定位质量比例52.7981%/49.4737% | 不增推理/训练，不改分组重试、不直接删除无匹配框；下一项需新信息来源，原Gate3不变；中文本地提交、不push |
 
 ### 10.1 新会话开始流程
 

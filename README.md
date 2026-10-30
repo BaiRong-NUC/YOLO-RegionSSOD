@@ -476,6 +476,14 @@ python scripts/audit_scale_support.py --confirm --check
 python scripts/audit_p1_no_soft_weights.py
 ```
 
+已有正伪框的跨尺度定位稳定性也已完成零训练诊断：两组不稳定small各仅6框，
+未形成足够的置信度/类别分层比较，停止当前规则，不实现回归加权。
+详见[定位可靠性诊断](docs/paper/positive_localization_analysis.md)；只读复核：
+
+```powershell
+python scripts/audit_positive_localization.py --check
+```
+
 ## Baseline 定义
 
 | 名称 | 训练数据 | 作用 |
