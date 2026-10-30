@@ -487,6 +487,27 @@ python scripts/audit_confidence_calibration.py --check
 2026-10-30拟合和探索已完成：整体分组Brier0.160310高于原分数0.158864，
 继续线失败；未生成确认目录或训练，完整记录见`docs/paper/confidence_calibration_results.md`。
 
+### 4.13 小框NWD回归单组5epoch筛查
+
+协议`docs/paper/small_nwd_protocol.md`先提交；复用已验收的
+`runs/screen/p1_full_area10_subset1024_e5_s0`，不重新训练参考。
+同1024源图/1765tile/640/batch8/SGD/seed0/close_mosaic0，
+仅面积<32²训练像素的小框回归替换一半CIoU为NWD；DFL、TAL及分类不变。
+C从该子集的开放标注估计，不使用隐藏GT或val选择。
+
+```bash
+python scripts/screen_p1_small_nwd.py --check-only
+python scripts/screen_p1_small_nwd.py --geometry-only
+```
+
+两条均不训练，后者GPU前反传无优化器更新。首次运行
+`python -u scripts/screen_p1_small_nwd.py`只新增5epoch及完整548原图val960/recall。
+后台包装`scripts/run_small_nwd_background.py`记录PID/创建时间/命令、
+stdout/stderr与exit_code；启动训练后创建临时监控，结束/失败处理后删除。
+独立验收`python scripts/audit_small_nwd_screen.py`只读重放、核对参数和SHA256。
+继续线为相对同子集P1的mAP50-95≥+0.30pp且small recall≥0；
+过线也只意味着值得单独登记全量30epoch确认，不自动扩训或交长期命令。
+
 ## 5. 对照规则
 
 - B1 与 B2 必须从同一 `yolo11s.pt` 初始化。

@@ -512,6 +512,20 @@ python scripts/audit_confidence_calibration.py --check
 2026-10-30探索已完成：整体Brier未改善，虽small改善，仍未过固定继续线；
 不执行确认或训练，完整计数/成本/局限见`docs/paper/confidence_calibration_results.md`。
 
+小框NWD回归的单因素筛查见`docs/paper/small_nwd_protocol.md`。
+先核对冻结输入，只估计开放GT常数、不训练：
+
+```bash
+python scripts/screen_p1_small_nwd.py --check-only
+python scripts/screen_p1_small_nwd.py --geometry-only
+```
+
+第二条额外做真实YOLO11s的GPU AMP前反传，零优化器步骤。源码/协议需先提交；
+通过后首次去掉这两个选项只新增一组5epoch，复用已验收的同子集P1参考，
+随后完整val960和固定操作点recall。已有训练/阶段记录时拒绝重复启动。
+验收为`python scripts/audit_small_nwd_screen.py`，必须包装进程exit0且全部阶段完成；
+此筛查不自动派发30/100epoch，也不进入正式论文结果表。
+
 ## Baseline 定义
 
 | 名称 | 训练数据 | 作用 |

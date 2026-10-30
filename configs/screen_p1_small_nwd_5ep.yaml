@@ -1,0 +1,31 @@
+name: p1_small_nwd_area10_subset1024_e5_s0
+method: p1
+model: D:/Python/YOLO/yolo11s.pt
+data: data/screens/p1_soft_weights_1024/dataset.yaml
+project: runs/screen
+p1:
+  soft_weights: true
+  uncertain_ignore: true
+nwd:
+  normalizer: open_small_mean
+  mix: 0.5
+  small_side: 32.0
+train:
+  epochs: 5
+  batch: 8
+  imgsz: 640
+  device: "0"
+  workers: 0
+  seed: 0
+  deterministic: true
+  optimizer: SGD
+  lr0: 0.01
+  lrf: 0.01
+  momentum: 0.937
+  weight_decay: 0.0005
+  amp: true
+  plots: false
+  max_det: 500
+  close_mosaic: 0
+  patience: 0
+  pretrained: true
