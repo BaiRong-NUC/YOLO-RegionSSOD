@@ -581,6 +581,21 @@ NWD之后的小框分配诊断见`docs/paper/assignment_geometry_results.md`：
 见`docs/paper/assignment_coverage_results.md`。这仍是零训练诊断，
 不是新的学生性能结果，也不据此改写原P1主对照。
 
+下一候选为原教师置信度同时用于伪框box/DFL，缓存诊断已通过，
+固定完整30轮协议见`docs/paper/regression_confidence30_protocol.md`。
+仅新增回归权重，原P1/NWD和两种分配规则不修改/叠加。
+预检与独立验收入口为：
+
+```bash
+python scripts/run_p1_regression_confidence.py --check-only
+python scripts/audit_p1_regression_confidence.py
+```
+
+完整训练入口为`python -u scripts/run_regression_confidence_background.py`，
+实际启动由本轮有界实验安排执行一次，已有运行状态时不要重复启动。
+日志/阶段/进程回执保存在`outputs/p1_regression_confidence_pilot30_s0/`，
+30轮后自动完整val960及recall；扩大训练仍需完整结果及用户执行。
+
 ## Baseline 定义
 
 | 名称 | 训练数据 | 作用 |

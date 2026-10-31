@@ -564,6 +564,28 @@ mAP50-95−0.2123pp、small recall−0.6698pp，两条后续线均未通过，
 不自动扩训或按val调C/mix/面积边界。完整结果见`paper/small_nwd30_results.md`。
 上面的启动命令已完成，现只能运行独立验收命令复核，不能重复训练。
 
+### 4.15 伪框回归置信度单因素30轮
+
+缓存诊断先提交后统计并通过，范围见`paper/regression_confidence_diagnostic.md`。
+独立协议`paper/regression_confidence30_protocol.md`固定唯一11310tile学生，
+原COCO初始化、seed0、640/batch8/SGD/close_mosaic10、30epoch；
+仅对box/DFL乘原教师c，人工框1、TAL分母原样，其他P1机制不变。
+
+```bash
+python scripts/run_p1_regression_confidence.py --check-only
+python scripts/run_p1_regression_confidence.py --engineering-only
+python -u scripts/run_regression_confidence_background.py
+python scripts/audit_p1_regression_confidence.py
+```
+
+前两条是预检/真实AMP零优化步工程检查，第三条只启动一次并自动完整val960/recall，
+末条仅在exit0、连续30轮及全部阶段结束且原进程停止后独立验收。
+预检不能在已有dispatch/status/run后再执行，以免混淆来源或重复训练。
+输出`outputs/p1_regression_confidence_pilot30_s0/`保留日志/PID/创建时间/退出码，
+启动时创建临时监控，正常静默，终态处置后删除；不重启、续训或拼接中断轮次。
+预登记继续线为AP≥+0.30pp且small recall不降，或small recall≥+1.00pp且AP≥−0.10pp；
+通过也只准备更大训练交接，不自动100轮。缓存质量不等同于学生性能。
+
 ## 5. 对照规则
 
 - B1 与 B2 必须从同一 `yolo11s.pt` 初始化。
