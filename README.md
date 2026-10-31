@@ -612,7 +612,8 @@ python scripts/run_p1_regression_confidence.py --validation-fix --engineering-on
 ```
 
 前两条为零优化器步骤工程检查，不是新训练。
-通过后用户才执行以下完整30轮命令；助手本次不自动重试：
+检查通过后执行以下完整30轮命令。2026-10-31用户明确“小训练由助手启动”，
+本次由助手单次启动，用户不需重复执行；更长训练仍交用户：
 
 ```powershell
 python -u scripts/run_regression_confidence_background.py --validation-fix
@@ -630,7 +631,10 @@ python scripts/audit_p1_regression_confidence.py --validation-fix
 这些小样本数值不用于性能判断。更大训练仍需完整30轮过固定继续线。
 2026-10-31修正版工程检查已实际通过：255个梯度张量有限、标准验证2图、
 原P1损失精确一致，0优化器步骤；后续预检23809来源通过。
-124项测试及五个相关Python文件Pyright零错误/警告；尚未启动修正版训练。
+修复时124项测试及五个相关Python文件Pyright零错误/警告；
+补充零推理份额统计后全库131项测试通过。
+13:28一次启动首轮被KeyboardInterrupt中断，原始证据已完整归档；
+本次按新授权从COCO独立开始30轮，不拼接中断进度，实际状态以回执/日志为准。
 
 ## Baseline 定义
 

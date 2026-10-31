@@ -600,7 +600,9 @@ python scripts/audit_p1_regression_confidence.py
 `outputs/p1_regression_confidence_pilot30_s0/frozen_source_snapshot/`。
 新配置为`configs/train_p1_regression_confidence_valfix_10.yaml`，
 新协议为`paper/regression_confidence30_valfix_protocol.md`。
-当前先冻结修复、运行完整测试，再做零优化器步骤工程检查，不自动重试训练。
+修复、完整测试及零优化器步骤工程检查已完成。
+2026-10-31用户明确“小训练由助手启动，大训练找用户”，
+本次由助手在归档已停止的首轮中断证据后，独立启动一次完整30轮。
 
 ```powershell
 python scripts/run_p1_regression_confidence.py --validation-fix --check-only
@@ -609,7 +611,7 @@ python scripts/run_p1_regression_confidence.py --validation-fix --engineering-on
 
 工程检查增加实际标准验证加载器的2张原图、EMA缓存训练criterion、
 DetectionValidator训练期调用、原P1损失精确对照及训练元数据保护。
-其结果绑定源码哈希；检查通过后用户从同一COCO初始化独立训练30轮：
+其结果绑定源码哈希；检查通过后从同一COCO初始化独立训练30轮：
 
 ```powershell
 python -u scripts/run_regression_confidence_background.py --validation-fix
@@ -630,7 +632,11 @@ python scripts/audit_p1_regression_confidence.py --validation-fix
 标准验证2图/1batch及原P1损失精确对照通过，训练缺元数据仍拒绝，
 优化器步数0；工程产物加入后预检23809来源通过。
 修复代码/协议提交`84817b2`，124tests/五文件Pyright通过。
-当前未启动新的完整训练，没有对应launch_receipt/status/学生run目录。
+13:28启动于首轮265/1414batch中断，包装20616/训练1540均已停止；
+原回执无exit_code、status仍training，未伪造成功/失败退出码。
+9个原始文件与六份源码快照保存至
+`outputs/p1_regression_confidence_valfix_interrupted_20261031_133202/`。
+当前按新授权准备独立启动一次，不续训/拼接，之后只监控原新进程。
 
 ## 5. 对照规则
 
