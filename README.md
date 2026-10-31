@@ -574,6 +574,11 @@ NWD相对完整P1的mAP50-95−0.2123pp、small recall−0.6698pp，
 完整类别/尺寸取舍与证据见[全量NWD结果](docs/paper/small_nwd30_results.md)；
 仅需复核时运行`python scripts/audit_p1_small_nwd.py`，不消耗新训练或推理。
 
+NWD之后的小框分配诊断见`docs/paper/assignment_geometry_results.md`：
+初版减少框外点却丢失已有小目标分配，不训练该初版。
+带整图覆盖保护的新规则按`docs/paper/assignment_coverage_protocol.md`
+准备128个新基础tile确认；这仍是零训练诊断，不是新的学生性能结果。
+
 ## Baseline 定义
 
 | 名称 | 训练数据 | 作用 |

@@ -21,6 +21,7 @@
 | [references.md](references.md) | 17篇核心/候选依据文献、阅读优先级、引用边界；[references.bib](references.bib)供文献管理工具导入 |
 | [nwd_mechanism_positioning.md](nwd_mechanism_positioning.md) | NWD原文、S³OD与当前候选的作用位置，12/24epoch原文观察、单因素归因与后续对照边界 |
 | [small_nwd30_results.md](small_nwd30_results.md) | 全量30轮NWD独立验收、完整原图960结果/类别/尺寸取舍、耗时和未达到继续线的记录；与五轮探索分开 |
+| [assignment_geometry_results.md](assignment_geometry_results.md) | 固定P1和256训练增强输入的零训练分配诊断；框外监督减少但目标覆盖保护失败，初版不训练 |
 
 表格采用三个独立 30 epoch 学生进行主对照。B1 100 epoch 单列为教师和较长训练参考；20 图工程烟测不进入这些结果表。表 4-1 至 4-6 的 B1/B2/P1 主对照仍为 seed0；表 4-S4 和第 4.12 节单列 B2/P1 的两学生 seed 复验，B1 未重复，全部为 Ultralytics 开发结果；尺度阈值另有固定 split/教师、学生 seed0/1 的配对复验（表 4-S3、第 4.11 节）。尺度分层在两学生 seed 中的 mAP50-95 和 small recall 均高于统一 0.50，平均配对增益为 +0.4299±0.2657 pp 和 +0.4929±0.2128 pp（样本 SD）。小目标诊断 recall 与官方 AP_small/AR500 分别表述，不将两学生 seed 解释为统计显著性或多 split 验证。
 
