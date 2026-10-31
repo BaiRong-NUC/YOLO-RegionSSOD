@@ -1380,6 +1380,11 @@ P1 的 30 epoch 训练、完整原图 val960 和固定操作点小目标 recall 
   需在论文记录checkpoint恢复；前63轮不丢弃，仅重算未保存的64轮部分。
   剩余37轮按近期178.68秒/轮估计约1.84小时，另加评估/I/O。
   P1待B2最终验收后由用户单独运行，不自动启动。
+- 源码提交49d114a后实际`--arm b2 --resume-check`退出0：
+  completed_epochs63、resume_epoch64、total_epochs100，归档/来源/检查点均通过。
+  全库159tests及原主表137来源/8组recall检查通过。
+  原中断文件哈希未变，未创建recovery/dispatch、未启动剩余训练；
+  记录为归档handoff_check.json，恢复代码及文档已中文提交并push。
 
 ## 4. 固定实验协议
 
@@ -1673,7 +1678,7 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 
 | 2026-10-31（综合盘点与正式主线交接完成） | a65cc05及本次中文验收记录，均push | 盘点12组完整30轮，逐目标/误检/F1/IoU0.75重放，独立交接原B2/P1正式100轮 | 第3.52节；paper/training_investment_review_20261031.md；outputs/training_investment_20261031/handoff_preflight.json | 155tests；新增7行数据及原主表检查通过；两臂各37772来源预检exit0，无正式输出/新训练 | 交接已完成，正式两臂由用户顺序启动；不追加候选小训或自动大训，原历史判定及目标paused状态保留 |
 
-| 2026-10-31（正式B2误中断恢复准备） | 本次中文提交并push | 核实63轮/last.pt及进程停止，保留原13文件，补显式检查点恢复和兼容验收 | 第3.53节；paper/paper1_full100_recovery.md；归档engineering/check.json | 真实恢复初始化255项优化器状态/EMA/scaler与原计划一致，0训练batch/0优化步骤，原证据不变；159tests通过 | 大训练剩余37轮由用户--resume启动；未自动续训，原exit_code未知仍保留，恢复事实单列 |
+| 2026-10-31（正式B2误中断恢复交接完成） | 49d114a及本次验收记录，均push | 核实63轮/last.pt及进程停止，保留原13文件，补显式检查点恢复和兼容验收 | 第3.53节；paper/paper1_full100_recovery.md；归档engineering/check.json及handoff_check.json | 真实恢复初始化255项优化器/EMA/scaler通过且0步骤；159tests及原主表通过；实际resume-check退出0，确认64→100轮，原证据未变 | 大训练剩余37轮由用户--resume启动；未自动续训，原exit_code未知仍保留，恢复事实单列 |
 
 ### 10.1 新会话开始流程
 
