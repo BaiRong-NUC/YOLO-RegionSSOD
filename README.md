@@ -567,7 +567,12 @@ python -u scripts/run_small_nwd30_background.py
 可在另一Git Bash窗口运行
 `tail -f /d/Python/YOLO-RegionSSOD/outputs/p1_small_nwd_pilot30_s0/stdout.log`查看。
 30轮后自动完成548原图val960、分尺寸recall和对比；训练完由用户通知验收。
-本次仅准备交接，尚未启动新训练或监控；不要重复执行启动命令。
+上段为当时交接命令，现已执行完成，不要再次启动。
+2026-10-31用户完成完整30轮、val960/recall，exit0及独立验收通过。
+NWD相对完整P1的mAP50-95−0.2123pp、small recall−0.6698pp，
+两条预登记后续线均未达到，保留原P1，不扩大本变体训练。
+完整类别/尺寸取舍与证据见[全量NWD结果](docs/paper/small_nwd30_results.md)；
+仅需复核时运行`python scripts/audit_p1_small_nwd.py`，不消耗新训练或推理。
 
 ## Baseline 定义
 

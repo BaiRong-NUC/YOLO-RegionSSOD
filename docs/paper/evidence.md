@@ -239,3 +239,20 @@ NMS IoU=0.70、max_det=500。自动与独立记录为
   数据、代码/参数、权重/产物SHA256通过独立入口
   `python scripts/audit_small_nwd_screen.py`核验。
 - 详细表及范围见`small_nwd_results.md`，本组是子集探索，不是全量方法结论或官方AP。
+
+## 小框混合NWD全量30轮确认（2026-10-31）
+
+- 用户终端从初始化独立训练30轮，未拼接旧13轮中断；09:02:42启动、
+  11:18:53包装exit0，status=completed，CSV累计8092.09秒，11310tile。
+- 训练：`runs/partial10_p1_small_nwd_pilot30_s0/`；完整val：
+  `runs/val/partial10_p1_small_nwd_pilot30_s0_val960/metrics.json`；
+  recall及保存预测：`runs/size_recall/p1_small_nwd_pilot30_s0/`。
+- 冻结输入/来源、回执、比较及独立验收：
+  `outputs/p1_small_nwd_pilot30_s0/{preflight,launch_receipt,status,comparison,independent_audit}.json`。
+  `python scripts/audit_p1_small_nwd.py`核对23793项来源、实际参数与产物哈希，
+  并重放两组各548图预测，accepted=true；worth_larger_training=false。
+- best SHA256：`3a0357ae000a922441f2c472b8a07c03f18552dad77134a6809d24923dfc81e6`；
+  last SHA256：`e50dcbd46c0aa7ece4345bfb75721433aba2df9300f2496da6a994e8cedf58c5`。
+- mAP50-95−0.2123pp、small recall−0.6698pp（−178匹配），medium/large亦下降；
+  类别4升6降。完整结果与限制见`small_nwd30_results.md`及实验4.15。
+  新表单独由NWD验收入口核对，不纳入既有表格生成器的137来源/8组recall统计。
