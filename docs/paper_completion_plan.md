@@ -1171,7 +1171,8 @@ P1 的 30 epoch 训练、完整原图 val960 和固定操作点小目标 recall 
   30轮确认由助手执行，更大训练仍需完整结果支持并交用户。
 - 启动前发现13:28已有一次valfix启动，包装20616/训练1540；
   两次Get-CimInstance核实进程均不存在，stdout停在首轮265/1414batch，
-  stderr为KeyboardInterrupt。中断触发来源未知，不能推断为方法失败。
+  stderr为KeyboardInterrupt。用户随后确认自己主动终止该次，
+  是为交给助手开始训练，不能推断为方法失败。
   回执缺exit_code、原status仍training，均原样保留，不写成exit0或完成。
 - 9个原始文件逐项SHA256核对后原生PowerShell归档至
   `outputs/p1_regression_confidence_valfix_interrupted_20261031_133202/`，

@@ -47,7 +47,8 @@ python -u scripts/run_regression_confidence_background.py --validation-fix
 
 13:28的一次启动在首轮265/1414batch以KeyboardInterrupt中断，
 原包装20616/训练1540均已停止，原回执没有exit_code，原status仍为training。
-中断来源未知，不推断为方法失败或伪造退出码；9个原始文件及六份冻结源码快照
+用户随后明确该次由自己主动终止，以便交给助手开始训练；
+不将其推断为方法失败或伪造退出码。9个原始文件及六份冻结源码快照
 已保存在`outputs/p1_regression_confidence_valfix_interrupted_20261031_133202/`。
 本次按新授权从原COCO权重独立开始完整30轮，不接续这段中断进度。
 
