@@ -980,6 +980,25 @@ P1 的 30 epoch 训练、完整原图 val960 和固定操作点小目标 recall 
   未创建新监控；不把本次验收等同于已找到值得大规模训练的方向。
   本次108项pytest及既有论文表137来源/8组recall核对通过。
 
+### 3.36 小框分配支持域诊断准备（2026-10-31）
+
+- 用户恢复持续目标后，上一轮NWD验收属于有效进展但未找到可扩大训练方向。
+  当前仍仅A，先寻找尚未验证的单因素，不重复翻转/跨尺度阈值扫描或增加基础模型。
+- 源码核实当前Ultralytics TAL已将小框短边扩至stride[1]=16后筛选候选点，
+  DFL仍对原框计算非负ltrb；不能提出“原实现从不扩大tiny候选池”的错误动机。
+  框外点可能存在回归支持域不匹配，也可能帮助覆盖，须先测实际有效分配占比。
+- 新协议`paper/assignment_geometry_protocol.md`在推理前固定256基础tile、
+  128/128探索/确认、原P1 checkpoint、真实训练增强、FP32原始头预测与CPU分配重放。
+  候选只在原框有点时使用原框内点，否则保留原扩框池；其他分配与损失不变。
+  不读取隐藏GT/val，不训练；mosaic来源可能重叠，不宣称独立来源确认。
+- `scripts/audit_assignment_geometry.py`及几何/覆盖保护测试已实现；
+  111项pytest通过，两个新增Python文件Pyright零错误/警告。
+  FCOS原文第2.1节/式1核对框内点的四边距离定义，
+  RFLA只取得MCP题名/DOI，不虚报精读；当前假设不称首次或S³OD SLA复现。
+- FCOS父条目R3GT2QZQ、原PDF附件NRI2CTCA经MCP核实，
+  加入顶层YOLO-RegionSSOD并保留原YOLO-VisDrone Research归属。
+  首次推理前中文提交协议/代码并push；诊断结果及是否值得30轮确认尚未知。
+
 ## 4. 固定实验协议
 
 ### 4.1 训练与评估
@@ -1227,6 +1246,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-10-31（用户终端重跑交接） | 本次中文文档提交并push | 用户确认手动中断，核实无训练进程、13个文件哈希后归档原输出/run，准备原入口完整30轮重跑命令 | `outputs/p1_small_nwd_manual_handoff_20261031/handoff.json`；`python -u scripts/run_small_nwd30_background.py`；第3.34节 | 保留所有中断证据，配置/源码/协议不变；本次未启动训练，后续由用户执行并通知验收 | 至少完整30轮后判断性能，不续训/拼接、不自动扩训；等待用户完成 |
 
 | 2026-10-31（NWD完整30轮验收） | `23c2656`后本次中文提交并push | 核实用户终端30轮、exit0与完整val960/recall；独立重放来源/产物与两组预测；同步实验4.15、独立结果表和证据/命令入口 | `python scripts/audit_p1_small_nwd.py`；`outputs/p1_small_nwd_pilot30_s0/independent_audit.json`；第3.35节 | accepted=true；mAP50-95−0.2123pp、small−0.6698pp（−178），类别4升6降；训练8092.09秒 | 两条继续线均失败，保留原P1，不自动扩训/调参追试；原Gate3不变，尚未找到可扩大训练方向 |
+
+| 2026-10-31（分配几何诊断准备） | 本次中文提交并push，推理前冻结 | 原NWD负面确认后核实TAL扩框池与DFL支持域，准备原框有点时优先框内点的单因素缓存重分配诊断 | `paper/assignment_geometry_protocol.md`；`scripts/audit_assignment_geometry.py` | 111tests；新增文件Pyright零错误/警告；FCOS已有PDF补入顶层RegionSSOD，尚未新增数据推理或训练 | 固定256增强输入后重放，证据不足则不改阈值；通过也仅准备完整30轮，不能当作学生性能收益 |
 
 ### 10.1 新会话开始流程
 
