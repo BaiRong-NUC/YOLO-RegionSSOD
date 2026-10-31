@@ -671,6 +671,11 @@ python scripts/audit_p1_coverage_guard.py
 探索交接条件AP≥+0.10pp且small不降，或small≥+0.50pp且AP不降；
 不追改原Gate3或历史实验结论。详见`paper/assignment_coverage30_protocol.md`。
 
+正式100轮配对预备入口为`scripts/run_coverage_guard_full100.py`；
+当前仅`--plan-only`可查看计划，不做训练。只有上述完整30轮正向独立验收后，
+才按`paper/coverage_guard_full100_protocol.md`由用户顺序运行两臂，
+各自COCO初始化、固定100轮及完整评估，不从pilot续训。
+
 ## 5. 对照规则
 
 - B1 与 B2 必须从同一 `yolo11s.pt` 初始化。

@@ -671,6 +671,16 @@ python scripts/audit_p1_coverage_guard.py
 [覆盖保护30轮](docs/paper/assignment_coverage30_protocol.md)。
 Zotero文献位置现为`Research / YOLO-RegionSSOD`。
 
+等待期另备正式100轮配对入口，当前只可查看计划：
+
+```powershell
+python scripts/run_coverage_guard_full100.py --plan-only
+```
+
+该入口在完整30轮独立验收且值得扩大训练前拒绝启动；
+尚未建议或执行大训练。条件式命令与职责见
+[正式配对协议](docs/paper/coverage_guard_full100_protocol.md)。
+
 ## Baseline 定义
 
 | 名称 | 训练数据 | 作用 |
