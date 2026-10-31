@@ -595,6 +595,11 @@ python scripts/audit_p1_regression_confidence.py
 实际启动由本轮有界实验安排执行一次，已有运行状态时不要重复启动。
 日志/阶段/进程回执保存在`outputs/p1_regression_confidence_pilot30_s0/`，
 30轮后自动完整val960及recall；扩大训练仍需完整结果及用户执行。
+该次训练于2026-10-31 12:31启动、12:37首轮验证时报错退出（exit1）。
+验证集没有训练专用的`pseudo_weights`字段，新增损失误将其判为异常；
+没有完整epoch记录或学生性能结论，不重启、不续训。
+原始证据已保留，临时监控按失败终态清理；不要重复运行上述入口。
+详见[工程失败记录](docs/paper/regression_confidence30_failure.md)。
 
 ## Baseline 定义
 
