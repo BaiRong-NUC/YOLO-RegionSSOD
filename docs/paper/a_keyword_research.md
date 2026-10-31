@@ -28,7 +28,7 @@ SHA256清单保留在忽略目录`outputs/literature/a_paper_mechanisms_20261030
 |---|---|---|---|
 | R1 | *Co-mining: Self-Supervised Learning for Sparsely Annotated Object Detection*, arXiv:2012.01950v2 | PDF pp.3–5，框架、伪标签生成、互补监督与实验设定 | 两视图预测互相补标签已有先例；其COCO实例级随机缺标不同于本项目每图面积预算 |
 | R2 | *Semi-Supervised Object Detection with Object-wise Contrastive Learning and Regression Uncertainty*, arXiv:2212.02747v1 | 全文文本，重点Sec.3.4、PDF pp.6–7 | 回归不确定性伪标签处理；含额外预测与训练设计，不能把分类置信度加权称为其复现 |
-| R3 | *Unbiased Teacher v2*, arXiv:2206.09500v1 | PDF pp.3–4，重点Sec.3.3.2 | Listen2Student区分师生定位可靠性；不是只看教师分类分数 |
+| R3 | *Unbiased Teacher v2*, arXiv:2206.09500v1 | Sec.3.3.1–3.3.2；2026-10-31按固定文本页标补核为PDF pp.5–6，修正旧页码 | Listen2Student区分师生定位可靠性；不是只看教师分类分数 |
 | R4 | *Calibrated Teacher for Sparsely Annotated Object Detection*, arXiv:2303.07582v1 | PDF pp.3–5，校准和Focal IoU Weight | 缺标造成错误负样本；其稀疏标注协议与本项目不同，不用隐藏GT拟合训练校准器 |
 | R5 | *A Normalized Gaussian Wasserstein Distance for Tiny Object Detection*, arXiv:2110.13389v2 | PDF pp.3–5，动机与Sec.3.1–3.2 | 微小框IoU对像素偏差敏感，NWD为候选度量；其anchor-based/AI-TOD结果不证明YOLO11s收益 |
 | R6 | *DINOv3*, arXiv:2508.10104v1 | 引言、高分辨率及patch相关段落；未逐页精读67页 | 稠密视觉特征可作离线证据候选，不是直接输出本项目类别框的YOLO替代品 |

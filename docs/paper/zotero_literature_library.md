@@ -51,3 +51,10 @@ CrossRectify阅读使用`2201.10734v2`，Density Crop-guided SSOD使用`2308.050
 `6HT9SNK7`基础上新增`BMQTT9Y7`；两个分类继续并列顶层。
 原28篇之外新增该条目，共29篇；本次只核对新增条目，未再次逐项审计全部旧附件。
 阅读第2.1节/式1的框内点距离定义，不将其当作当前候选的效果证据。
+
+2026-10-31回归置信度归因核对：MCP重新确认RUPL父`4TIEA564`、
+PDF子`M8928JBD`，UTv2父`R6AMZBIU`、PDF子`AAVY3YSS`，
+两父条目均属于顶层`BMQTT9Y7`。另核实Soft Teacher已有PDF子`3BQA6MIF`。
+没有新增条目/附件或改分类嵌套，归档总数仍29篇。
+RUPL/UTv2本次重读固定预印本的回归机制段落，范围及与原c加权的差异
+见`regression_confidence_mass_results.md`；不称同协议复现或新学生收益。

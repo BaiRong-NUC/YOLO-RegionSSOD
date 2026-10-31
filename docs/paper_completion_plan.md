@@ -1152,6 +1152,17 @@ P1 的 30 epoch 训练、完整原图 val960 和固定操作点小目标 recall 
   脚本`audit_regression_confidence_mass.py`在首次统计前中文提交并push。
   131项pytest通过，新增两Python文件Pyright零错误/警告。
   本次为预登记，尚未取得全量统计，不代表学生性能结果。
+- `245501b`中文提交并push后首次统计并精确重放：
+  4839个正伪框tile、35067框，全量平均c=0.670235；
+  small/medium/large平均c=0.585343/0.787948/0.821497。
+  small框数份额58.9329%，sum(c)份额51.4685%，差−7.4644pp；
+  car份额+4.9497pp，说明需区分监督强度、排序与尺度/类别组成。
+  这是单位框权重代理，不能写成实际损失/梯度减少或recall变化。
+- RUPL Sec.3.4/式7–8及UTv2 Sec.3.3已重读固定版本相关段落，
+  Zotero MCP核实两父条目归属和PDF附件，不新增重复条目。
+  细节见`paper/regression_confidence_mass_results.md`，
+  不称独立定位不确定性、Listen2Student复现或新颖性证明。
+  训练变量和继续线不变，修正版仍待用户运行完整30轮。
 
 ## 4. 固定实验协议
 
@@ -1422,6 +1433,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-10-31（验证兼容真实工程验收） | `84817b2` + 本次中文结果记录，均push | 真实YOLO11s AMP前反传及标准2图训练期验证调用通过，原P1损失精确一致 | 第3.44节；`outputs/p1_regression_confidence_valfix_pilot30_s0/{preflight,engineering_check}.json` | 255梯度有限、0优化器步骤；124tests/Pyright通过；23809来源与原主表核对通过，无新训练 | 已交独立30轮用户命令；等完整训练后按固定线验收，未认定值得更大训练，持续目标未完成 |
 
 | 2026-10-31（回归权重份额预登记） | 本次中文提交并push，首次统计前冻结 | 不推理不训练，只核对全量正伪框原c的尺度/类别组成及监督强度混淆 | 第3.45节；`paper/regression_confidence_mass_protocol.md` | 131tests及新增两文件Pyright通过，未启动学生或更改冻结训练变量 | 提交后首次统计并重放；仅框级代理，不据此调权或判断性能 |
+
+| 2026-10-31（全量权重份额结果） | `245501b`预登记 + 本次中文结果提交，均push | 35067伪框只读统计及重放，复核RUPL/UTv2原文与Zotero附件 | 第3.45节；`paper/regression_confidence_mass_results.md` | small框数份额58.9329%→sum(c)份额51.4685%，car+4.9497pp；不是实际损失/梯度或性能结论 | 不改原c及继续线，不自动训练；等用户完整30轮后验收，目标尚未达成 |
 
 ### 10.1 新会话开始流程
 

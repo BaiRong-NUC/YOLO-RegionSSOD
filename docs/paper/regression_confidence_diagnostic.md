@@ -29,3 +29,9 @@
 来源/完整各尺度统计见`outputs/regression_confidence_20261031/`
 的`source_sha256.json`及`analysis.json`，旧质量可由
 `python scripts/audit_positive_localization.py --check`复查。
+
+2026-10-31补充[全量框级权重份额](regression_confidence_mass_results.md)：
+35067个已接受正伪框中，small按框数占58.9329%，按sum(c)占51.4685%。
+这只是原tile尺度的框级代理，不代表实际TAL损失/梯度或学生recall。
+原c可能同时改变总监督强度、组内排序与尺度/类别组成；
+完整30轮前不改原规则、不据此作性能决定。
