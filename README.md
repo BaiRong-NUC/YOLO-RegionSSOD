@@ -550,6 +550,25 @@ Windows记录原包装进程停止响应并关闭；退出码缺失，根因尚�
 证据与处理见[中断记录](docs/paper/small_nwd30_interruption.md)；
 临时监控`a-nwd`在中断处置后删除，不重复运行启动入口，不拼接或自动重训。
 
+2026-10-31用户确认上次为手动中断，改由本人终端重新运行完整30轮。
+旧输出及run已保留到`outputs/p1_small_nwd_manual_handoff_20261031/`，
+原中断快照仍保留；新训练从COCO初始化，配置/损失/继续线不变。
+在Git Bash执行：
+
+```bash
+source /d/MiniConda/etc/profile.d/conda.sh
+conda activate yolo
+cd /d/Python/YOLO-RegionSSOD
+python -u scripts/run_small_nwd30_background.py
+```
+
+虽然入口文件名带background，这条命令会在当前终端等待全部阶段结束；
+训练进度写入`outputs/p1_small_nwd_pilot30_s0/stdout.log`。
+可在另一Git Bash窗口运行
+`tail -f /d/Python/YOLO-RegionSSOD/outputs/p1_small_nwd_pilot30_s0/stdout.log`查看。
+30轮后自动完成548原图val960、分尺寸recall和对比；训练完由用户通知验收。
+本次仅准备交接，尚未启动新训练或监控；不要重复执行启动命令。
+
 ## Baseline 定义
 
 | 名称 | 训练数据 | 作用 |

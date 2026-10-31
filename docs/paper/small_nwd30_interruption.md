@@ -53,3 +53,17 @@ Windows错误报告记录AppHangXProcB1，HangType为Cross-process;Quiesce。
 
 临时监控`a-nwd`在终态处置后删除。持续目标实际仍为paused，
 现有目标控制无法设回active，需要用户点击“继续”；未虚报自动恢复。
+
+## 2026-10-31用户确认与交接
+
+用户随后确认上次为本人手动中断，要求自行终端训练，结束后再通知。
+这补充了此前未知的操作背景；不再据该次中断推断NWD或运行环境存在缺陷。
+Windows事件记录作为当时观测保留。
+
+13个原文件哈希复核一致且确认无同入口进程后，旧输出及run已移入
+`outputs/p1_small_nwd_manual_handoff_20261031/{output_original,run_original}`，
+路径映射保存在`handoff.json`；本页上述原路径指首次运行时的位置，
+独立快照`outputs/p1_small_nwd_interrupted_20261030_201452/`仍保持不变。
+原配置、源码与冻结协议不改，由用户执行
+`python -u scripts/run_small_nwd30_background.py`从初始化重做完整30轮，
+自动val960/recall/比较；本次准备不启动训练，不创建新监控。
