@@ -637,6 +637,12 @@ python scripts/audit_p1_regression_confidence.py --validation-fix
 9个原始文件与六份源码快照保存至
 `outputs/p1_regression_confidence_valfix_interrupted_20261031_133202/`。
 当前按新授权准备独立启动一次，不续训/拼接，之后只监控原新进程。
+实际已于2026-10-31 13:36通过Win32_Process.Create隐藏独立启动，
+包装22020/训练22512命令和创建时间与回执匹配；临时监控`a`已创建。
+启动预检23809来源通过，实际args除name/save_dir外与完整P1相同，
+元数据/工程来源哈希匹配。13:37首轮346/1414batch，stderr空，
+首轮尚未结束时无CSV属正常，不据此判断中断或性能。
+运行中不重复启动、改冻结来源或并行候选，完整终态后执行上面的valfix独立验收。
 
 ## 5. 对照规则
 
