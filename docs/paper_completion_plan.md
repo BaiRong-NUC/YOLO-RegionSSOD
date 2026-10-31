@@ -1137,6 +1137,22 @@ P1 的 30 epoch 训练、完整原图 val960 和固定操作点小目标 recall 
   工程证据为`outputs/p1_regression_confidence_valfix_pilot30_s0/engineering_check.json`。
   未创建修正版run/status/dispatch/launch_receipt，不存在新训练或监控。
 
+### 3.45 回归置信度的框级监督份额预登记（2026-10-31）
+
+- 修正版尚无launch_receipt/status/run或对应进程；不自动重试训练。
+  新增零推理检查，仅统计固定训练清单中已接受正伪框的原c权重，
+  读取原metadata/summary，不读隐藏GT、验证GT或新预测。
+- 原开发缓存small平均c为0.5817/0.5928，medium为0.7953/0.7792，
+  表明加权也可能改变尺度组成。本项预登记全量/各尺度/各类的框数、
+  sum(c)、mean(c)、Kish样本量及框数份额与置信度质量份额差。
+- mean(c)只是单位框权重的代理保留比例，不能写成实际TAL加权
+  box/DFL损失、梯度或召回的降幅。不选择常数、幂指数或补偿规则，
+  不改变已交用户的科学变量和30轮继续线。
+- 协议`paper/regression_confidence_mass_protocol.md`、
+  脚本`audit_regression_confidence_mass.py`在首次统计前中文提交并push。
+  131项pytest通过，新增两Python文件Pyright零错误/警告。
+  本次为预登记，尚未取得全量统计，不代表学生性能结果。
+
 ## 4. 固定实验协议
 
 ### 4.1 训练与评估
@@ -1404,6 +1420,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-10-31（验证兼容修复准备） | 本次中文提交并push后冻结 | 隔离eval原P1损失与train元数据保护，增加独立valfix配置/显式入口及实际验证工程检查 | 第3.44节；`paper/regression_confidence30_valfix_protocol.md` | 旧失败六文件源码快照已核对保存；124项单元测试通过，待执行新预检和实际验证工程检查 | 仅零优化器步骤检查；通过后交用户独立30轮命令，不自动重试，不据工程检查判断性能 |
 
 | 2026-10-31（验证兼容真实工程验收） | `84817b2` + 本次中文结果记录，均push | 真实YOLO11s AMP前反传及标准2图训练期验证调用通过，原P1损失精确一致 | 第3.44节；`outputs/p1_regression_confidence_valfix_pilot30_s0/{preflight,engineering_check}.json` | 255梯度有限、0优化器步骤；124tests/Pyright通过；23809来源与原主表核对通过，无新训练 | 已交独立30轮用户命令；等完整训练后按固定线验收，未认定值得更大训练，持续目标未完成 |
+
+| 2026-10-31（回归权重份额预登记） | 本次中文提交并push，首次统计前冻结 | 不推理不训练，只核对全量正伪框原c的尺度/类别组成及监督强度混淆 | 第3.45节；`paper/regression_confidence_mass_protocol.md` | 131tests及新增两文件Pyright通过，未启动学生或更改冻结训练变量 | 提交后首次统计并重放；仅框级代理，不据此调权或判断性能 |
 
 ### 10.1 新会话开始流程
 
