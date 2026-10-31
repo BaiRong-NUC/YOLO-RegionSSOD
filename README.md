@@ -681,6 +681,15 @@ python scripts/run_coverage_guard_full100.py --plan-only
 尚未建议或执行大训练。条件式命令与职责见
 [正式配对协议](docs/paper/coverage_guard_full100_protocol.md)。
 
+终态更新（2026-10-31）：覆盖保护于18:29:34正常完成30轮及完整val960/recall，
+18:42独立验收通过；mAP50-95−0.0652pp、small recall+0.1016pp（+27匹配），
+未达本轮较低探索线，不扩大训练，条件式100轮入口仍拒绝启动。
+完整尺寸/类别/耗时及证据见
+[覆盖保护30轮结果](docs/paper/coverage_guard30_results.md)。
+上面的30轮启动命令保留为复现入口，已有产物时不要再次运行；
+只需复核时运行独立验收。监控30在收尾后删除，持续目标保持paused，
+后续研究需点击继续。
+
 ## Baseline 定义
 
 | 名称 | 训练数据 | 作用 |

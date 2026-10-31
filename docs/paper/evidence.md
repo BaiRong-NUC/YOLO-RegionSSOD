@@ -277,3 +277,24 @@ NMS IoU=0.70、max_det=500。自动与独立记录为
   未达两条继续线。完整精度/尺寸/类别/耗时及限制见
   `regression_confidence30_results.md`和实验4.16。
   新结果表由本候选独立验收核对，不计入既有137来源/8组recall统计。
+
+## 覆盖保护分配完整30轮确认（2026-10-31）
+
+- 科学变量和较低探索线由训练前assignment_coverage30_protocol.md固定，
+  源码dbc8e767b50d896dd359d5de6e2df05caa11ebdc。
+  16:07:31助手独立启动，18:29:34包装exit0、status=completed；
+  CSV连续1–30轮、11310tile；原包装15432/训练30956在验收时均已停止。
+- 输出：outputs/p1_coverage_guard_pilot30_s0的preflight、launch_receipt、
+  status、comparison、artifact_sha256及independent_audit。
+  python scripts/audit_p1_coverage_guard.py于18:42通过，
+  核对23809冻结来源、实际args、权重/产物并重放两组548图保存预测；
+  accepted=true、worth_larger_training=false。
+- 训练：runs/partial10_p1_coverage_guard_pilot30_s0；
+  完整val：runs/val/partial10_p1_coverage_guard_pilot30_s0_val960/metrics.json；
+  recall与保存预测：runs/size_recall/p1_coverage_guard_pilot30_s0。
+- best SHA256：e5f482abfb18b929c8ae2b833cc40b825c53971073440d3cc1ce4a41324e1160；
+  last SHA256：e611932c96e0af242e7d4308072ce7f320f0ca4f50074e5a1de228644fd45fa5。
+- mAP50-95−0.0652pp、small recall+0.1016pp（+27匹配），类别5升5降，
+  未达本轮两条探索线，不启动条件式100轮。
+  细表及限制见coverage_guard30_results.md和实验4.17；
+  新结果单独核对，不计入原表格生成器137来源/8组recall统计。

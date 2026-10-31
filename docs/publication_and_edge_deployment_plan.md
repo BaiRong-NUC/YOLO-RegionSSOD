@@ -242,6 +242,12 @@ A2–A4详见`docs/paper/{cross_view_flip_analysis,candidate_retention_analysis,
 覆盖保护分配因此另行登记唯一30轮，旧诊断未达线事实和原Gate3保留。
 协议见`paper/assignment_coverage30_protocol.md`，不得据新授权追改旧实验成功状态。
 
+2026-10-31终态：覆盖保护完整30轮及独立验收已完成，
+mAP50-95−0.0652pp、small recall+0.1016pp，未达较低探索线；
+不扩大此变体训练，预备100轮入口不满足启动条件。
+结果见paper/coverage_guard30_results.md。用户暂停的目标保持paused，
+后续研究需点击继续；本次只完成原训练终态收尾。
+
 1. **先推进A5，收敛第一篇的证据。** 逐项核对当前稿件的结论、单因素消融、
    必要基线及训练预算缺口，形成最小实验清单；复用已有权重与结果，不继续横向试
    新教师或新补全机制。不以补齐表格为由忽略已有中性/负面结果。

@@ -676,6 +676,13 @@ python scripts/audit_p1_coverage_guard.py
 才按`paper/coverage_guard_full100_protocol.md`由用户顺序运行两臂，
 各自COCO初始化、固定100轮及完整评估，不从pilot续训。
 
+终态更新（2026-10-31）：覆盖保护完整30轮及548原图val960/recall已结束，
+包装18:29:34 exit0，18:42独立验收通过。mAP50-95−0.0652pp、
+small recall+0.1016pp（+27匹配），两条较低探索线仍未达到，
+不扩大本变体训练，100轮入口不满足启动条件。
+结果见paper/coverage_guard30_results.md；不要重跑已有30轮入口。
+监控30在终态记录后删除，目标仍paused，后续研究需点击继续。
+
 ## 5. 对照规则
 
 - B1 与 B2 必须从同一 `yolo11s.pt` 初始化。
