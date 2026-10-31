@@ -652,6 +652,25 @@ mAP50-95−0.1755pp、small recall+0.9444pp（+251），类别1升9降，
 完整结果见`paper/regression_confidence30_results.md`；上述启动命令仅为复现历史，
 已有产物时不要再次执行。临时监控`a`在收尾后删除，持续目标保持用户设置的paused。
 
+### 4.4 覆盖保护分配的探索性30轮（2026-10-31新增）
+
+用户重新激活目标并授权降低后续探索门槛；原覆盖保护诊断48.10%未达50%
+的判定保留，现单独投入完整学生确认。只替换P1训练分配器，其余数据/配置、
+初始化和30轮参考保持配对，不叠加NWD或回归置信度。
+
+```powershell
+python scripts/run_p1_coverage_guard.py --check-only
+python scripts/run_p1_coverage_guard.py --engineering-only
+python -u scripts/run_coverage_guard_background.py
+python scripts/audit_p1_coverage_guard.py
+```
+
+真实GPU AMP前反传和两图训练期验证须先通过，零优化器步骤。
+小训练由助手单次启动，已有run/dispatch拒绝重复；启动即临时监控，
+终态后独立核对连续30轮、exit0、冻结来源、实际参数和两组完整原图预测。
+探索交接条件AP≥+0.10pp且small不降，或small≥+0.50pp且AP不降；
+不追改原Gate3或历史实验结论。详见`paper/assignment_coverage30_protocol.md`。
+
 ## 5. 对照规则
 
 - B1 与 B2 必须从同一 `yolo11s.pt` 初始化。

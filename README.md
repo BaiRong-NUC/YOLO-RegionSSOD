@@ -650,6 +650,27 @@ medium/large recall分别−0.1350/−0.1874pp，类别AP为1升9降。
 仅复核时运行上述独立验收命令，不重启训练；临时监控`a`在收尾后删除。
 持续目标已由用户暂停并保持paused，需要继续研究时由用户点击继续。
 
+## 覆盖保护分配：新授权的探索性30轮
+
+2026-10-31用户重新激活目标并要求降低探索门槛。旧诊断保留100%有效目标、
+框外质量降低48.10%，未达当时50%代理线；本次另行登记完整学生确认，
+不改旧判定。唯一变量为带整图覆盖退回的框内点优先分配。
+
+```powershell
+python scripts/run_p1_coverage_guard.py --check-only
+python scripts/run_p1_coverage_guard.py --engineering-only
+python -u scripts/run_coverage_guard_background.py
+python scripts/audit_p1_coverage_guard.py
+```
+
+前两条为预检与零步工程检查；第三条由助手单次启动完整30轮并配临时监控，
+第四条在终态后独立验收。已有run/dispatch时不重复启动。
+参考复用完整P1 seed0独立30轮，完整val960与固定recall自动执行。
+新探索条件为AP≥+0.10pp且small不降，或small≥+0.50pp且AP不降，
+不代表显著性或原Gate3通过。协议见
+[覆盖保护30轮](docs/paper/assignment_coverage30_protocol.md)。
+Zotero文献位置现为`Research / YOLO-RegionSSOD`。
+
 ## Baseline 定义
 
 | 名称 | 训练数据 | 作用 |
