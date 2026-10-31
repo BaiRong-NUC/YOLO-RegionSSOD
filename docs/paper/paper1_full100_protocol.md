@@ -5,6 +5,10 @@
 `training_investment_decision.json`。原Gate3仍未通过；该判断不改历史结果。
 覆盖保护原条件式入口保持原用途，本入口不通过翻转其结果标志来启动。
 
+交接实测：源码提交a65cc05，两臂`--check-only`均exit0、各37772冻结来源通过，
+stderr为空，无正式输出目录、无新增训练或推理；全库155项测试通过。
+本次验收记录位于`outputs/training_investment_20261031/handoff_preflight.json`。
+
 ## 固定实验与职责
 
 - 仅B2/P1 seed0两组，各从相同COCO权重独立100轮，顺序运行。

@@ -73,7 +73,7 @@ P1 尺度感知伪标签与 uncertain-ignore 是否带来稳定收益。
 | 尺度阈值全量确认 | 30 epoch、val960、固定操作点 recall 及独立验收完成；统一 0.50 相对完整 P1 的 mAP50-95 −0.6177 pp、small recall −0.3424 pp，逐类 1 升/9 降 | `outputs/p1_global_t050_pilot30_s0/{comparison,acceptance_audit}.json`；表 4-S2；第 3.18 节 | 全量结果支持尺度分层阈值更有利于总体检测和小目标覆盖；仍为单 split/seed，不扩写为跨 seed 稳定性 |
 | 尺度阈值配对学生 seed | seed1 两组各 30 epoch、完整 val960 和预测重放完成；尺度分层相对统一 0.50 的 mAP50-95 +0.2420 pp、small recall +0.6434 pp，与 seed0 两项同向 | `outputs/p1_scale_threshold_pair_s1/{comparison,acceptance_audit,independent_audit}.json`；表 4-S3；第 3.19 节 | 保留尺度分层；单 split/固定教师下两学生 seed 的平均配对增益为 +0.4299/+0.4929 pp，不作显著性或跨 split 主张 |
 | 正式 5/10/20% 数据 | 10% seed0 已生成；20 图同 seed 检查通过；5%/20% 未生成 | `data/visdrone_area10/summary.json`、`audit.json` | 生成 5%/20% split |
-| 正式 100 epoch 主矩阵 | 已完成 B1 10% seed0；B2/P1 未完成 | `runs/partial10_sup_s0`；已有 P1 30 epoch 正向初步结果 | 先整理已有成果，后续按论文需要决定补充验证规模 |
+| 正式 100 epoch 主矩阵 | B1已完成；B2/P1交接入口及实际预检完成，未启动 | 第3.52节；两臂各37772来源预检通过 | 用户顺序运行原B2/P1各100轮，优先确认已有主线 |
 | 论文正文 | 第1–4章、两seed统计/案例，以及表4-S5/实验4.14软权重全量消融已同步；原seed0主表保留 | `docs/paper/{experiments,results_tables,evidence,case_studies}.md`；第3.20、3.26节 | 正式矩阵与最终排版仍待补，后续先选一个低成本问题，不自动扩训 |
 | 文章与树莓派部署规划 | 用户新增三篇文章目标及最终树莓派部署要求；论文按录用、专利按“申请通过”，硬件与学校节点待确认 | `docs/publication_and_edge_deployment_plan.md`；第 3.21 节 | 先 A 方法稿、C 轻量化/部署稿，再扩展 B 可靠补全稿；树莓派先做导出与板端基线，均未启动 |
 | 第一篇实验缺口 | 已完成零训练漏检归因；6,471 tile/38,245 hidden GT 精确重放，按低成本列出 L0→L1→L2 | `docs/paper1_experiment_gaps.md`；`scripts/audit_paper1_gaps.py`；第 3.22 节 | 先做 ignore 可恢复增量与 NMS/max-det 候选覆盖小试；未过线不启动训练 |
@@ -1350,7 +1350,12 @@ P1 的 30 epoch 训练、完整原图 val960 和固定操作点小目标 recall 
   协议`paper/paper1_full100_protocol.md`，助手仅预检、不启动大训练。
 - 历史时间外推学生总计10.78–12.16小时，加评估/I/O可预留12–15小时；
   本轮只交接seed0，不自动扩seed/split/教师/面积预算，后续按完整结果综合判断。
-- 新增测试后155项pytest通过；最终实际两臂预检及交接核对记入第10节。
+- 155项pytest通过，原主表137来源/8组recall检查通过；
+  新增盘点表7行全部逐项对应原始重放数据。
+  在源码提交a65cc05实际运行两臂`--check-only`均exit0，各37772冻结来源，
+  stderr为空，未创建正式输出、未训练或新增推理。
+  记录`outputs/training_investment_20261031/handoff_preflight.json`。
+  交接已完成，用户可按协议启动；这不表示100轮结果或第一篇论文已经完成。
 
 ## 4. 固定实验协议
 
@@ -1642,7 +1647,7 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 
 | 2026-10-31 18:42（覆盖保护完整30轮验收） | 本次中文结果提交并push | 核实exit0、连续30轮、548原图val960/recall及独立预测重放，完成已授权终态收尾 | 第3.51节；paper/coverage_guard30_results.md；outputs/p1_coverage_guard_pilot30_s0/independent_audit.json | 23809来源，AP−0.0652pp、small+0.1016pp（+27），类别5升5降，未达较低探索线 | 不扩大此变体训练、不按val改规则；收尾后删除监控30，目标保持paused，后续需点击继续 |
 
-| 2026-10-31（综合盘点与正式主线交接准备） | 本次中文提交 | 按用户新要求盘点12组完整30轮，逐目标/误检/F1/IoU0.75重放，优先原B2/P1正式100轮 | 第3.52节；paper/training_investment_review_20261031.md；scripts/run_paper1_full100.py | 155项pytest通过；覆盖保护新增973/丢失946、净+27；主线两seed同向，原历史门槛判定保留 | 仅准备和预检，正式两臂由用户顺序启动；不追加候选小训或自动大训，持续目标仍paused |
+| 2026-10-31（综合盘点与正式主线交接完成） | a65cc05及本次中文验收记录，均push | 盘点12组完整30轮，逐目标/误检/F1/IoU0.75重放，独立交接原B2/P1正式100轮 | 第3.52节；paper/training_investment_review_20261031.md；outputs/training_investment_20261031/handoff_preflight.json | 155tests；新增7行数据及原主表检查通过；两臂各37772来源预检exit0，无正式输出/新训练 | 交接已完成，正式两臂由用户顺序启动；不追加候选小训或自动大训，原历史判定及目标paused状态保留 |
 
 ### 10.1 新会话开始流程
 
