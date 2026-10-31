@@ -1199,6 +1199,12 @@ P1 的 30 epoch 训练、完整原图 val960 和固定操作点小目标 recall 
   原进程停止且exit0/全部阶段completed后执行
   `python scripts/audit_p1_regression_confidence.py --validation-fix`。
   目标保持active，不把已启动或工程检查通过当作性能过线或目标完成。
+- 13:41核实首轮训练及35批验证完整结束，results.csv已写入epoch1，
+  三项验证loss及该行所有数值均有限，stderr仍0字节，随后已进入epoch2。
+  之前首轮验证缺pseudo_weights的实际崩溃点已越过，并且验证后可继续训练；
+  只证明真实训练/验证调用兼容，不根据首轮精度判断方法改进。
+  原始首行快照与检查范围保存为输出目录中的`first_epoch_validation_check.json`；
+  仍等完整30轮/val960/recall及独立验收，不改训练源码或继续线。
 
 ## 4. 固定实验协议
 
@@ -1475,6 +1481,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-10-31（小训练启动责任更新） | 本次中文提交并push，启动前更新责任说明 | 用户明确30轮小训练由助手启动；发现13:28首轮中断，保留9文件/六源码快照后准备独立单次启动 | 第3.46节；`outputs/p1_regression_confidence_valfix_interrupted_20261031_133202/` | 原包装20616/训练1540已停止，KeyboardInterrupt，无exit_code/完整epoch，未改训练变量和继续线 | 提交后重新预检并启动唯一30轮、建临时监控；不续训/拼接/自动扩训，目标active未完成 |
 
 | 2026-10-31 13:36（助手独立启动修正版30轮） | `12b6886` + 本次中文启动记录，均push | 归档用户主动中断后从COCO单次独立启动，建临时监控a | 第3.46节；`outputs/p1_regression_confidence_valfix_pilot30_s0/{os_dispatch,launch_receipt,preflight,status}.json` | 23809来源、实际args/元数据配对通过；包装22020/训练22512身份核实；13:37首轮346/1414、stderr空 | 只跟进该运行，完整30轮/val960/recall后独立验收；不自动扩训，目标active未完成 |
+
+| 2026-10-31 13:41（首轮真实验证路径通过） | 本次中文记录并push | 核实完整epoch1及35批验证、CSV有限值，随后已进入epoch2 | 第3.46节；`outputs/p1_regression_confidence_valfix_pilot30_s0/first_epoch_validation_check.json` | 三项验证loss正常、stderr0字节，越过旧工程崩溃点；仅流程兼容证据 | 原监控继续静默跟进，至少完整30轮再判断性能，不改源码/科学变量或扩大预算 |
 
 ### 10.1 新会话开始流程
 
