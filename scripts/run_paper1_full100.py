@@ -93,6 +93,7 @@ def preflight(arm):
                 or config.get("p1") != pilot.get("p1")):
             raise ValueError("pilot data and method must remain frozen")
     own = [Path(__file__).resolve(), PROTOCOL, DECISION,
+           ROOT / "scripts/paper1_recovery.py",
            ROOT / "scripts/run_coverage_guard_full100.py",
            ROOT / "scripts/run_p1_scale_seed_pair.py",
            ROOT / "scripts/main_seed_tables.py",
@@ -114,9 +115,8 @@ def measure(arm):
     loc = paths(arm)
     out, run, val, rec = (loc[key] for key in ("out", "run", "val", "recall"))
     receipt = read(out / "preflight.json")
-    for filename, expected in receipt["sha256"].items():
-        if digest(filename) != expected:
-            raise ValueError(f"changed formal source/input: {filename}")
+    from paper1_recovery import verify_sources, verify_resume_arguments, student_time, ARCHIVE
+    recovery_record = verify_sources(out, receipt["sha256"])
     if load_experiment_config(out / "config.yaml") != receipt["config"]:
         raise ValueError("generated config differs from frozen receipt")
     experiment = read(run / "experiment.json")
@@ -132,9 +132,22 @@ def measure(arm):
             raise ValueError(f"changed experiment source: {filename}")
     original = yaml.safe_load((ROOT / "runs" / PILOTS[arm] / "args.yaml").read_text(encoding="utf-8"))
     actual = yaml.safe_load((run / "args.yaml").read_text(encoding="utf-8"))
+    if recovery_record is not None:
+        interrupted = yaml.safe_load((ARCHIVE / "original_run/args.yaml").read_text(encoding="utf-8"))
+        verify_resume_arguments(interrupted, actual, recovery_record["checkpoint"])
+        # The allowed changes are checked above; compare the original training
+        # settings to the pilot after removing resume bookkeeping.
+        actual = actual | {"model": interrupted["model"], "resume": interrupted["resume"]}
     if actual["epochs"] != 100 or parameter_differences(original, actual, {"name", "save_dir", "epochs"}):
         raise ValueError("actual settings differ beyond duration and run name")
-    rows = complete_epochs(run / "results.csv")
+    complete_epochs(run / "results.csv")
+    if recovery_record is not None:
+        setup = read(out / "resume_setup.json")
+        if (setup["start_epoch_zero_based"] != recovery_record["completed_epochs"]
+                or setup["total_epochs"] != 100 or setup["optimizer_state_entries"] != 255
+                or setup["ema_updates"] != 11683
+                or setup["actual_args_sha256"] != digest(run / "args.yaml")):
+            raise ValueError("recorded resume setup differs from the captured B2 plan")
     validation, recall = read(val / "metrics.json"), read(rec / "metrics.json")
     reference_rec = ROOT / f"runs/size_recall/{arm}_pilot30_s0"
     reference = read(reference_rec / "metrics.json")
@@ -158,18 +171,23 @@ def measure(arm):
     if not all(math.isfinite(value) for value in [*metrics.values(), *validation["class_maps"]]):
         raise ValueError("non-finite evaluation metrics")
     return {"arm": arm, "epochs": 100, "train_tiles": receipt["train_tiles"],
-            "student_seconds": float(rows[-1]["time"]),
+            "student_seconds": student_time(run, recovery_record),
+            "continuity": ("uninterrupted" if recovery_record is None
+                           else recovery_record["continuity"]),
             "metrics": metrics,
             "class_maps": validation["class_maps"], "names": validation["names"]}
 
 
 def artifacts(arm):
     loc = paths(arm)
-    return ([loc["run"] / name for name in
+    result = ([loc["run"] / name for name in
              ("weights/best.pt", "weights/last.pt", "results.csv", "args.yaml", "experiment.json")]
             + [loc["val"] / "metrics.json"]
             + [loc["recall"] / name for name in ("metrics.json", "images.txt", "predictions.jsonl")]
             + [loc["out"] / name for name in ("preflight.json", "config.yaml", "metrics.json")])
+    if (loc["out"] / "recovery.json").exists():
+        result += [loc["out"] / name for name in ("recovery.json", "resume_setup.json", "resume_dispatch.json")]
+    return result
 
 
 def audit(arm):
@@ -204,7 +222,12 @@ def worker(arm):
     out = loc["out"]
     stage(out, "training", epochs=100)
     try:
-        if run_training(out / "config.yaml") != loc["run"]:
+        if (out / "recovery.json").exists():
+            from paper1_recovery import train_from_checkpoint
+            trained = train_from_checkpoint(out, loc["run"])
+        else:
+            trained = run_training(out / "config.yaml")
+        if trained != loc["run"]:
             raise ValueError("unexpected training directory")
         complete_epochs(loc["run"] / "results.csv")
         stage(out, "validation960")
@@ -223,26 +246,33 @@ def worker(arm):
         raise
 
 
-def train(arm):
+def train(arm, *, resume=False):
     if arm == "p1":
         audit("b2")
-    receipt = preflight(arm)
     out = paths(arm)["out"]
-    out.mkdir(parents=True, exist_ok=False)
-    (out / "config.yaml").write_text(yaml.safe_dump(receipt["config"], sort_keys=False), encoding="utf-8")
-    write(out / "preflight.json", receipt)
+    if resume:
+        from paper1_recovery import check
+        recovery_record = check(arm, paths(arm))
+        write(out / "recovery.json", recovery_record)
+    else:
+        receipt = preflight(arm)
+        out.mkdir(parents=True, exist_ok=False)
+        (out / "config.yaml").write_text(yaml.safe_dump(receipt["config"], sort_keys=False), encoding="utf-8")
+        write(out / "preflight.json", receipt)
     token = os.urandom(16).hex()
-    write(out / "dispatch.json", {"started_at": now(), "token": token})
+    dispatch_name = "resume_dispatch.json" if resume else "dispatch.json"
+    write(out / dispatch_name, {"started_at": now(), "token": token})
     command = [sys.executable, "-u", str(Path(__file__).resolve()), "--arm", arm, "--worker", token]
-    with (out / "stdout.log").open("w", encoding="utf-8") as stdout, (
-            out / "stderr.log").open("w", encoding="utf-8") as stderr:
+    prefix = "resume_" if resume else ""
+    with (out / f"{prefix}stdout.log").open("w", encoding="utf-8") as stdout, (
+            out / f"{prefix}stderr.log").open("w", encoding="utf-8") as stderr:
         process = subprocess.Popen(command, stdout=stdout, stderr=stderr, cwd=ROOT)
         identity = psutil.Process(process.pid)
         launch = {"started_at": now(), "training_identity": {
             "pid": process.pid, "created_at": datetime.fromtimestamp(
                 identity.create_time(), ZoneInfo("Asia/Shanghai")).isoformat(), "command": identity.cmdline()}}
         write(out / "launch_receipt.json", launch)
-        print(f"Training log: {out / 'stdout.log'}", flush=True)
+        print(f"Training log: {out / (prefix + 'stdout.log')}", flush=True)
         try:
             code = process.wait()
         except KeyboardInterrupt:
@@ -260,6 +290,8 @@ def main():
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--check-only", action="store_true")
     mode.add_argument("--train", action="store_true")
+    mode.add_argument("--resume-check", action="store_true")
+    mode.add_argument("--resume", action="store_true")
     mode.add_argument("--audit", action="store_true")
     mode.add_argument("--worker", help=argparse.SUPPRESS)
     options = parser.parse_args()
@@ -268,8 +300,15 @@ def main():
         print(f"Preflight passed: {len(receipt['sha256'])} frozen files; no training or inference.")
     elif options.audit:
         print({"accepted": True, **audit(options.arm)})
+    elif options.resume_check:
+        from paper1_recovery import check
+        print(check(options.arm, paths(options.arm)))
+    elif options.resume:
+        train(options.arm, resume=True)
     elif options.worker:
-        if read(paths(options.arm)["out"] / "dispatch.json")["token"] != options.worker:
+        dispatch = ("resume_dispatch.json" if (paths(options.arm)["out"] / "recovery.json").exists()
+                    else "dispatch.json")
+        if read(paths(options.arm)["out"] / dispatch)["token"] != options.worker:
             raise ValueError("worker must be launched by the recorded controller")
         identity = read(paths(options.arm)["out"] / "launch_receipt.json")["training_identity"]
         if identity["pid"] != os.getpid() or not original_process_running(identity):

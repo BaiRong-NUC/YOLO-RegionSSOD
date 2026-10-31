@@ -708,6 +708,26 @@ python -u scripts/run_paper1_full100.py --arm p1 --train
 运行位置、约12–15小时预留预算及终态命令见`paper/paper1_full100_protocol.md`。
 助手只实际核对两臂预检，大训练交由用户启动；不自动追加seed或其他预算。
 
+### 4.19 用户报告误中断后的B2检查点恢复
+
+2026-10-31正式B2在完成63轮后、进入64轮时被KeyboardInterrupt中断，
+原进程已停止；last.pt保留原100轮计划、优化器/EMA/AMP。
+原13文件及源码已归档保留，原退出码缺失仍记未知。
+依据用户新请求，仅该次B2增加显式恢复例外：
+
+```bash
+python scripts/run_paper1_full100.py --arm b2 --resume-check
+python -u scripts/run_paper1_full100.py --arm b2 --resume
+```
+
+第一条CPU读取检查点及核对来源，不优化；第二条由用户启动剩余37轮，
+自动评估验收，原CSV前63轮保持字节不变、恢复段按原框架追加。
+恢复状态明确记录，不等同于从COCO重训或两个独立实验拼接；
+不保证与未中断运行逐位一致。训练时间按中断前和恢复段相加。
+原脚本/方法/数据哈希保护仍有效，只允许已归档原入口对应的这次恢复代码变更。
+新日志resume_stdout/resume_stderr，完整边界见
+`paper/paper1_full100_recovery.md`。P1仍由用户在B2验收成功后单独启动。
+
 ## 5. 对照规则
 
 - B1 与 B2 必须从同一 `yolo11s.pt` 初始化。

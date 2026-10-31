@@ -713,6 +713,21 @@ python -u scripts/run_paper1_full100.py --arm p1 --train
 [正式主对照协议](docs/paper/paper1_full100_protocol.md)。
 早前覆盖保护100轮入口只对应该分配候选，本主对照使用独立入口和目录。
 
+正式B2误中断恢复（2026-10-31）：完整1–63轮和last.pt可用，
+原始13文件已归档；只针对此次B2新增显式检查点续训，不重跑前63轮。
+先由助手完成恢复检查，再由用户在原环境执行：
+
+```bash
+python scripts/run_paper1_full100.py --arm b2 --resume-check
+python -u scripts/run_paper1_full100.py --arm b2 --resume
+```
+
+从第64轮继续到100轮，进度改看
+`outputs/paper1_b2_formal100_s0/resume_stdout.log`。
+不要重复使用`--train`启动该B2目录；结束后自动执行原评估/验收。
+完整限制、归档和计时处理见
+[B2恢复协议](docs/paper/paper1_full100_recovery.md)。
+
 ## Baseline 定义
 
 | 名称 | 训练数据 | 作用 |
