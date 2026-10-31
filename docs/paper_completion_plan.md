@@ -3,7 +3,7 @@
 > 最后更新：2026-10-31<br>
 > 当前执行范围：只推进A第一篇方法稿；B/C、蒸馏剪枝和树莓派部署留在远期规划，不并行启动。<br>
 > 最新补证据：分类软权重全量30epoch消融已完成独立验收；去软权重mAP50-95−0.1623pp、small recall+0.9143pp，未达到扩大训练条件；表4-S5/实验4.14已同步，当前不扩训。<br>
-> 最新安排：NWD完整30轮未过线。回归置信度实验首轮验证工程失败，原始证据保留，监控a已删除；正在冻结验证兼容修正版及独立30轮用户入口，只运行零优化器步骤工程检查，不自动重试训练。详见第3.40–3.44节。<br>
+> 最新安排：NWD完整30轮未过线。回归置信度验证兼容已修复并通过真实2图验证流程/124tests，修正版预检23809来源通过；独立30轮用户命令已备好，尚未启动、不自动重试。原失败证据保留、监控a已删除，仍无该候选完整学生性能结论。详见第3.40–3.44节。<br>
 > 当前阶段：B2/P1 学生 seed0/1 主对照复验及四类案例已完成验收；mAP50-95 与 small recall 两 seed 同向，平均配对增益 +0.2893/+1.7854 pp；large recall 方向不同。论文表 4-S4、第 4.12–4.13 节及证据更新，原 Gate 3 不变<br>
 > 论文暂定题目：**面向高分辨率航拍图像的区域局部标注小目标半监督检测方法**  
 > 仓库：`D:\Python\YOLO-RegionSSOD`  
@@ -1128,6 +1128,14 @@ P1 的 30 epoch 训练、完整原图 val960 和固定操作点小目标 recall 
   本次不自动重试完整训练。用户命令见README及baseline第4.16节，
   协议为`paper/regression_confidence30_valfix_protocol.md`。
   当前未获得本候选完整30轮结果，持续目标未完成。
+- `84817b2`已中文提交并push。124项pytest全部通过，
+  五个相关Python文件Pyright零错误/零警告。实际工程检查成功完成：
+  255个梯度张量有限、2张标准验证图/1batch的训练期DetectionValidator正常，
+  eval损失与原P1精确一致，train缺元数据仍异常，0优化器步骤。
+  首次预检23808来源，加入工程产物后23809来源再次核对通过；
+  主表137来源/8组recall核对仍通过。
+  工程证据为`outputs/p1_regression_confidence_valfix_pilot30_s0/engineering_check.json`。
+  未创建修正版run/status/dispatch/launch_receipt，不存在新训练或监控。
 
 ## 4. 固定实验协议
 
@@ -1394,6 +1402,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-10-31 12:37（回归置信度工程失败） | 本次中文提交并push | 首轮验证因误要求训练专用pseudo_weights退出，保存原始失败证据及哈希 | 第3.43节；`paper/regression_confidence30_failure.md`；`outputs/p1_regression_confidence_pilot30_s0/failure_report.json` | 原进程均停止、exit1/status failed，无CSV/权重；未完成30轮，不作性能判断 | 清理监控a；不自动重试，先补验证兼容与实际验证工程检查，再另行冻结用户运行入口 |
 
 | 2026-10-31（验证兼容修复准备） | 本次中文提交并push后冻结 | 隔离eval原P1损失与train元数据保护，增加独立valfix配置/显式入口及实际验证工程检查 | 第3.44节；`paper/regression_confidence30_valfix_protocol.md` | 旧失败六文件源码快照已核对保存；124项单元测试通过，待执行新预检和实际验证工程检查 | 仅零优化器步骤检查；通过后交用户独立30轮命令，不自动重试，不据工程检查判断性能 |
+
+| 2026-10-31（验证兼容真实工程验收） | `84817b2` + 本次中文结果记录，均push | 真实YOLO11s AMP前反传及标准2图训练期验证调用通过，原P1损失精确一致 | 第3.44节；`outputs/p1_regression_confidence_valfix_pilot30_s0/{preflight,engineering_check}.json` | 255梯度有限、0优化器步骤；124tests/Pyright通过；23809来源与原主表核对通过，无新训练 | 已交独立30轮用户命令；等完整训练后按固定线验收，未认定值得更大训练，持续目标未完成 |
 
 ### 10.1 新会话开始流程
 

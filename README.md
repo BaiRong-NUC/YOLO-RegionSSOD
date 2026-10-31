@@ -628,6 +628,9 @@ python scripts/audit_p1_regression_confidence.py --validation-fix
 工程检查必须包括标准验证数据2张图的训练期DetectionValidator调用、
 有限验证损失、与原P1验证损失一致，以及train缺元数据仍拒绝；
 这些小样本数值不用于性能判断。更大训练仍需完整30轮过固定继续线。
+2026-10-31修正版工程检查已实际通过：255个梯度张量有限、标准验证2图、
+原P1损失精确一致，0优化器步骤；后续预检23809来源通过。
+124项测试及五个相关Python文件Pyright零错误/警告；尚未启动修正版训练。
 
 ## Baseline 定义
 

@@ -626,6 +626,11 @@ python scripts/audit_p1_regression_confidence.py --validation-fix
 
 至少完整30轮后按原两条继续线判断。过线也不自动扩训；
 缓存质量、工程检查及单seed结果不等同于显著性或创新性证明。
+2026-10-31实际工程检查已通过：真实YOLO11s AMP前反传255梯度张量有限，
+标准验证2图/1batch及原P1损失精确对照通过，训练缺元数据仍拒绝，
+优化器步数0；工程产物加入后预检23809来源通过。
+修复代码/协议提交`84817b2`，124tests/五文件Pyright通过。
+当前未启动新的完整训练，没有对应launch_receipt/status/学生run目录。
 
 ## 5. 对照规则
 
