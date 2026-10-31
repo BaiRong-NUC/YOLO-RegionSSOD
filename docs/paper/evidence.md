@@ -256,3 +256,24 @@ NMS IoU=0.70、max_det=500。自动与独立记录为
 - mAP50-95−0.2123pp、small recall−0.6698pp（−178匹配），medium/large亦下降；
   类别4升6降。完整结果与限制见`small_nwd30_results.md`及实验4.15。
   新表单独由NWD验收入口核对，不纳入既有表格生成器的137来源/8组recall统计。
+
+## 原c回归加权全量30轮确认（2026-10-31）
+
+- 科学变量和继续线在两个回归置信度30轮协议中预登记；修正版源码提交
+  `12b68866bf849586189e6c9deb8b76ee6099e17b`，与旧工程失败/用户中断分开归档。
+  13:36:03独立启动，15:41:20包装exit0，status=completed，连续1–30轮、
+  11310tile；验收时原包装22020和训练22512均已停止。
+- 输出：`outputs/p1_regression_confidence_valfix_pilot30_s0/`的preflight、
+  launch_receipt、status、comparison、artifact_sha256及independent_audit。
+  `python scripts/audit_p1_regression_confidence.py --validation-fix`核对
+  23809冻结来源、实际args、权重/产物，并重放两组各548图固定操作点预测；
+  accepted=true、worth_larger_training=false。
+- 训练：`runs/partial10_p1_regression_confidence_valfix_pilot30_s0/`；
+  完整val：`runs/val/partial10_p1_regression_confidence_valfix_pilot30_s0_val960/metrics.json`；
+  recall和保存预测：`runs/size_recall/p1_regression_confidence_valfix_pilot30_s0/`。
+- best SHA256：`3899b907206b00440ec5a2aa51227afe0f0b4d1454d47484cf362b1c03c9a563`；
+  last SHA256：`35386d2c882964efc4643ad1791d6b7f3571af7fb38b8f7b6808ea0bf929e18b`。
+- small recall+0.9444pp（+251匹配）、mAP50-95−0.1755pp，类别1升9降，
+  未达两条继续线。完整精度/尺寸/类别/耗时及限制见
+  `regression_confidence30_results.md`和实验4.16。
+  新结果表由本候选独立验收核对，不计入既有137来源/8组recall统计。

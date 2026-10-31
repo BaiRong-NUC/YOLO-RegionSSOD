@@ -644,6 +644,14 @@ python scripts/audit_p1_regression_confidence.py --validation-fix
 首轮尚未结束时无CSV属正常，不据此判断中断或性能。
 运行中不重复启动、改冻结来源或并行候选，完整终态后执行上面的valfix独立验收。
 
+终态更新（2026-10-31）：15:41包装exit0/status completed，连续1–30轮、
+完整548原图val960/recall均结束；15:48原进程停止后独立验收通过，
+23809冻结来源、实际args/权重/产物及两组548图预测重放一致。
+mAP50-95−0.1755pp、small recall+0.9444pp（+251），类别1升9降，
+两条预登记继续线均未达到，不扩训，也不按结果调权追试。
+完整结果见`paper/regression_confidence30_results.md`；上述启动命令仅为复现历史，
+已有产物时不要再次执行。临时监控`a`在收尾后删除，持续目标保持用户设置的paused。
+
 ## 5. 对照规则
 
 - B1 与 B2 必须从同一 `yolo11s.pt` 初始化。

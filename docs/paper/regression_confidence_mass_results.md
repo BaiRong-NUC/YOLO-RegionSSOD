@@ -77,9 +77,12 @@ sum(c)归一化的small份额下降7.4644pp同样只是框级代理。
 ## 决策与可重放证据
 
 本项不设置新性能门槛，不因small框级份额下降修改原c规则。
-仍由用户执行valfix独立30轮，完整结束后按原AP/recall两路线验收；
+valfix独立30轮已由助手按用户更新授权于13:36启动并完整结束，按原AP/recall两路线验收；
 未过线保留结果，不事后按尺度补偿或调指数追试。
-当前尚无该候选的完整学生性能证据，持续目标未完成。
+2026-10-31独立验收通过：small recall+0.9444pp、mAP50-95−0.1755pp，
+两条继续线均未达到，详见[完整30轮结果](regression_confidence30_results.md)。
+上述框级份额仍只是代理，不能据此解释实际损失/梯度或学生取舍的因果。
+持续目标保持用户设置的paused，本次不启动新研究或训练。
 
 ```powershell
 python scripts/audit_regression_confidence_mass.py --check

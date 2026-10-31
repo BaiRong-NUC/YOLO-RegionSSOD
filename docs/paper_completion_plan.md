@@ -3,7 +3,7 @@
 > 最后更新：2026-10-31<br>
 > 当前执行范围：只推进A第一篇方法稿；B/C、蒸馏剪枝和树莓派部署留在远期规划，不并行启动。<br>
 > 最新补证据：分类软权重全量30epoch消融已完成独立验收；去软权重mAP50-95−0.1623pp、small recall+0.9143pp，未达到扩大训练条件；表4-S5/实验4.14已同步，当前不扩训。<br>
-> 最新安排：用户确认主动终止13:28运行以交给助手。证据归档后，新独立valfix30轮已于13:36由助手启动，包装22020/训练22512身份与实际args核实，临时监控a已创建、正常静默。科学变量和继续线不变，不续训/拼接/并行或自动扩训；尚无完整学生性能结果。详见第3.44–3.46节。<br>
+> 最新安排：回归置信度修正版13:36–15:41完整30轮/val960/recall完成，15:48独立验收通过；small recall+0.9444pp（+251匹配）、mAP50-95−0.1755pp，类别1升9降，两条继续线均未达到，不扩大本变体训练。持续目标保持用户设置的paused，临时监控a在终态收尾后删除。详见第3.47节。<br>
 > 当前阶段：B2/P1 学生 seed0/1 主对照复验及四类案例已完成验收；mAP50-95 与 small recall 两 seed 同向，平均配对增益 +0.2893/+1.7854 pp；large recall 方向不同。论文表 4-S4、第 4.12–4.13 节及证据更新，原 Gate 3 不变<br>
 > 论文暂定题目：**面向高分辨率航拍图像的区域局部标注小目标半监督检测方法**  
 > 仓库：`D:\Python\YOLO-RegionSSOD`  
@@ -1206,6 +1206,35 @@ P1 的 30 epoch 训练、完整原图 val960 和固定操作点小目标 recall 
   原始首行快照与检查范围保存为输出目录中的`first_epoch_validation_check.json`；
   仍等完整30轮/val960/recall及独立验收，不改训练源码或继续线。
 
+### 3.47 回归置信度修正版30轮完成与取舍结果（2026-10-31）
+
+- 用户在训练期间暂停持续目标，当前保持paused；临时监控只跟进既有训练，
+  不恢复目标、不新建替代目标、不并行研究/实验。
+- 13:36:03独立开始，15:41:20包装真实exit0，status=completed；
+  原包装22020/训练22512均已停止，CSV连续1–30轮、11310tile。
+  完整548原图val960、固定操作点recall及对比全部结束，不混入旧中断进度。
+- 15:48执行`python scripts/audit_p1_regression_confidence.py --validation-fix`成功，
+  23809冻结来源、实际args/元数据/权重/产物哈希及两组548图保存预测重放一致。
+  输出目录`outputs/p1_regression_confidence_valfix_pilot30_s0/`的
+  independent_audit记录accepted=true、worth_larger_training=false。
+- 相对同预算完整P1，mAP50-95−0.1755pp、mAP50−0.3134pp、
+  small recall+0.9444pp（+251匹配）、medium/large−0.1350/−0.1874pp；
+  类别AP为1升9降。学生CSV累计7450.65秒，参考7286.61秒，
+  多164.04秒（约2.25%），负载未控制，不作独立速度结论。
+- AP≥+0.30pp路线未达；small≥+1.00pp且AP≥−0.10pp路线两项均未达。
+  保留召回/精度取舍，不降低继续线、不按val改权重或扩大本变体训练。
+  完整结果及类别/尺寸/证据在`paper/regression_confidence30_results.md`，
+  实验4.16、证据索引及复现入口同步；训练源码/配置/协议保持冻结。
+- 本轮满足至少完整30轮后判断，但单split/固定教师/学生seed0不证明
+  显著性、泛化、充分收敛或100轮必定无效；常数衰减/排序/组成作用仍未分离。
+  固定操作点recall非官方AP_small/AR500，原Gate3和既有正向P1结果保持。
+- 本次只做终态验收、文稿记录、适当检查、中文提交push及临时监控a清理。
+  131项pytest通过，原主表137来源/8组recall检查通过，新结果页15行指标
+  与原始JSON及best/last哈希核对通过，23809冻结来源再次匹配；
+  检查记录位于本次输出的`documentation_check.json`，只修改Markdown文稿。
+  持续目标保持paused；后续研究或更大训练交接需用户点击继续，
+  当前尚未找到通过固定继续线的新候选，不宣称目标已完成。
+
 ## 4. 固定实验协议
 
 ### 4.1 训练与评估
@@ -1483,6 +1512,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-10-31 13:36（助手独立启动修正版30轮） | `12b6886` + 本次中文启动记录，均push | 归档用户主动中断后从COCO单次独立启动，建临时监控a | 第3.46节；`outputs/p1_regression_confidence_valfix_pilot30_s0/{os_dispatch,launch_receipt,preflight,status}.json` | 23809来源、实际args/元数据配对通过；包装22020/训练22512身份核实；13:37首轮346/1414、stderr空 | 只跟进该运行，完整30轮/val960/recall后独立验收；不自动扩训，目标active未完成 |
 
 | 2026-10-31 13:41（首轮真实验证路径通过） | 本次中文记录并push | 核实完整epoch1及35批验证、CSV有限值，随后已进入epoch2 | 第3.46节；`outputs/p1_regression_confidence_valfix_pilot30_s0/first_epoch_validation_check.json` | 三项验证loss正常、stderr0字节，越过旧工程崩溃点；仅流程兼容证据 | 原监控继续静默跟进，至少完整30轮再判断性能，不改源码/科学变量或扩大预算 |
+
+| 2026-10-31 15:48（修正版完整30轮验收） | 本次中文提交并push | 完成唯一valfix30轮、548原图val960/recall及独立预测重放，记录尺寸/类别/耗时取舍 | 第3.47节；`paper/regression_confidence30_results.md`；`outputs/p1_regression_confidence_valfix_pilot30_s0/independent_audit.json` | exit0、连续1–30轮、23809来源、131tests/原主表/新增15行数字核对；small+0.9444pp（+251）、AP−0.1755pp，类别1升9降，两条继续线均未达 | 不扩大本变体训练、不调权追试；中文提交push后清理监控a；持续目标保持paused，后续需用户点击继续 |
 
 ### 10.1 新会话开始流程
 

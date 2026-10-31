@@ -7,7 +7,7 @@
 | [introduction.md](introduction.md) | 第 1 章引言初稿：区域标注问题、相关工作衔接、方法概述、三项工作与初步结果 |
 | [related_work.md](related_work.md) | 第 2 章相关工作初稿：SSOD、缺失标注、航拍小目标与最接近工作的关系 |
 | [methods.md](methods.md) | 第 3 章方法初稿：区域协议、固定教师、尺度筛选、分类软权重、ignore 掩码与损失公式 |
-| [experiments.md](experiments.md) | 第4章实验分析初稿：实验设置、整体/分尺寸/逐类别结果、伪标签质量和开销，含4.14分类软权重消融及4.15小框NWD全量确认 |
+| [experiments.md](experiments.md) | 第4章实验分析初稿：实验设置、整体/分尺寸/逐类别结果、伪标签质量和开销，含4.14分类软权重、4.15小框NWD及4.16回归置信度全量确认 |
 | [results_tables.md](results_tables.md) | 表4-1至4-6和补充表4-S1至4-S5，含尺度阈值、B2/P1配对seed及分类软权重全量消融 |
 | [evidence.md](evidence.md) | 表格来源、权重 SHA256、补评估记录和数字核对方式 |
 | [ignore_recovery_analysis.md](ignore_recovery_analysis.md) | 第一篇追加的零训练诊断：锁定已有匹配，核对 ignore 条件容量上界、重复与低阈值候选代价，不作为学生增益 |
@@ -26,6 +26,7 @@
 | [regression_confidence_diagnostic.md](regression_confidence_diagnostic.md) | 原教师c用于回归监督的零推理质量诊断，通过但不是学生收益；唯一30轮确认协议另列 |
 | [regression_confidence30_failure.md](regression_confidence30_failure.md) | 首轮验证工程失败、真实exit1和原始证据；不能判断候选性能 |
 | [regression_confidence30_valfix_protocol.md](regression_confidence30_valfix_protocol.md) | 验证兼容修正版、实际验证工程检查及独立30轮用户入口；沿用原继续线 |
+| [regression_confidence30_results.md](regression_confidence30_results.md) | 修正版完整30轮独立验收；small recall+0.9444pp、mAP50-95−0.1755pp，未达扩大训练条件 |
 | [regression_confidence_mass_results.md](regression_confidence_mass_results.md) | 全量35067正伪框的原c尺度/类别份额、实际损失归因限制及RUPL/UTv2机制边界；零推理零训练 |
 
 表格采用三个独立 30 epoch 学生进行主对照。B1 100 epoch 单列为教师和较长训练参考；20 图工程烟测不进入这些结果表。表 4-1 至 4-6 的 B1/B2/P1 主对照仍为 seed0；表 4-S4 和第 4.12 节单列 B2/P1 的两学生 seed 复验，B1 未重复，全部为 Ultralytics 开发结果；尺度阈值另有固定 split/教师、学生 seed0/1 的配对复验（表 4-S3、第 4.11 节）。尺度分层在两学生 seed 中的 mAP50-95 和 small recall 均高于统一 0.50，平均配对增益为 +0.4299±0.2657 pp 和 +0.4929±0.2128 pp（样本 SD）。小目标诊断 recall 与官方 AP_small/AR500 分别表述，不将两学生 seed 解释为统计显著性或多 split 验证。
@@ -52,3 +53,9 @@ python scripts/build_paper_tables.py
 保留mAP50-95−0.2123pp、small recall−0.6698pp的负向结果。
 该新增表的来源由`python scripts/audit_p1_small_nwd.py`核对，
 不计入上述既有表格137来源/8组recall；不据此扩大训练或改写原Gate3。
+
+同日回归置信度修正版完整30轮和独立验收完成，第4.16节及独立结果表
+保留small recall+0.9444pp（+251匹配）与mAP50-95−0.1755pp的取舍。
+两条预登记继续线均未达到；来源由
+`python scripts/audit_p1_regression_confidence.py --validation-fix`核对，
+同样不计入上述137来源/8组recall。当前持续目标保持用户设置的paused。
