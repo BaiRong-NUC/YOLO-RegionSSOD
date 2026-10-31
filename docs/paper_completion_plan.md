@@ -3,7 +3,7 @@
 > 最后更新：2026-10-31<br>
 > 当前执行范围：只推进A第一篇方法稿；B/C、蒸馏剪枝和树莓派部署留在远期规划，不并行启动。<br>
 > 最新补证据：分类软权重全量30epoch消融已完成独立验收；去软权重mAP50-95−0.1623pp、small recall+0.9143pp，未达到扩大训练条件；表4-S5/实验4.14已同步，当前不扩训。<br>
-> 最新安排：用户重新激活目标并要求降低探索门槛；回归置信度30轮负面判定保留。准备覆盖保护分配的唯一完整30轮，详见第3.48节；尚未取得本候选学生性能。<br>
+> 最新安排：用户重新激活目标并要求降低探索门槛；覆盖保护分配唯一30轮已于16:07由助手启动，临时监控30跟进，详见第3.48节。回归置信度负面判定保留；本候选尚无完整学生性能。<br>
 > 当前阶段：B2/P1 学生 seed0/1 主对照复验及四类案例已完成验收；mAP50-95 与 small recall 两 seed 同向，平均配对增益 +0.2893/+1.7854 pp；large recall 方向不同。论文表 4-S4、第 4.12–4.13 节及证据更新，原 Gate 3 不变<br>
 > 论文暂定题目：**面向高分辨率航拍图像的区域局部标注小目标半监督检测方法**  
 > 仓库：`D:\Python\YOLO-RegionSSOD`  
@@ -1253,6 +1253,18 @@ P1 的 30 epoch 训练、完整原图 val960 和固定操作点小目标 recall 
 - Zotero MCP确认29篇已有论文及PDF；将原YOLO-RegionSSOD集合BMQTT9Y7
   移到新Research集合BW83SN4A下，保留条目、附件和其他集合归属。
   Paper Search MCP再次核实FCOS版本1904.01355v5，不重复导入。
+- `dbc8e76`已中文提交并push；141项pytest通过，原主表137来源和8组recall核对通过。
+  真实工程检查255个梯度张量有限，标准两图训练期验证正常，eval损失与P1
+  精确一致，train缺元数据拒绝，0优化器步骤。23809冻结来源预检通过。
+- 16:07:31由助手WMI隐藏独立启动，包装15432/训练30956创建时间和命令核实，
+  `os_dispatch`返回0，实际args与完整P1配对；首轮CSV待验证结束，
+  stdout已增长到518/1414batch，stderr为空，不将其作为性能结果。
+  回执/工程/身份记录位于`outputs/p1_coverage_guard_pilot30_s0/`。
+- 临时heartbeat监控30已创建，每15分钟检查，正常静默，终态独立验收、
+  记录及中文提交push后删除。仅跟进原进程，不重启/续训/并行候选。
+- 等待期间核对FCOS PDF第4/6页及TOOD第5/7页，TOOD既有父条目7D3IXLK2
+  和PDF补入同一集合，现共30篇。依据及贡献边界见`paper/coverage_guard_literature.md`；
+  没有更改冻结训练源码、参数或探索继续线。
 
 ## 4. 固定实验协议
 
@@ -1534,7 +1546,9 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 
 | 2026-10-31 15:48（修正版完整30轮验收） | 本次中文提交并push | 完成唯一valfix30轮、548原图val960/recall及独立预测重放，记录尺寸/类别/耗时取舍 | 第3.47节；`paper/regression_confidence30_results.md`；`outputs/p1_regression_confidence_valfix_pilot30_s0/independent_audit.json` | exit0、连续1–30轮、23809来源、131tests/原主表/新增15行数字核对；small+0.9444pp（+251）、AP−0.1755pp，类别1升9降，两条继续线均未达 | 不扩大本变体训练、不调权追试；中文提交push后清理监控a；持续目标保持paused，后续需用户点击继续 |
 
-| 2026-10-31（覆盖保护30轮新探索授权） | 本次中文提交并push，启动前冻结 | 按用户低门槛探索要求更新旧48.10%诊断的停止安排，准备唯一完整30轮；Zotero整理到Research/YOLO-RegionSSOD | 第3.48节；`paper/assignment_coverage30_protocol.md`；`scripts/run_p1_coverage_guard.py` | 原128tile诊断100%覆盖，未改规则/重采样；新学生结果尚无 | 先预检和真实零步工程检查，通过后助手启动30轮及临时监控；原Gate3/旧实验结论不改 |
+| 2026-10-31（覆盖保护30轮新探索授权） | `dbc8e76`中文提交并push | 按用户低门槛探索要求更新旧48.10%诊断的停止安排，准备唯一完整30轮；Zotero整理到Research/YOLO-RegionSSOD | 第3.48节；`paper/assignment_coverage30_protocol.md`；`scripts/run_p1_coverage_guard.py` | 原128tile诊断100%覆盖，未改规则/重采样；141tests/原表核对通过 | 原Gate3/旧实验结论不改 |
+
+| 2026-10-31 16:07（覆盖保护30轮实际启动） | `dbc8e76` + 本次中文启动记录，均push | 23809来源预检、真实AMP及两图验证通过后助手单次启动；创建临时监控30，等待期核对FCOS/TOOD | 第3.48节；`outputs/p1_coverage_guard_pilot30_s0/{launch_receipt,startup_identity_check,engineering_check}.json` | 包装15432/训练30956身份与实际args配对；首轮batch增长，stderr空；255梯度有限、0工程优化步 | 跟进原训练，至少完整30轮后验收判断，终态清理监控；当前未找到已验证扩训方向 |
 
 ### 10.1 新会话开始流程
 
