@@ -683,6 +683,31 @@ small recall+0.1016pp（+27匹配），两条较低探索线仍未达到，
 结果见paper/coverage_guard30_results.md；不要重跑已有30轮入口。
 监控30在终态记录后删除，目标仍paused，后续研究需点击继续。
 
+### 4.18 综合盘点后的原B2/P1正式100轮交接
+
+2026-10-31按用户更新的成果衡量要求，综合12组完整30轮、预测增失、
+固定点误检/F1、类别/尺寸、重复seed、成本和论文缺口，
+决定优先确认已有两seed正向的原B2/P1主线。
+不追改原Gate3或覆盖保护预登记条件；覆盖保护净+27小目标成果仍保留。
+完整依据见`paper/training_investment_review_20261031.md`。
+
+在仓库根目录、`yolo`环境，由用户执行：
+
+```bash
+python scripts/run_paper1_full100.py --arm b2 --check-only
+python scripts/run_paper1_full100.py --arm p1 --check-only
+python -u scripts/run_paper1_full100.py --arm b2 --train
+# 上条正常退出且验收通过后：
+python -u scripts/run_paper1_full100.py --arm p1 --train
+```
+
+固定10%区域面积、split0/学生seed0、原B1教师/伪标签、640/batch8/SGD，
+两臂各从COCO独立100轮，不续训pilot，不加入新模块。
+自动完整548原图val960、固定点recall和保存预测重放，记录真实exit_code；
+已有目录/并发正式臂/来源变化拒绝启动，P1先要求B2正式验收。
+运行位置、约12–15小时预留预算及终态命令见`paper/paper1_full100_protocol.md`。
+助手只实际核对两臂预检，大训练交由用户启动；不自动追加seed或其他预算。
+
 ## 5. 对照规则
 
 - B1 与 B2 必须从同一 `yolo11s.pt` 初始化。

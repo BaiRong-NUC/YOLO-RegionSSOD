@@ -1,0 +1,9 @@
+{
+  "date": "2026-10-31",
+  "recommendation": "user_run_b2_p1_full100_seed0",
+  "paired_evidence_sha256": "139229f0b6c97da8167d7e2a94201cb628d982fd2dff33cdfd164c3066696afb",
+  "basis": "Retrospective assessment of repeated main effects, size/class tradeoffs, fixed-point prediction replay, training cost and missing paper evidence.",
+  "historical_gate3_changed": false,
+  "coverage_guard_pilot_gate_changed": false,
+  "automatic_large_training_authorized": false
+}

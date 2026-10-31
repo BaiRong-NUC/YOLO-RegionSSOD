@@ -690,6 +690,29 @@ python scripts/run_coverage_guard_full100.py --plan-only
 只需复核时运行独立验收。监控30在收尾后删除，持续目标保持paused，
 后续研究需点击继续。
 
+## 综合盘点后的正式主对照交接（2026-10-31）
+
+用户要求成果衡量不限于两条条件。已重放12组完整30轮，
+综合整体/类别/尺寸、逐目标增失、固定点误检/F1、重复seed与成本，
+决定优先补原B2/P1各100轮，覆盖保护的净+27小目标成果保留、暂不优先扩训。
+原Gate3及各候选历史判定不改；完整依据见
+[训练投入盘点](docs/paper/training_investment_review_20261031.md)。
+
+在`yolo`环境和仓库根目录先预检，再由用户顺序运行：
+
+```bash
+python scripts/run_paper1_full100.py --arm b2 --check-only
+python scripts/run_paper1_full100.py --arm p1 --check-only
+python -u scripts/run_paper1_full100.py --arm b2 --train
+# B2正常退出并验收通过后再执行：
+python -u scripts/run_paper1_full100.py --arm p1 --train
+```
+
+两臂各自COCO初始化，自动val960/recall/预测重放验收；
+助手本轮只预检，没有启动大训练。预算、日志、失败处理及只读验收见
+[正式主对照协议](docs/paper/paper1_full100_protocol.md)。
+早前覆盖保护100轮入口只对应该分配候选，本主对照使用独立入口和目录。
+
 ## Baseline 定义
 
 | 名称 | 训练数据 | 作用 |
