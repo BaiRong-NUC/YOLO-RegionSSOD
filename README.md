@@ -601,6 +601,34 @@ python scripts/audit_p1_regression_confidence.py
 原始证据已保留，临时监控按失败终态清理；不要重复运行上述入口。
 详见[工程失败记录](docs/paper/regression_confidence30_failure.md)。
 
+验证兼容修正版使用独立目录，见
+[修正版协议](docs/paper/regression_confidence30_valfix_protocol.md)。
+训练时仍强制伪框元数据，验证时用原P1损失；不覆盖旧失败产物。
+在仓库根目录、`yolo`环境执行：
+
+```powershell
+python scripts/run_p1_regression_confidence.py --validation-fix --check-only
+python scripts/run_p1_regression_confidence.py --validation-fix --engineering-only
+```
+
+前两条为零优化器步骤工程检查，不是新训练。
+通过后用户才执行以下完整30轮命令；助手本次不自动重试：
+
+```powershell
+python -u scripts/run_regression_confidence_background.py --validation-fix
+```
+
+输出位于`outputs/p1_regression_confidence_valfix_pilot30_s0/`，
+包装结束后检查真实exit_code和status，成功才独立验收：
+
+```powershell
+python scripts/audit_p1_regression_confidence.py --validation-fix
+```
+
+工程检查必须包括标准验证数据2张图的训练期DetectionValidator调用、
+有限验证损失、与原P1验证损失一致，以及train缺元数据仍拒绝；
+这些小样本数值不用于性能判断。更大训练仍需完整30轮过固定继续线。
+
 ## Baseline 定义
 
 | 名称 | 训练数据 | 作用 |

@@ -1,8 +1,10 @@
 import pytest
 import torch
+from typing import Any
 
 from regionssod.training.p1 import P1DetectionLoss
 from regionssod.training.regression_confidence import RegressionConfidenceLoss
+from regionssod.training.regression_confidence import RegressionConfidenceModel
 from test_p1 import loss_fixture
 
 
@@ -45,3 +47,42 @@ def test_augmentation_removing_all_positives_remains_finite_and_equivalent():
     changed = RegressionConfidenceLoss(model).get_assigned_targets_and_loss(preds, batch)
     assert torch.equal(base[1], changed[1])
     assert torch.isfinite(changed[1]).all()
+
+
+@pytest.mark.parametrize("empty", [False, True])
+def test_model_validation_with_cached_training_loss_and_no_pseudo_metadata(empty):
+    from ultralytics.cfg import get_cfg
+
+    config: Any = {
+        "nc": 2,
+        "backbone": [[-1, 1, "Conv", [16, 3, 2]], [-1, 1, "Conv", [32, 3, 2]]],
+        "head": [[[0, 1], 1, "Detect", [2]]],
+    }
+    model: Any = RegressionConfidenceModel(config, nc=2, ch=3, verbose=False)
+    model.args = get_cfg()
+    model.p1_options = {"soft_weights": True, "uncertain_ignore": True}
+    batch = {"img": torch.rand(2, 3, 64, 64),
+             "batch_idx": torch.tensor([0., 1.]),
+             "cls": torch.tensor([[0.], [1.]]),
+             "bboxes": torch.tensor([[.5, .5, .25, .25], [.5, .5, .25, .25]])}
+    weighted = batch | {"pseudo_weights": torch.tensor([.4, 1.])}
+    model.train()
+    training_loss, _ = model.loss(weighted)
+    assert torch.isfinite(training_loss).all()
+    cached = model.criterion
+    assert isinstance(cached, RegressionConfidenceLoss)
+    if empty:
+        batch = {key: value if key == "img" else value[:0] for key, value in batch.items()}
+    model.eval()
+    with torch.no_grad():
+        preds = model(batch["img"])
+        expected, _ = P1DetectionLoss(model)(preds, batch)
+        observed, _ = model.loss(batch, preds)
+    assert torch.equal(observed, expected)
+    assert torch.isfinite(observed).all()
+    assert model.criterion is cached
+    model.train()
+    with pytest.raises(ValueError, match="provenance"):
+        model.loss(batch)
+    restored, _ = model.loss(weighted)
+    assert torch.isfinite(restored).all()

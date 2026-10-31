@@ -31,6 +31,17 @@ CONFIG = ROOT / "configs/train_p1_regression_confidence_10.yaml"
 STARTED = False
 
 
+def select_revision(validation_fix=False):
+    global NAME, OUT, RUN, VAL, RECALL, CONFIG
+    suffix = "_valfix" if validation_fix else ""
+    NAME = f"partial10_p1_regression_confidence{suffix}_pilot30_s0"
+    OUT = ROOT / f"outputs/p1_regression_confidence{suffix}_pilot30_s0"
+    RUN = ROOT / "runs" / NAME
+    VAL = ROOT / "runs/val" / f"{NAME}_val960"
+    RECALL = ROOT / f"runs/size_recall/p1_regression_confidence{suffix}_pilot30_s0"
+    CONFIG = ROOT / f"configs/train_p1_regression_confidence{suffix}_10.yaml"
+
+
 def stage(name, **extra):
     write(OUT / "status.json", {"stage": name,
         "updated_at": datetime.now(ZoneInfo("Asia/Shanghai")).isoformat(), **extra})
@@ -59,6 +70,8 @@ def preflight():
     paths = [CONFIG, Path(__file__), ROOT / "scripts/run_regression_confidence_background.py",
              ROOT / "scripts/audit_p1_regression_confidence.py",
              ROOT / "docs/paper/regression_confidence30_protocol.md",
+             ROOT / "docs/paper/regression_confidence30_valfix_protocol.md",
+             ROOT / "tests/test_regression_confidence_loss.py",
              Path(inspect.getfile(run_regression_confidence_training))]
     relative = [p.relative_to(ROOT).as_posix() for p in paths]
     subprocess.run(["git", "ls-files", "--error-unmatch", "--", *relative],
@@ -171,13 +184,20 @@ def collect(check=False):
 
 
 def engineering_check():
+    from copy import deepcopy
+    from types import SimpleNamespace
+
     import torch
+    from torch.utils.data import DataLoader, Subset
     from ultralytics import YOLO
     from ultralytics.cfg import get_cfg
-    from regionssod.training.regression_confidence import RegressionConfidenceModel
+    from ultralytics.data.utils import check_det_dataset
+    from ultralytics.models.yolo.detect import DetectionValidator
+    from regionssod.training.regression_confidence import RegressionConfidenceLoss, RegressionConfidenceModel
 
     torch.manual_seed(0)
-    pretrained_model: Any = YOLO(load_experiment_config(CONFIG)["model"]).model
+    config = load_experiment_config(CONFIG)
+    pretrained_model: Any = YOLO(config["model"]).model
     model: Any = RegressionConfidenceModel(pretrained_model.yaml, nc=10, ch=3, verbose=False)
     model.load(pretrained_model)
     model.p1_options = {"soft_weights": True, "uncertain_ignore": True}
@@ -191,17 +211,66 @@ def engineering_check():
              "ignore_bboxes": torch.tensor([[.2, .2, .1, .1]], device="cuda"),
              "ignore_batch_idx": torch.tensor([0], device="cuda")}
     with torch.autocast(device_type="cuda", dtype=torch.float16):
-        loss, _ = model(batch)
+        loss, loss_items = model(batch)
     loss.sum().backward()
     gradients = [p.grad for p in model.parameters() if p.grad is not None]
     if not torch.isfinite(loss).all() or not gradients or not all(torch.isfinite(g).all() for g in gradients):
         raise ValueError("non-finite AMP forward/backward")
+    ema = deepcopy(model).float()
+    if not isinstance(ema.criterion, RegressionConfidenceLoss):
+        raise ValueError("engineering validation must reuse a cached training criterion")
+    validator: Any = DetectionValidator(
+        save_dir=OUT / "engineering_validation",
+        args=get_cfg(overrides={"data": config["data"], "imgsz": 640, "batch": 2,
+                                "workers": 0, "plots": False, "save_json": False,
+                                "conf": .25, "max_det": 500}))
+    validator.data = check_det_dataset(config["data"])
+    validator.device = torch.device("cuda:0")
+    validator.stride = int(ema.stride.max())
+    loader = validator.get_dataloader(validator.data["val"], batch_size=2)
+    validator.dataloader = DataLoader(
+        Subset(loader.dataset, [0, 1]), batch_size=2, num_workers=0,
+        collate_fn=loader.dataset.collate_fn)
+    plain = next(iter(validator.dataloader))
+    if any(key in plain for key in ("pseudo_weights", "ignore_bboxes", "ignore_batch_idx")):
+        raise ValueError("validation must exercise standard fully labeled data")
+    probe = SimpleNamespace(
+        ema=SimpleNamespace(ema=ema), device=validator.device, data=validator.data,
+        amp=True, loss_items=loss_items, stopper=SimpleNamespace(possible_stop=False),
+        epoch=0, epochs=30, world_size=1,
+        label_loss_items=lambda values, prefix: {f"{prefix}/{key}": value for key, value in values.items()})
+    validation = validator(trainer=probe)
+    validation_loss = {key: value for key, value in validation.items() if key.startswith("val/")}
+    if (validator.seen != 2 or len(validation_loss) != 3
+            or not all(math.isfinite(value) for value in validation_loss.values())):
+        raise ValueError("real validation path did not complete with finite losses")
+    with torch.inference_mode(), torch.autocast(device_type="cuda", dtype=torch.float16):
+        plain = validator.preprocess(plain)
+        preds = ema(plain["img"])
+        observed = ema.loss(plain, preds)[0]
+        from regionssod.training.p1 import P1DetectionLoss
+        expected = P1DetectionLoss(ema)(preds, plain)[0]
+    if not torch.equal(observed, expected):
+        raise ValueError("fully labeled validation loss must remain identical to P1")
+    rejected = False
+    try:
+        model.loss({key: value for key, value in batch.items() if key != "pseudo_weights"})
+    except ValueError as error:
+        if "provenance" not in str(error):
+            raise
+        rejected = True
+    if not rejected:
+        raise ValueError("training must still reject missing pseudo provenance")
     write(OUT / "engineering_check.json", {
         "loss": loss.detach().float().cpu().tolist(), "finite_gradient_tensors": len(gradients),
         "optimizer_steps": 0, "epochs": 0, "synthetic_inputs": 2, "amp": True,
+        "validation_images": validator.seen, "validation_batches": 1,
+        "validation_loss": validation_loss, "validation_matches_p1": True,
+        "validation_uses_cached_training_criterion": True,
+        "training_missing_provenance_rejected": rejected,
         "source_sha256": {str(p): digest(p) for p in
             (CONFIG, Path(__file__), Path(inspect.getfile(run_regression_confidence_training)))}})
-    print("Real YOLO11s AMP backward passed; zero optimizer steps", flush=True)
+    print("Real YOLO11s AMP backward and two-image training-validator path passed; zero optimizer steps", flush=True)
 
 
 def main():
@@ -209,7 +278,12 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check-only", action="store_true")
     parser.add_argument("--engineering-only", action="store_true")
+    parser.add_argument("--validation-fix", action="store_true",
+                        help="use the new independent validation-fix revision; never overwrite the failed run")
     options = parser.parse_args()
+    if not options.validation_fix:
+        parser.error("original revision failed; use --validation-fix for the independent corrected revision")
+    select_revision(validation_fix=True)
     preflight()
     if options.check_only:
         return
@@ -219,6 +293,12 @@ def main():
     engineering = read(OUT / "engineering_check.json")
     if (engineering["optimizer_steps"] != 0 or engineering["epochs"] != 0
             or engineering["amp"] is not True or engineering["finite_gradient_tensors"] <= 0
+            or engineering["validation_images"] != 2 or engineering["validation_batches"] != 1
+            or engineering["validation_matches_p1"] is not True
+            or engineering["validation_uses_cached_training_criterion"] is not True
+            or engineering["training_missing_provenance_rejected"] is not True
+            or len(engineering["validation_loss"]) != 3
+            or not all(math.isfinite(v) for v in engineering["validation_loss"].values())
             or not all(math.isfinite(v) for v in engineering["loss"])):
         raise ValueError("a passing zero-step AMP engineering check is required")
     if any(digest(p) != h for p, h in engineering["source_sha256"].items()):

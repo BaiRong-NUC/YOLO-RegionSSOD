@@ -60,6 +60,14 @@ class RegressionConfidenceModel(DetectionModel):
     def init_criterion(self):
         return RegressionConfidenceLoss(self)
 
+    def loss(self, batch, preds: Any = None):
+        if self.training:
+            return super().loss(batch, preds)
+        # The validator reuses EMA's cached training criterion, but its GT has no pseudo metadata.
+        if preds is None:
+            preds = self.forward(batch["img"])
+        return P1DetectionLoss(self)(cast(Any, preds), batch)
+
 
 class RegressionConfidenceTrainer(P1Trainer):
     def get_model(self, cfg: Any = None, weights=None, verbose=True):

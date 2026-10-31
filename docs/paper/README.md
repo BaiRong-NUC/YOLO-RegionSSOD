@@ -24,6 +24,8 @@
 | [assignment_geometry_results.md](assignment_geometry_results.md) | 固定P1和256训练增强输入的零训练分配诊断；框外监督减少但目标覆盖保护失败，初版不训练 |
 | [assignment_coverage_results.md](assignment_coverage_results.md) | 新128基础tile确认整图覆盖保护规则；目标保留100%但框外质量仅降低48.10%，未达线，不训练 |
 | [regression_confidence_diagnostic.md](regression_confidence_diagnostic.md) | 原教师c用于回归监督的零推理质量诊断，通过但不是学生收益；唯一30轮确认协议另列 |
+| [regression_confidence30_failure.md](regression_confidence30_failure.md) | 首轮验证工程失败、真实exit1和原始证据；不能判断候选性能 |
+| [regression_confidence30_valfix_protocol.md](regression_confidence30_valfix_protocol.md) | 验证兼容修正版、实际验证工程检查及独立30轮用户入口；沿用原继续线 |
 
 表格采用三个独立 30 epoch 学生进行主对照。B1 100 epoch 单列为教师和较长训练参考；20 图工程烟测不进入这些结果表。表 4-1 至 4-6 的 B1/B2/P1 主对照仍为 seed0；表 4-S4 和第 4.12 节单列 B2/P1 的两学生 seed 复验，B1 未重复，全部为 Ultralytics 开发结果；尺度阈值另有固定 split/教师、学生 seed0/1 的配对复验（表 4-S3、第 4.11 节）。尺度分层在两学生 seed 中的 mAP50-95 和 small recall 均高于统一 0.50，平均配对增益为 +0.4299±0.2657 pp 和 +0.4929±0.2128 pp（样本 SD）。小目标诊断 recall 与官方 AP_small/AR500 分别表述，不将两学生 seed 解释为统计显著性或多 split 验证。
 

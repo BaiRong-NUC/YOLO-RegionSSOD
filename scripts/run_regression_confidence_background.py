@@ -1,4 +1,5 @@
 """One-shot wrapper retaining process identity, logs and actual exit code."""
+import argparse
 from datetime import datetime, timezone
 import json
 import os
@@ -19,11 +20,25 @@ def identity(pid):
 
 
 def main():
+    global OUT
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--validation-fix", action="store_true")
+    options = parser.parse_args()
+    if not options.validation_fix:
+        parser.error("original revision failed; explicit --validation-fix is required")
+    OUT = ROOT / "outputs/p1_regression_confidence_valfix_pilot30_s0"
+    command = [sys.executable, "-u", str(ROOT / "scripts/run_p1_regression_confidence.py"),
+               "--validation-fix"]
+    import run_p1_regression_confidence as trial
+    trial.select_revision(validation_fix=True)
+    if any(path.exists() for path in (trial.RUN, trial.VAL, trial.RECALL)) or any(
+            (OUT / name).exists() for name in ("status.json", "dispatch.json")):
+        raise FileExistsError("existing corrected run or dispatch; never restart or resume")
     OUT.mkdir(parents=True, exist_ok=True)
     receipt = {"wrapper_pid": os.getpid(),
                "wrapper_identity": identity(os.getpid()),
                "started_at": datetime.now(timezone.utc).isoformat(),
-               "command": [sys.executable, "-u", str(ROOT / "scripts/run_p1_regression_confidence.py")],
+               "command": command,
                "cwd": str(ROOT), "scope": "one independent full30 student; never retry or resume"}
     path = OUT / "launch_receipt.json"
     with path.open("x", encoding="utf-8") as handle:

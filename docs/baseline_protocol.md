@@ -593,6 +593,40 @@ python scripts/audit_p1_regression_confidence.py
 另行冻结独立运行后再给用户命令；当前上述启动入口不可重复执行。
 详见`paper/regression_confidence30_failure.md`。
 
+### 4.16 回归置信度验证兼容修正版：独立30轮入口
+
+科学变量、配对参考和继续线沿用4.15；只修复验证路径，不改变训练损失。
+旧失败源码/配置/协议六个文件已逐一与旧preflight核对后保存到
+`outputs/p1_regression_confidence_pilot30_s0/frozen_source_snapshot/`。
+新配置为`configs/train_p1_regression_confidence_valfix_10.yaml`，
+新协议为`paper/regression_confidence30_valfix_protocol.md`。
+当前先冻结修复、运行完整测试，再做零优化器步骤工程检查，不自动重试训练。
+
+```powershell
+python scripts/run_p1_regression_confidence.py --validation-fix --check-only
+python scripts/run_p1_regression_confidence.py --validation-fix --engineering-only
+```
+
+工程检查增加实际标准验证加载器的2张原图、EMA缓存训练criterion、
+DetectionValidator训练期调用、原P1损失精确对照及训练元数据保护。
+其结果绑定源码哈希；检查通过后用户从同一COCO初始化独立训练30轮：
+
+```powershell
+python -u scripts/run_regression_confidence_background.py --validation-fix
+```
+
+run为`runs/partial10_p1_regression_confidence_valfix_pilot30_s0`，
+输出为`outputs/p1_regression_confidence_valfix_pilot30_s0/`。
+已有run/status/dispatch/回执时不覆盖，不允许接续旧失败进度。
+完成val960/recall、exit0且原进程停止后：
+
+```powershell
+python scripts/audit_p1_regression_confidence.py --validation-fix
+```
+
+至少完整30轮后按原两条继续线判断。过线也不自动扩训；
+缓存质量、工程检查及单seed结果不等同于显著性或创新性证明。
+
 ## 5. 对照规则
 
 - B1 与 B2 必须从同一 `yolo11s.pt` 初始化。
