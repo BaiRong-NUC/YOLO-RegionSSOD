@@ -576,8 +576,10 @@ NWD相对完整P1的mAP50-95−0.2123pp、small recall−0.6698pp，
 
 NWD之后的小框分配诊断见`docs/paper/assignment_geometry_results.md`：
 初版减少框外点却丢失已有小目标分配，不训练该初版。
-带整图覆盖保护的新规则按`docs/paper/assignment_coverage_protocol.md`
-准备128个新基础tile确认；这仍是零训练诊断，不是新的学生性能结果。
+带整图覆盖保护的新规则已完成128个新基础tile确认，目标保留100%，
+但框外监督质量只降低48.10%，未达固定50%条件；两种分配候选均不训练。
+见`docs/paper/assignment_coverage_results.md`。这仍是零训练诊断，
+不是新的学生性能结果，也不据此改写原P1主对照。
 
 ## Baseline 定义
 
