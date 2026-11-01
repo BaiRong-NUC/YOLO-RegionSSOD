@@ -728,6 +728,27 @@ python -u scripts/run_paper1_full100.py --arm b2 --resume
 完整限制、归档和计时处理见
 [B2恢复协议](docs/paper/paper1_full100_recovery.md)。
 
+正式B2终态（2026-11-01）：恢复后完整100轮、val960和预测重放验收通过，
+真实exit0；AP50-95=25.8264%、small recall=39.2858%，
+相对既有B1同轮数AP50-95+0.9429pp。原63轮恢复事实保留。
+上述B2恢复命令已执行，**不要再次恢复或重复训练B2**。
+完整结果见[正式B2结果](docs/paper/b2_full100_results.md)。
+
+P1正式100轮尚未启动，实际37773项冻结来源预检通过。下一步由用户执行：
+
+```bash
+python -u scripts/run_paper1_full100.py --arm p1 --train
+```
+
+进度查看：
+
+```bash
+tail -n 20 -F outputs/paper1_p1_formal100_s0/stdout.log
+```
+
+此命令从COCO独立训练原P1，自动val960/recall及双方验收/配对比较；
+不将B2 100轮与P1 30轮直接判优劣，不自动启动其他seed/候选。
+
 ## Baseline 定义
 
 | 名称 | 训练数据 | 作用 |

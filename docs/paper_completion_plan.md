@@ -1,9 +1,9 @@
 # 论文完成计划与项目交接
 
-> 最后更新：2026-10-31<br>
+> 最后更新：2026-11-01<br>
 > 当前执行范围：只推进A第一篇方法稿；B/C、蒸馏剪枝和树莓派部署留在远期规划，不并行启动。<br>
 > 最新补证据：分类软权重全量30epoch消融已完成独立验收；去软权重mAP50-95−0.1623pp、small recall+0.9143pp，未达到扩大训练条件；表4-S5/实验4.14已同步，当前不扩训。<br>
-> 最新安排：正式B2由用户运行到63轮后误中断，last.pt完整可恢复；已归档原始13文件，新增仅针对此次B2的显式恢复入口，真实零步恢复初始化通过。第3.53节及恢复协议列出64→100轮用户命令；不由助手启动大训练，持续目标仍paused。<br>
+> 最新安排：正式B2已从63轮检查点恢复并完成100轮，2026-11-01 01:24:17真实exit0，重新独立验收通过；val960 mAP50-95=25.8264%、small recall=39.2858%。P1正式100轮尚未启动，37773来源预检通过，下一步由用户运行。详见第3.54节；持续目标仍paused。<br>
 > 当前阶段：B2/P1 学生 seed0/1 主对照复验及四类案例已完成验收；mAP50-95 与 small recall 两 seed 同向，平均配对增益 +0.2893/+1.7854 pp；large recall 方向不同。论文表 4-S4、第 4.12–4.13 节及证据更新，原 Gate 3 不变<br>
 > 论文暂定题目：**面向高分辨率航拍图像的区域局部标注小目标半监督检测方法**  
 > 仓库：`D:\Python\YOLO-RegionSSOD`  
@@ -64,7 +64,7 @@ P1 尺度感知伪标签与 uncertain-ignore 是否带来稳定收益。
 | 数据构造 | 已实现；10% seed0 已生成 | `src/regionssod/data/partial.py` | 生成正式 5%/20% split |
 | B0 完整监督 | 配置已加入，未正式训练 | `configs/train_full.yaml` | 复用旧结果或重训 seed 0 |
 | B1 部分监督 | 正式 100 epoch 和独立 30 epoch pilot 均完成；val960 mAP50-95 分别为 0.248835、0.229114 | `runs/partial10_sup_s0/`、`runs/partial10_sup_pilot30_s0/` | 冻结为正式参考与 pilot 对照 |
-| B2 朴素自训练 | seed0/1 独立 30 epoch 均已验收；seed1 val960 mAP50-95=23.3688%、small recall=34.4471%；100 epoch 未运行 | `outputs/b2_pilot30_s1/{comparison,acceptance_audit,independent_audit}.json`；第 3.20 节 | 冻结两 seed 对照，保留单 split/固定教师边界 |
+| B2 朴素自训练 | 两seed独立30轮和seed0正式100轮均已验收；正式AP50-95=25.8264%、small recall=39.2858% | 第3.20、3.54节；outputs/paper1_b2_formal100_s0/independent_audit.json | 保留63轮后恢复事实，接续P1同100轮主对照 |
 | P1 尺度感知方法 | seed0/1 相对 B2 的 mAP50-95 与 small recall 均提高；平均配对增益 +0.2893±0.0644/+1.7854±0.1304 pp；large recall 方向不同 | 表 4-S4；第 3.8、3.20 节；实验第 4.12 节 | 保留两个学生 seed 的正向总体/小目标结果，不作显著性或跨 split 主张；原 Gate 3 不变 |
 | 第①组 no-ignore 消融 | 30 epoch、val960、固定操作点 recall 及独立验收完成；相对完整 P1 的 mAP50-95 +0.0217 pp、small recall −0.1392 pp | `outputs/p1_no_ignore_pilot30_s0/{comparison,acceptance_audit}.json`；第 3.13 节 | 不能声称 ignore 独立提高整体 mAP；继续拆分软权重与尺度阈值，补配对 seed |
 | 软权重低成本筛选 | 1024 源图、两组各 5 epoch 和 val960 完成；mAP50-95 +0.0884 pp、small recall +0.0790 pp，低于 0.3 pp 候选线 | `outputs/screens/p1_soft_weights_1024_e5/{comparison,acceptance_audit}.json`；第 3.15 节 | 保留当时中性停止结论；最新A补证据授权下单独启动正式30epoch消融，见第3.26节，不追认短筛过线 |
@@ -73,7 +73,7 @@ P1 尺度感知伪标签与 uncertain-ignore 是否带来稳定收益。
 | 尺度阈值全量确认 | 30 epoch、val960、固定操作点 recall 及独立验收完成；统一 0.50 相对完整 P1 的 mAP50-95 −0.6177 pp、small recall −0.3424 pp，逐类 1 升/9 降 | `outputs/p1_global_t050_pilot30_s0/{comparison,acceptance_audit}.json`；表 4-S2；第 3.18 节 | 全量结果支持尺度分层阈值更有利于总体检测和小目标覆盖；仍为单 split/seed，不扩写为跨 seed 稳定性 |
 | 尺度阈值配对学生 seed | seed1 两组各 30 epoch、完整 val960 和预测重放完成；尺度分层相对统一 0.50 的 mAP50-95 +0.2420 pp、small recall +0.6434 pp，与 seed0 两项同向 | `outputs/p1_scale_threshold_pair_s1/{comparison,acceptance_audit,independent_audit}.json`；表 4-S3；第 3.19 节 | 保留尺度分层；单 split/固定教师下两学生 seed 的平均配对增益为 +0.4299/+0.4929 pp，不作显著性或跨 split 主张 |
 | 正式 5/10/20% 数据 | 10% seed0 已生成；20 图同 seed 检查通过；5%/20% 未生成 | `data/visdrone_area10/summary.json`、`audit.json` | 生成 5%/20% split |
-| 正式 100 epoch 主矩阵 | B1已完成；B2/P1交接入口及实际预检完成，未启动 | 第3.52节；两臂各37772来源预检通过 | 用户顺序运行原B2/P1各100轮，优先确认已有主线 |
+| 正式 100 epoch 主矩阵 | B1/B2 seed0已完成，P1未启动 | 第3.54节；P1最新37773来源预检通过 | 用户执行P1 100轮，完成正式主对照后综合判断 |
 | 论文正文 | 第1–4章、两seed统计/案例，以及表4-S5/实验4.14软权重全量消融已同步；原seed0主表保留 | `docs/paper/{experiments,results_tables,evidence,case_studies}.md`；第3.20、3.26节 | 正式矩阵与最终排版仍待补，后续先选一个低成本问题，不自动扩训 |
 | 文章与树莓派部署规划 | 用户新增三篇文章目标及最终树莓派部署要求；论文按录用、专利按“申请通过”，硬件与学校节点待确认 | `docs/publication_and_edge_deployment_plan.md`；第 3.21 节 | 先 A 方法稿、C 轻量化/部署稿，再扩展 B 可靠补全稿；树莓派先做导出与板端基线，均未启动 |
 | 第一篇实验缺口 | 已完成零训练漏检归因；6,471 tile/38,245 hidden GT 精确重放，按低成本列出 L0→L1→L2 | `docs/paper1_experiment_gaps.md`；`scripts/audit_paper1_gaps.py`；第 3.22 节 | 先做 ignore 可恢复增量与 NMS/max-det 候选覆盖小试；未过线不启动训练 |
@@ -1386,6 +1386,34 @@ P1 的 30 epoch 训练、完整原图 val960 和固定操作点小目标 recall 
   原中断文件哈希未变，未创建recovery/dispatch、未启动剩余训练；
   记录为归档handoff_check.json，恢复代码及文档已中文提交并push。
 
+### 3.54 B2正式100轮完成验收与P1交接（2026-11-01）
+
+- 用户报告训练完毕，核实仅B2正式100轮完成，P1正式输出均不存在。
+  恢复工作PID29152身份与原回执对应，已停止；2026-11-01 01:24:17
+  真实exit_code0，status=completed，resume_stderr为空。
+- 重新执行`--arm b2 --audit`返回accepted=true：
+  CSV连续1–100轮且全部有限，原1–63轮字节前缀保持，
+  源码/恢复归档/原冻结输入/实际args/配置/权重与产物哈希一致，
+  548张完整原图固定操作点预测重放一致。
+- val960 mAP50=42.7885%、mAP50-95=25.8264%，
+  small/medium/large recall=39.2858%/79.5052%/89.5033%；
+  GT与匹配分别为26577/10441、11115/8837、1067/955。
+  固定点recall不是AP_small；训练640指标不混用。
+- 与既有B1同100轮参考比较，AP50/50-95+1.0381/+0.9429pp，类别9升1降。
+  两者训练数据量/计算量及教师成本不同，B2包含恢复；
+  保留正向阶段成果，不据此称P1已提高或跨split稳定。
+- 训练计时为原13621.5秒+恢复7728.22秒=21349.72秒（5.9305小时），
+  避免只计恢复段；原退出码未知及中断证据仍保留。
+  结果见paper/b2_full100_results.md，实验4.18和证据页同步。
+- 实际执行`--arm p1 --check-only`，37773冻结来源通过，无新训练/推理。
+  下一步仍值得完成原P1同100轮主对照；由用户执行`--arm p1 --train`，
+  不自动启动、不追加seed或新模块，也不拿B2 100轮与P1 30轮判优劣。
+  论文A与正式配对未完成，本次只完成B2验收和P1交接。
+- 本次仅修改Markdown：新增结果页13行总体/固定点/参考比较全部与原JSON及
+  保存预测计数一致；原主表137来源/8组recall检查通过。
+  记录outputs/paper1_b2_formal100_s0/documentation_check_20261101.json，
+  未修改冻结训练/恢复源码、协议或参数，未新增训练。
+
 ## 4. 固定实验协议
 
 ### 4.1 训练与评估
@@ -1679,6 +1707,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-10-31（综合盘点与正式主线交接完成） | a65cc05及本次中文验收记录，均push | 盘点12组完整30轮，逐目标/误检/F1/IoU0.75重放，独立交接原B2/P1正式100轮 | 第3.52节；paper/training_investment_review_20261031.md；outputs/training_investment_20261031/handoff_preflight.json | 155tests；新增7行数据及原主表检查通过；两臂各37772来源预检exit0，无正式输出/新训练 | 交接已完成，正式两臂由用户顺序启动；不追加候选小训或自动大训，原历史判定及目标paused状态保留 |
 
 | 2026-10-31（正式B2误中断恢复交接完成） | 49d114a及本次验收记录，均push | 核实63轮/last.pt及进程停止，保留原13文件，补显式检查点恢复和兼容验收 | 第3.53节；paper/paper1_full100_recovery.md；归档engineering/check.json及handoff_check.json | 真实恢复初始化255项优化器/EMA/scaler通过且0步骤；159tests及原主表通过；实际resume-check退出0，确认64→100轮，原证据未变 | 大训练剩余37轮由用户--resume启动；未自动续训，原exit_code未知仍保留，恢复事实单列 |
+
+| 2026-11-01（正式B2 100轮验收） | 本次中文结果提交并push | 核实恢复工作进程已停/真实exit0，完整100轮/原63轮前缀、548原图val960/预测重放及来源审计；交接P1 | 第3.54节；paper/b2_full100_results.md；outputs/paper1_b2_formal100_s0/independent_audit.json | AP50-95=25.8264%、small=39.2858%；相对B1同轮数AP+0.9429pp；学生5.9305小时；P1预检37773来源通过 | B2已完成，P1正式100轮未启动，由用户运行；不扩seed/模块，不跨轮数混比，恢复事实及目标paused状态保留 |
 
 ### 10.1 新会话开始流程
 

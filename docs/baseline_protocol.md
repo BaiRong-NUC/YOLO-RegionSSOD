@@ -728,6 +728,26 @@ python -u scripts/run_paper1_full100.py --arm b2 --resume
 新日志resume_stdout/resume_stderr，完整边界见
 `paper/paper1_full100_recovery.md`。P1仍由用户在B2验收成功后单独启动。
 
+### 4.20 正式B2验收后接续P1（2026-11-01）
+
+B2从63轮checkpoint恢复后已完整完成100轮，真实exit0及独立验收通过；
+val960 AP50-95=25.8264%、small recall=39.2858%。
+恢复前后连续1–100轮、原63轮字节前缀、来源/args/产物及548图预测重放一致。
+总学生计时21349.72秒，明确包含恢复前13621.5秒。
+上节恢复命令已执行，不能再次执行恢复或重复训练B2。
+
+P1正式100轮尚未启动，实际预检37773来源通过。
+用户在yolo环境、仓库根目录执行：
+
+```bash
+python -u scripts/run_paper1_full100.py --arm p1 --train
+```
+
+固定原方法/数据/教师，COCO独立初始化，不从30轮权重续训；
+P1开始前再次自动核对B2验收，完成后自动val960/recall及配对比较。
+详细结果和限制见`paper/b2_full100_results.md`。
+本次只完成B2验收，不表示P1正式方法收益已经成立。
+
 ## 5. 对照规则
 
 - B1 与 B2 必须从同一 `yolo11s.pt` 初始化。
