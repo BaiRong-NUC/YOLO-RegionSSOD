@@ -698,7 +698,7 @@ python scripts/run_coverage_guard_full100.py --plan-only
 原Gate3及各候选历史判定不改；完整依据见
 [训练投入盘点](docs/paper/training_investment_review_20261031.md)。
 
-在`yolo`环境和仓库根目录先预检，再由用户顺序运行：
+以下为seed0原交接历史，现已完成，不要重复运行这些训练命令：
 
 ```bash
 python scripts/run_paper1_full100.py --arm b2 --check-only
@@ -734,20 +734,35 @@ python -u scripts/run_paper1_full100.py --arm b2 --resume
 上述B2恢复命令已执行，**不要再次恢复或重复训练B2**。
 完整结果见[正式B2结果](docs/paper/b2_full100_results.md)。
 
-P1正式100轮尚未启动，实际37773项冻结来源预检通过。下一步由用户执行：
+P1正式100轮也已于2026-11-01 16:17:55正常完成并独立验收通过，
+上述seed0训练和恢复命令均已完成，不要重复执行。只读复核使用：
 
 ```bash
-python -u scripts/run_paper1_full100.py --arm p1 --train
+python scripts/run_paper1_full100.py --arm p1 --audit
 ```
 
-进度查看：
+正式100轮P1−B2：mAP50-95+0.0528pp、小目标召回+2.1259pp（净多565个），
+同操作点未匹配预测+1221、F1+0.1800pp，类别AP7升3降。
+小目标收益保留，整体AP仅微升；B2中断恢复事实和原30轮证据分别报告。
+详见[正式配对结果](docs/paper/p1_b2_full100_results.md)。
+
+下一步值得补学生seed1两臂各100轮检查重复性，先B2后P1。
+助手仅准备和预检，大训练由用户运行，预留13–15小时。
+在已激活`yolo`的Git Bash执行：
 
 ```bash
-tail -n 20 -F outputs/paper1_p1_formal100_s0/stdout.log
+cd /d/Python/YOLO-RegionSSOD
+python scripts/run_paper1_seed1_full100.py --arm b2 --check-only
+python scripts/run_paper1_seed1_full100.py --arm p1 --check-only
+python -u scripts/run_paper1_seed1_full100.py --arm b2 --train
+# B2正常退出并验收通过后再执行：
+python -u scripts/run_paper1_seed1_full100.py --arm p1 --train
 ```
 
-此命令从COCO独立训练原P1，自动val960/recall及双方验收/配对比较；
-不将B2 100轮与P1 30轮直接判优劣，不自动启动其他seed/候选。
+这次仅改学生seed/输出名，不延长seed0、换教师或增加模块。
+日志为`outputs/paper1_{b2,p1}_formal100_s1/stdout.log`，
+可用`tail -n 20 -F`观察当前臂。完整路径、预算及验收见
+[seed1确认协议](docs/paper/paper1_seed1_full100_protocol.md)。
 
 ## Baseline 定义
 

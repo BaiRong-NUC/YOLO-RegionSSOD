@@ -748,6 +748,36 @@ P1开始前再次自动核对B2验收，完成后自动val960/recall及配对比
 详细结果和限制见`paper/b2_full100_results.md`。
 本次只完成B2验收，不表示P1正式方法收益已经成立。
 
+### 4.21 P1/B2正式100轮验收与学生seed1确认（2026-11-01）
+
+第4.18–4.20节是原交接和恢复历史。P1已于16:17:55真实exit0，
+两臂连续完整100轮、548原图val960/固定点recall、来源/实际args/产物及预测重放
+通过独立验收。不要再次执行seed0训练或恢复。
+
+P1−B2：mAP50/50-95+0.1884/+0.0528pp，
+small/medium/large recall+2.1259/+0.4678/+0.1874pp，
+small匹配10441→11006（净+565）。同操作点未匹配预测+1221，
+precision−2.3690pp、F1+0.1800pp，类别AP7升3降，P1学生耗时+13.49%。
+完整取舍、B2恢复及度量边界见`paper/p1_b2_full100_results.md`。
+不把原30轮两seed与本次100轮混合统计，原Gate3不变。
+
+综合任务收益和证据缺口，值得再补学生seed1同100轮配对，
+不把seed0直接延长到200/300轮，不叠新模块。
+隔离入口只改学生seed与输出名，复用split0/固定教师/已有伪标签，
+先B2完成并验收后才能训练同seed1 P1。用户在仓库根目录和yolo环境执行：
+
+```bash
+python scripts/run_paper1_seed1_full100.py --arm b2 --check-only
+python scripts/run_paper1_seed1_full100.py --arm p1 --check-only
+python -u scripts/run_paper1_seed1_full100.py --arm b2 --train
+# B2正常退出并验收通过之后：
+python -u scripts/run_paper1_seed1_full100.py --arm p1 --train
+```
+
+学生训练实测参考合计12.66小时，连完整评估等可预留13–15小时。
+新协议`paper/paper1_seed1_full100_protocol.md`说明产物、失败保留和完成后决定；
+不自动启动大训练，不因一次结果波动无限追加seed。
+
 ## 5. 对照规则
 
 - B1 与 B2 必须从同一 `yolo11s.pt` 初始化。

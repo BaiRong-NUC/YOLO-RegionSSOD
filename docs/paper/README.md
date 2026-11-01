@@ -1,6 +1,12 @@
 # RegionSSOD 论文初稿
 
-本目录保存基于已验收 B1、B2、P1 结果整理的中文论文初稿。原 seed0 主对照中 P1 相对 B2 的 mAP50-95 提高 0.335 pp、小目标 recall 提高 1.878 pp；2026-10-30 补齐固定 split/教师、学生 seed0/1 的 B2/P1 复验，两项平均配对增益为 +0.2893±0.0644 pp、+1.7854±0.1304 pp（样本 SD）。
+本目录保存基于已验收 B1、B2、P1 结果整理的中文论文初稿。
+2026-11-01完成B2/P1正式100轮seed0配对：P1的mAP50-95提高0.0528pp，
+小目标recall提高2.1259pp（净多565个），伴随未匹配预测增加1221个。
+正式配对结果与原30轮证据分开报告。原30轮seed0主对照中P1相对B2的
+mAP50-95提高0.335pp、小目标recall提高1.878pp；2026-10-30补齐同split/教师、
+学生seed0/1复验，两项平均配对增益为+0.2893±0.0644pp、+1.7854±0.1304pp
+（样本SD）。不将30轮与100轮混合统计。
 
 | 文件 | 内容 |
 |---|---|
@@ -10,6 +16,8 @@
 | [experiments.md](experiments.md) | 第4章实验分析初稿：实验设置、整体/分尺寸/逐类别结果、伪标签质量和开销，含4.14分类软权重、4.15小框NWD及4.16回归置信度全量确认 |
 | [results_tables.md](results_tables.md) | 表4-1至4-6和补充表4-S1至4-S5，含尺度阈值、B2/P1配对seed及分类软权重全量消融 |
 | [evidence.md](evidence.md) | 表格来源、权重 SHA256、补评估记录和数字核对方式 |
+| [p1_b2_full100_results.md](p1_b2_full100_results.md) | 正式100轮seed0配对的AP/尺寸、逐目标增失、误检/类别/成本及研究决定 |
+| [paper1_seed1_full100_protocol.md](paper1_seed1_full100_protocol.md) | 用户顺序运行学生seed1 B2/P1各100轮的固定协议、命令、预算与解释边界 |
 | [ignore_recovery_analysis.md](ignore_recovery_analysis.md) | 第一篇追加的零训练诊断：锁定已有匹配，核对 ignore 条件容量上界、重复与低阈值候选代价，不作为学生增益 |
 | [cross_view_flip_analysis.md](cross_view_flip_analysis.md) | 固定随机小样本的水平翻转候选筛选，记录精度与覆盖权衡，未进入学生训练 |
 | [candidate_retention_analysis.md](candidate_retention_analysis.md) | 128 个独立抽样 tile 的 NMS/max-det 候选覆盖检查及停止结论，非学生精度 |

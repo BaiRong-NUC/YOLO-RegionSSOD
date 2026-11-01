@@ -317,3 +317,28 @@ NMS IoU=0.70、max_det=500。自动与独立记录为
   不把本结果当P1改进收益，或跨轮数混比30轮主表。
 - 来源/权重哈希、完整指标和解释见`b2_full100_results.md`；
   原表格生成器137来源/8组recall统计不包含此页。
+
+## P1/B2正式100轮完整配对（2026-11-01）
+
+- P1工作PID15920的创建时间/命令与回执一致，验收时已停止；
+  09:33:02启动、16:17:55真实exit0，stderr为空，CSV连续完整1–100轮且有限。
+  `python scripts/run_paper1_full100.py --arm p1 --audit`同时重验B2，双方accepted=true；
+  冻结来源37772/37773项、实际args/权重/产物及548图保存预测重放通过。
+- P1 best SHA256：
+  `37515b05795a56e043e3b3dafa268168cc2437048863a4a0ccb3707993aabc27`；
+  last SHA256：
+  `8ba2d7f4849caf49e10b10d057c6f549735b189d27b2a67f55902a0fa96b7df6`。
+  B2恢复来源及权重见上节，原63轮后恢复与未知原退出码不删改。
+- 原始比较：`outputs/paper1_p1_formal100_s0/paired_comparison.json`；
+  P1输出、val与recall分别为`outputs/paper1_p1_formal100_s0`、
+  `runs/val/partial10_p1_formal100_s0_val960`、`runs/size_recall/p1_formal100_s0`。
+- P1−B2：mAP50/50-95+0.1884/+0.0528pp、small recall+2.1259pp（净+565），
+  medium/large净+52/+2。同操作点未匹配预测+1221，precision−2.3690pp，
+  F1+0.1800pp；类别AP7升3降，学生耗时+13.49%。
+- 只读逐目标/操作点分析入口`scripts/audit_paper1_full100_effects.py`，
+  产物`outputs/paper1_full100_effects_s0/analysis.json`含输入哈希；
+  small新增1350/丢失785、IoU0.75及conf0.35/0.50重放与图像bootstrap分别报告。
+  不新训练/推理、不据val选择新阈值；bootstrap不代表seed或split显著性。
+- 细表和限制见`p1_b2_full100_results.md`及实验4.19。
+  原30轮表格生成器仍为137来源/8组recall，本页正式配对单独核对，不跨轮数合并。
+  认可小目标成果及误检代价，仅交接学生seed1同100轮确认，不自动启动。
