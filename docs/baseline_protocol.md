@@ -764,19 +764,29 @@ precision−2.3690pp、F1+0.1800pp，类别AP7升3降，P1学生耗时+13.49%。
 综合任务收益和证据缺口，值得再补学生seed1同100轮配对，
 不把seed0直接延长到200/300轮，不叠新模块。
 隔离入口只改学生seed与输出名，复用split0/固定教师/已有伪标签，
-先B2完成并验收后才能训练同seed1 P1。用户在仓库根目录和yolo环境执行：
+先B2完成并验收后才能训练同seed1 P1。B2已于23:04:51完成，
+不要重复执行其训练；当前用户在仓库根目录和yolo环境执行：
 
 ```bash
-python scripts/run_paper1_seed1_full100.py --arm b2 --check-only
+python scripts/run_paper1_seed1_full100.py --arm b2 --audit
 python scripts/run_paper1_seed1_full100.py --arm p1 --check-only
-python -u scripts/run_paper1_seed1_full100.py --arm b2 --train
-# B2正常退出并验收通过之后：
 python -u scripts/run_paper1_seed1_full100.py --arm p1 --train
 ```
 
-学生训练实测参考合计12.66小时，连完整评估等可预留13–15小时。
+两臂最初预算合计13–15小时；B2已完成，剩余P1建议预留7–8小时。
 新协议`paper/paper1_seed1_full100_protocol.md`说明产物、失败保留和完成后决定；
 不自动启动大训练，不因一次结果波动无限追加seed。
+
+### 4.22 B2学生seed1正式100轮验收（2026-11-01）
+
+独立`--arm b2 --audit`通过：连续完整1–100轮、实际学生seed1/split0、
+37803冻结来源、权重/产物、548原图val960和固定点预测重放一致。
+包装真实exit0、原包装及训练进程均停止、stderr为空、未中断或恢复。
+mAP50/50-95=42.5503%/25.6683%，small/medium/large recall=
+39.3611%/79.1273%/89.1284%，small匹配10461/26577。
+学生累计19111.9秒（5.3089小时），教师/伪标签与评估成本另计。
+完整证据见`paper/b2_seed1_full100_results.md`；当前只交接同seed1 P1，
+不能用单臂或跨seed结果认定P1收益，不跨30/100轮混合统计。
 
 ## 5. 对照规则
 

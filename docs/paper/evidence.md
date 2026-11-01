@@ -342,3 +342,23 @@ NMS IoU=0.70、max_det=500。自动与独立记录为
 - 细表和限制见`p1_b2_full100_results.md`及实验4.19。
   原30轮表格生成器仍为137来源/8组recall，本页正式配对单独核对，不跨轮数合并。
   认可小目标成果及误检代价，仅交接学生seed1同100轮确认，不自动启动。
+
+## B2学生seed1正式100轮验收（2026-11-01）
+
+- 17:45:25开始、23:04:51包装真实exit0；按创建时间/命令跟踪的包装10476和
+  工作31640在验收时均停止。CSV连续完整1–100轮且有限，stderr为空，未中断或恢复。
+  初始/终态进程核实、原stdout及回执均保留于`outputs/paper1_b2_formal100_s1/`。
+- 23:18独立`python scripts/run_paper1_seed1_full100.py --arm b2 --audit`通过，
+  accepted=true；37803冻结来源、实际学生seed1/split0和args、权重/产物哈希、
+  548原图val960及固定conf0.25/匹配IoU0.50预测重放一致。
+- 输出`outputs/paper1_b2_formal100_s1/{metrics,preflight,launch_receipt,status,artifact_sha256,independent_audit}.json`；
+  训练`runs/partial10_b2_formal100_s1`；
+  val `runs/val/partial10_b2_formal100_s1_val960`；
+  recall `runs/size_recall/b2_formal100_s1/{metrics.json,images.txt,predictions.jsonl}`。
+- 来源提交`f7ced05ec7724c7a04765e3e0a64922b51988cbc`；
+  best SHA256 `cf72dd9b533b6fd07874dde725525f50e2b860bdc8444ba8d322e2a2e9039d69`；
+  last SHA256 `98496415afa4fe892795f02b45ba41d35da6dcc1d6b838fbaabd337f8fb628b6`。
+- AP50/50-95=42.5503%/25.6683%，small/medium/large=
+  39.3611%/79.1273%/89.1284%，匹配10461/8795/951，总GT26577/11115/1067。
+  CSV学生19111.9秒；独立新表及限制见`b2_seed1_full100_results.md`。
+  不用单臂认定P1收益，不与30轮或其他学生seed混配。

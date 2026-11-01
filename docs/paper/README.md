@@ -8,6 +8,10 @@ mAP50-95提高0.335pp、小目标recall提高1.878pp；2026-10-30补齐同split/
 学生seed0/1复验，两项平均配对增益为+0.2893±0.0644pp、+1.7854±0.1304pp
 （样本SD）。不将30轮与100轮混合统计。
 
+23:18另完成B2学生seed1正式100轮独立验收：AP50-95=25.6683%、
+small recall=39.3611%（10461/26577）。当前仅剩同seed1 P1由用户运行，
+完成前不更新方法配对收益；详见下方学生seed1基线细表。
+
 | 文件 | 内容 |
 |---|---|
 | [introduction.md](introduction.md) | 第 1 章引言初稿：区域标注问题、相关工作衔接、方法概述、三项工作与初步结果 |
@@ -17,6 +21,7 @@ mAP50-95提高0.335pp、小目标recall提高1.878pp；2026-10-30补齐同split/
 | [results_tables.md](results_tables.md) | 表4-1至4-6和补充表4-S1至4-S5，含尺度阈值、B2/P1配对seed及分类软权重全量消融 |
 | [evidence.md](evidence.md) | 表格来源、权重 SHA256、补评估记录和数字核对方式 |
 | [p1_b2_full100_results.md](p1_b2_full100_results.md) | 正式100轮seed0配对的AP/尺寸、逐目标增失、误检/类别/成本及研究决定 |
+| [b2_seed1_full100_results.md](b2_seed1_full100_results.md) | 正式100轮B2学生seed1的独立验收、原图指标、匹配数和P1手动交接 |
 | [paper1_seed1_full100_protocol.md](paper1_seed1_full100_protocol.md) | 用户顺序运行学生seed1 B2/P1各100轮的固定协议、命令、预算与解释边界 |
 | [ignore_recovery_analysis.md](ignore_recovery_analysis.md) | 第一篇追加的零训练诊断：锁定已有匹配，核对 ignore 条件容量上界、重复与低阈值候选代价，不作为学生增益 |
 | [cross_view_flip_analysis.md](cross_view_flip_analysis.md) | 固定随机小样本的水平翻转候选筛选，记录精度与覆盖权衡，未进入学生训练 |

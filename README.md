@@ -746,16 +746,17 @@ python scripts/run_paper1_full100.py --arm p1 --audit
 小目标收益保留，整体AP仅微升；B2中断恢复事实和原30轮证据分别报告。
 详见[正式配对结果](docs/paper/p1_b2_full100_results.md)。
 
-下一步值得补学生seed1两臂各100轮检查重复性，先B2后P1。
-助手仅准备和预检，大训练由用户运行，预留13–15小时。
+学生seed1的B2已于2026-11-01 23:04:51正常结束并独立验收通过：
+mAP50-95=25.6683%、small recall=39.3611%（10461/26577）。
+见[学生seed1 B2结果](docs/paper/b2_seed1_full100_results.md)；不要重复训练B2。
+下一步仅运行同seed1的P1检查重复性，大训练由用户启动，预留约7–8小时。
 在已激活`yolo`的Git Bash执行：
 
 ```bash
 cd /d/Python/YOLO-RegionSSOD
-python scripts/run_paper1_seed1_full100.py --arm b2 --check-only
+# B2已完成，仅需复核时使用：
+python scripts/run_paper1_seed1_full100.py --arm b2 --audit
 python scripts/run_paper1_seed1_full100.py --arm p1 --check-only
-python -u scripts/run_paper1_seed1_full100.py --arm b2 --train
-# B2正常退出并验收通过后再执行：
 python -u scripts/run_paper1_seed1_full100.py --arm p1 --train
 ```
 
