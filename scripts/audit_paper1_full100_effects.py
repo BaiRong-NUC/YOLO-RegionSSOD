@@ -27,6 +27,9 @@ def main():
         audit = read(loc["out"] / "independent_audit.json")
         if audit.get("accepted") is not True or audit.get("epochs") != 100:
             raise ValueError("both formal arms must pass independent audit")
+        measured = read(loc["out"] / "metrics.json")
+        if any(audit.get(key) != value for key, value in measured.items()):
+            raise ValueError("independent audit differs from frozen measurements")
         for path, expected in read(loc["out"] / "artifact_sha256.json").items():
             if digest(path) != expected:
                 raise ValueError(f"changed formal artifact: {path}")
@@ -42,8 +45,9 @@ def main():
         saved = [json.loads(line) for line in pred_path.read_text(encoding="utf-8").splitlines()]
         if [item["image"] for item in saved] != images:
             raise ValueError("saved prediction population differs")
-        summaries[arm], predictions[arm] = audit, saved
-        for file in (loc["out"] / "independent_audit.json", loc["recall"] / "metrics.json",
+        # Re-audits update receipt timestamps; preserve stable measurement provenance.
+        summaries[arm], predictions[arm] = measured, saved
+        for file in (loc["out"] / "metrics.json", loc["recall"] / "metrics.json",
                      loc["recall"] / "images.txt", pred_path):
             sources[str(file)] = digest(file)
     source = load_source_dataset(Path(protocol["data"]))

@@ -1450,6 +1450,14 @@ P1 的 30 epoch 训练、完整原图 val960 和固定操作点小目标 recall 
   记录`outputs/paper1_full100_effects_s0/documentation_check_20261101.json`；
   原表格生成器137来源/8组recall检查及`git diff --check`通过。
   原seed0训练/恢复入口及冻结协议未修改。
+- 交接源码/协议在`e62e456`中文提交并push后，16:46–16:47实际执行学生seed1
+  B2/P1两臂`--check-only`，各37803冻结来源、真实exit0且stderr为空，
+  8个新训练/评估输出目录均不存在。回执
+  `outputs/paper1_full100_effects_s0/seed1_handoff_preflight_20261101.json`。
+  另核对两seed旧pilot实际args，除seed/输出名外无差异。
+- 只读分析改为追踪稳定metrics，而非会随复核更新时间戳的independent_audit；
+  同时要求两者测量完全一致。重放结果未变，557项分析来源哈希及24行表格再次通过，
+  167项测试再次通过。此调整不改变冻结训练入口或新seed1协议。
 
 ## 4. 固定实验协议
 
@@ -1746,7 +1754,7 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-10-31（正式B2误中断恢复交接完成） | 49d114a及本次验收记录，均push | 核实63轮/last.pt及进程停止，保留原13文件，补显式检查点恢复和兼容验收 | 第3.53节；paper/paper1_full100_recovery.md；归档engineering/check.json及handoff_check.json | 真实恢复初始化255项优化器/EMA/scaler通过且0步骤；159tests及原主表通过；实际resume-check退出0，确认64→100轮，原证据未变 | 大训练剩余37轮由用户--resume启动；未自动续训，原exit_code未知仍保留，恢复事实单列 |
 
 | 2026-11-01（正式B2 100轮验收） | 本次中文结果提交并push | 核实恢复工作进程已停/真实exit0，完整100轮/原63轮前缀、548原图val960/预测重放及来源审计；交接P1 | 第3.54节；paper/b2_full100_results.md；outputs/paper1_b2_formal100_s0/independent_audit.json | AP50-95=25.8264%、small=39.2858%；相对B1同轮数AP+0.9429pp；学生5.9305小时；P1预检37773来源通过 | B2已完成，P1正式100轮未启动，由用户运行；不扩seed/模块，不跨轮数混比，恢复事实及目标paused状态保留 |
-| 2026-11-01（P1/B2正式100轮配对验收） | 本次中文提交并push | 双方完整100轮/548原图val960/实际args/冻结来源及预测重放通过；新增逐目标/误检/类别/操作点只读盘点及学生seed1隔离入口 | 第3.55节；paper/p1_b2_full100_results.md；outputs/paper1_full100_effects_s0/analysis.json | P1−B2：AP50-95+0.0528pp、small+2.1259pp（净+565），未匹配预测+1221、F1+0.1800pp，类别7升3降，学生耗时+13.49%；167tests通过 | 有成果且有代价；值得用户补学生seed1两臂各100轮，不延长seed0/叠模块；未启动新训练，预检结果随后补实测记录 |
+| 2026-11-01（P1/B2正式100轮配对验收） | `e62e456`及本次中文收尾提交，均push | 双方完整100轮/548原图val960/实际args/冻结来源及预测重放通过；新增逐目标/误检/类别/操作点只读盘点及学生seed1隔离入口 | 第3.55节；paper/p1_b2_full100_results.md；outputs/paper1_full100_effects_s0/analysis.json | P1−B2：AP50-95+0.0528pp、small+2.1259pp（净+565），未匹配预测+1221、F1+0.1800pp，类别7升3降，学生耗时+13.49%；167tests、24表格行/557分析来源通过 | 值得用户补学生seed1两臂各100轮；实际两臂各37803来源预检exit0，无新训练/推理或输出；不延长seed0/叠模块，完成后优先收束 |
 
 ### 10.1 新会话开始流程
 
