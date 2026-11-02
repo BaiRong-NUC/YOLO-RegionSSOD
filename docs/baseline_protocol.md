@@ -9,11 +9,20 @@ best.pt，在548完整原图val960保存conf≥0.001预测，再计算COCO-style
 ```bash
 python scripts/evaluate_paper1_small_pr.py --audit
 python scripts/build_small_pr_results.py --check
+python scripts/diagnose_paper1_high_precision.py --audit
+python scripts/diagnose_paper1_high_precision.py --check-doc
+python scripts/evaluate_scaled_operating_point.py --audit
+python scripts/evaluate_scaled_operating_point.py --check-doc
 ```
 
 这两条为现有缓存审计和文档核对，不进行新推理/训练。生成入口、环境与固定参数见
 [补评估协议](paper/small_pr_protocol.md)，实际全部结果见[补评估结果](paper/small_pr_results.md)。
 现有预测目录拒绝`--predict`重复执行；`--analyze`只重放缓存。
+高精度退化诊断和尺度条件跨拟合都只读上述缓存，不新推理/训练；协议分别见
+[高精度诊断](paper/high_precision_diagnostic_protocol.md)及
+[尺度操作点](paper/scale_operating_point_protocol.md)，结果分别为
+[H2诊断](paper/high_precision_diagnostic_results.md)和
+[跨拟合](paper/scale_operating_point_results.md)。两者不提供训练命令，也不改变原Gate。
 新增结果表由独立生成器核对，不计入原`build_paper_tables.py --check`的137来源/8组recall。
 COCO-style AP、Ultralytics mAP和VisDrone官方指标分开报告；新旧predict/validator固定点
 计数也不混合。以下原始训练命令保留作协议记录，不是当前待执行训练队列。

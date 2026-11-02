@@ -19,6 +19,10 @@ mAP50-95提高0.335pp、小目标recall提高1.878pp；2026-10-30补齐同split/
 | [small_pr_results.md](small_pr_results.md) | 四个正式100轮权重的COCO-style AP_small、完整PR、五档等精度召回、类别退化/候选截断与来源审计；零训练 |
 | [small_pr_protocol.md](small_pr_protocol.md) | 新增低置信度评估的固定协议、两套匹配口径、来源绑定和复现命令 |
 | [small_pr_literature.md](small_pr_literature.md) | 5篇论文的机制边界、确切阅读范围、可证伪假设与Zotero实际归档清单 |
+| [high_precision_diagnostic_results.md](high_precision_diagnostic_results.md) | 90%precision小目标增失、候选去向、FP组成、共同GT几何与GT-oracle容量；H2未被支持为主因 |
+| [scale_operating_point_results.md](scale_operating_point_results.md) | 5个图像split seed、两折校准/评估的尺度条件阈值；同时提高B2/P1但不形成P1独有优势 |
+| [high_precision_diagnostic_protocol.md](high_precision_diagnostic_protocol.md) | 高精度诊断的固定70%/90%档位、逐GT互斥原因、双向增失、配对几何与oracle边界 |
+| [scale_operating_point_protocol.md](scale_operating_point_protocol.md) | 尺度条件阈值的201点网格、5×2图像交拟、精度目标与固定继续线 |
 | [introduction.md](introduction.md) | 第 1 章引言初稿：区域标注问题、相关工作衔接、方法概述、三项工作与初步结果 |
 | [related_work.md](related_work.md) | 第 2 章相关工作初稿：SSOD、缺失标注、航拍小目标与最接近工作的关系 |
 | [methods.md](methods.md) | 第 3 章方法初稿：区域协议、固定教师、尺度筛选、分类软权重、ignore 掩码与损失公式 |

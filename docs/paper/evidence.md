@@ -421,3 +421,17 @@ NMS IoU=0.70、max_det=500。自动与独立记录为
   `literature_search_receipts.json`。Research / YOLO-RegionSSOD=`BMQTT9Y7`，新增STOD
   `HBL9PADC`；复用`KV74E49Y/RQIKGRP9/K3VYDTZE/R6AMZBIU`。4篇有PDF，STOD仅摘要，
   五篇均记录机器阅读范围，没有人类已读声明。本轮新方向仍为假设，无新训练效果。
+
+## 高精度退化与尺度条件操作点（2026-11-02）
+
+- H2诊断输出`outputs/paper1_high_precision_diagnostic_20261102/`。协议先于新增分类结果，
+  `diagnosis.json`保存实际操作点、逐GT增失、FP组成、共同GT配对几何、oracle容量和逐GT
+  候选去向；四臂`diagnostic_arrays.npz`绑定已验收预测。缓存审计31输入/548图×4臂，
+  零推理/训练。首轮JSON保存与未完成回执归档保留。
+- 尺度操作点输出`outputs/paper1_scale_operating_point_20261102/`。五个固定split seed、
+  201点网格、274/274两折交叉。`crossfit.json`汇总结论，`fold_results.csv`逐fold阈值/
+  实际precision/召回，`compute_source_snapshot.py`保留运行计算源码，完整结果审计通过。
+- 90%操作点下尺度策略同时提高B2/P1，P1独立gap改善未通过固定继续线；0.95也不通过。
+  文档表由`--check-doc`精确对JSON重放。结果仅内部分布条件，阈值需标注校准集，
+  不是外部/test-dev性能、训练增益或部署保证。
+- 本轮所有结果均为描述性关联；训练期几何/分类/分配间接影响不可由最终学生框排除。

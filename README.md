@@ -14,11 +14,22 @@ small recall平均+0.7036pp，precision≥90%时平均−0.2032pp。完整正负
 COCO-style指标不冒充VisDrone官方AP，原Gate3/4不追认为通过。
 本轮文献与Zotero归档见[机制线索](docs/paper/small_pr_literature.md)。
 
+2026-11-02新增两项零训练诊断：[高精度退化原因](docs/paper/high_precision_diagnostic_results.md)
+与[尺度条件操作点跨拟合](docs/paper/scale_operating_point_results.md)。在IoU0.50、
+90%全尺寸precision下，P1少找回的small GT中695/711和730/752在完整缓存里已匹配，
+只是分数低于P1全局阈值；共同GT几何没有变差。尺度条件阈值提高两臂约4.4–5.4pp
+small recall，但不是P1独有优势，预先继续线未通过。故当前不启动回归/NWD新训练；
+结果支持把高精度退化写成全局阈值/排序瓶颈，而非已证明的回归质量瓶颈。
+
 只读复核（在已有`yolo`环境、仓库根目录；已有预测时不要再次推理）：
 
 ```bash
 python scripts/evaluate_paper1_small_pr.py --audit
 python scripts/build_small_pr_results.py --check
+python scripts/diagnose_paper1_high_precision.py --audit
+python scripts/diagnose_paper1_high_precision.py --check-doc
+python scripts/evaluate_scaled_operating_point.py --audit
+python scripts/evaluate_scaled_operating_point.py --check-doc
 ```
 
 缓存、原图预测及PNG/PDF/SVG在忽略目录

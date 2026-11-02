@@ -235,6 +235,49 @@ def flatten_fold_records(result):
     return fields, rows
 
 
+def render_tables(result):
+    lines = ["## 跨拟合数字表", "",
+             "所有评估均来自不相交的另一半原图；各split seed的两折合计覆盖548图。", ""]
+    for target in ("0.90", "0.95"):
+        lines += [f"### 校准precision目标 {target}", "",
+                  "| seed | split | Global P1−B2 / pp | Scale P1−B2 / pp | Δgap / pp | B2 Scale−Global / pp | P1 Scale−Global / pp | 最低评估precision |",
+                  "|---|---:|---:|---:|---:|---:|---:|---:|"]
+        for seed in ("0", "1"):
+            summary = result["summaries"][target][seed]
+            for index, split_seed in enumerate(SPLITS):
+                global_gap = summary["comparisons"]["p1_minus_b2"]["global"]["values"][index]
+                scale_gap = summary["comparisons"]["p1_minus_b2"]["scale"]["values"][index]
+                delta = summary["comparisons"]["delta_gap_pp"]["values"][index]
+                b2_improved = summary["comparisons"]["scale_minus_global"]["b2"]["values"][index]
+                p1_improved = summary["comparisons"]["scale_minus_global"]["p1"]["values"][index]
+                precisions = [summary[arm][policy]["precision"]["values"][index]
+                              for arm in ("b2", "p1") for policy in ("global", "scale")]
+                lines.append(f"| {seed} | {split_seed} | {global_gap:+.4f} | {scale_gap:+.4f} | {delta:+.4f} | "
+                             f"{b2_improved:+.4f} | {p1_improved:+.4f} | {min(precisions):.6f} |")
+        lines += ["", "| seed | Global gap均值±SD | Scale gap均值±SD | Δgap均值±SD | B2 improvement均值±SD | P1 improvement均值±SD |",
+                  "|---|---:|---:|---:|---:|---:|"]
+        for seed in ("0", "1"):
+            summary = result["summaries"][target][seed]
+            def stat(values):
+                return f"{values['mean_pp']:+.4f} ± {values['sample_sd_pp']:.4f}"
+            lines.append(f"| {seed} | "
+                f"{stat(summary['comparisons']['p1_minus_b2']['global'])} | "
+                f"{stat(summary['comparisons']['p1_minus_b2']['scale'])} | "
+                f"{stat(summary['comparisons']['delta_gap_pp'])} | "
+                f"{stat(summary['comparisons']['scale_minus_global']['b2'])} | "
+                f"{stat(summary['comparisons']['scale_minus_global']['p1'])} |")
+        lines.append("")
+    lines += ["### 预先固定的0.90继续线", "",
+              "| seed | Δgap均值≥+0.20 | 至少4/5 split为正 | 最低平均评估precision≥0.88 | P1增益大于B2 |",
+              "|---|---:|---:|---:|---:|"]
+    for seed in ("0", "1"):
+        item = result["continue_rule_items"][seed]
+        lines.append(f"| {seed} | {item['delta_gap_mean_ge_0_20']} | {item['delta_gap_positive_at_least_4_of_5']} | "
+                     f"{item['minimum_arm_policy_mean_eval_precision_ge_0_88']} | {item['p1_scale_gain_gt_b2']} |")
+    lines += ["", f"总体继续线：**{result['continue_rule_pass']}**。", ""]
+    return "\n".join(lines)
+
+
 def plot(result):
     import matplotlib
     matplotlib.use("Agg")
@@ -317,6 +360,15 @@ def audit():
     print("Accepted exact cross-fit replay;0 inference,0 training.", flush=True)
 
 
+def check_doc():
+    expected = render_tables(base.read(OUT / "crossfit.json"))
+    text = DOCUMENT.read_text(encoding="utf-8")
+    actual = text.split("<!-- scale-table:begin -->\n", 1)[1].split("<!-- scale-table:end -->", 1)[0]
+    if actual != expected:
+        raise ValueError("scale-operating-point document tables differ from frozen JSON")
+    print("Scale operating-point document tables match accepted cross-fit JSON.", flush=True)
+
+
 def render():
     result = base.read(OUT / "crossfit.json")
     plot(result)
@@ -332,9 +384,10 @@ def main():
     group.add_argument("--run", action="store_true")
     group.add_argument("--audit", action="store_true")
     group.add_argument("--render", action="store_true")
+    group.add_argument("--check-doc", action="store_true")
     args = parser.parse_args()
     try:
-        run() if args.run else render() if args.render else audit()
+        run() if args.run else render() if args.render else check_doc() if args.check_doc else audit()
     except Exception:
         base.write(OUT / "failure.json", {"at": now(), "traceback": traceback.format_exc()})
         raise
