@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 
 from regionssod.evaluation.precision_recall import (
-    assign_predictions, coco_ap, precision_constrained_point, threshold_curve,
+    assign_predictions, coco_ap, precision_constrained_point, threshold_curve, validate_capture_record,
 )
 from regionssod.evaluation.size_recall import match_by_confidence
 
@@ -57,3 +57,28 @@ def test_coco_area_boundary_is_distinct_from_strict_diagnostic_small():
     assert result["metrics"]["AP_small"] == pytest.approx(1)
     curve = threshold_curve([.9], [1024], {"small": 1, "medium": 1, "large": 1})
     assert curve["small_tp"].tolist() == [0] and curve["medium_tp"].tolist() == [1]
+
+
+def test_coco_category_names_follow_tensor_ids_not_input_list_order():
+    gt = {"images": [{"id": 1}], "info": {},
+          "categories": [{"id": 2, "name": "B"}, {"id": 1, "name": "A"}],
+          "annotations": [
+              {"id": 1, "image_id": 1, "category_id": 1, "bbox": [0, 0, 10, 10], "area": 100, "iscrowd": 0},
+              {"id": 2, "image_id": 1, "category_id": 2, "bbox": [50, 0, 10, 10], "area": 100, "iscrowd": 0}]}
+    result, _ = coco_ap(gt, [{"image_id": 1, "category_id": 1, "bbox": [0, 0, 10, 10], "score": .9}])
+    assert result["per_class_AP_small"]["A"] == pytest.approx(1)
+    assert result["per_class_AP_small"]["B"] == 0
+
+
+@pytest.mark.parametrize("change", [{"model": "p1_s0"}, {"weights_sha256": "other"},
+    {"predictions_sha256": "other"}, {"replay_within_1e_6": False},
+    {"replay_delta_absolute": {"mAP50": .01, "mAP50_95": 0}},
+    {"replay_delta_absolute": {"mAP50": float('nan'), "mAP50_95": 0}}])
+def test_failed_replay_or_swapped_prediction_is_not_accepted(change):
+    expected = dict(model="b2_s0", weights_sha256="w", manifest_sha256="m",
+                    ground_truth_sha256="g", predictions_sha256="p")
+    record = {**expected, "replay_within_1e_6": True,
+              "replay_delta_absolute": {"mAP50": 0., "mAP50_95": 0.}}
+    validate_capture_record(record, **expected)
+    with pytest.raises(ValueError):
+        validate_capture_record(record | change, **expected)

@@ -113,7 +113,9 @@ def coco_ap(gt_dataset, detections):
             curves[f"{label}_iou{tag}"] = mean
         valid = max_recall[:, :, area_index, -1]
         metrics[f"AR_{label}_500"] = float(valid[valid >= 0].mean()) if (valid >= 0).any() else None
-    for index, category in enumerate(gt_dataset["categories"]):
+    categories = {item["id"]: item for item in gt_dataset["categories"]}
+    for index, category_id in enumerate(evaluator.params.catIds):
+        category = categories[category_id]
         values = tensor[:, :, index, 1, -1]
         valid = values[values >= 0]
         per_class[category["name"]] = float(valid.mean()) if len(valid) else None
@@ -122,3 +124,17 @@ def coco_ap(gt_dataset, detections):
             "area_labels": evaluator.params.areaRngLbl,
             "recall_grid": evaluator.params.recThrs.tolist(),
             "max_dets": evaluator.params.maxDets}, curves
+
+
+def validate_capture_record(record, *, model, weights_sha256, manifest_sha256,
+                            ground_truth_sha256, predictions_sha256):
+    """Reject a failed replay or predictions detached from their frozen arm."""
+    expected = {"model": model, "weights_sha256": weights_sha256,
+                "manifest_sha256": manifest_sha256, "ground_truth_sha256": ground_truth_sha256,
+                "predictions_sha256": predictions_sha256}
+    if any(record.get(key) != value for key, value in expected.items()):
+        raise ValueError("prediction/weight/model/input binding differs")
+    deltas = record.get("replay_delta_absolute", {})
+    if (record.get("replay_within_1e_6") is not True or set(deltas) != {"mAP50", "mAP50_95"}
+            or any(not np.isfinite(value) or abs(value) > 1e-6 for value in deltas.values())):
+        raise ValueError("original validation replay did not pass")

@@ -20,10 +20,11 @@ from regionssod.data.annotations import iter_images, label_path_for_image, read_
 from regionssod.data.dataset import load_source_dataset
 from regionssod.evaluation.precision_recall import (
     assign_predictions, coco_ap, fixed_threshold_point, precision_constrained_point, threshold_curve,
+    validate_capture_record,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / "outputs/paper1_small_pr_20261102"
+OUT = ROOT / "outputs/paper1_small_pr_20261102/bound_v2"
 DATA = ROOT / "data/visdrone_area10/dataset.yaml"
 SOURCE = Path("D:/Python/YOLO/data/visdrone/dataset.yaml")
 PROTOCOL = ROOT / "docs/paper/small_pr_protocol.md"
@@ -109,7 +110,8 @@ def make_manifest():
         artifact = read(loc["original"] / "artifact_sha256.json")
         if artifact[str(loc["weights"])] != digest(loc["weights"]):
             raise ValueError(f"weight differs from accepted artifact: {key}")
-        for path in (loc["weights"], loc["original"] / "metrics.json"):
+        for path in (loc["weights"], loc["original"] / "metrics.json",
+                     loc["original"] / "independent_audit.json", loc["original"] / "artifact_sha256.json"):
             hashes[str(path)] = digest(path)
     return {"created_at": now(), "inference": INFERENCE, "models": KEYS,
             "versions": {name: version(name) for name in ("ultralytics", "torch", "numpy", "pycocotools", "matplotlib")},
@@ -163,14 +165,39 @@ def predict():
         values = {"model": key, "completed_at": now(), "elapsed_seconds": time.monotonic() - started,
                   "ultralytics": result.results_dict, "replay_delta_absolute": deltas,
                   "replay_within_1e_6": all(abs(value) <= 1e-6 for value in deltas.values()),
-                  "weights_sha256": digest(loc["weights"])}
+                  "weights_sha256": digest(loc["weights"]),
+                  "manifest_sha256": digest(OUT / "manifest.json"),
+                  "ground_truth_sha256": digest(OUT / "ground_truth.json"),
+                  "predictions_sha256": digest(loc["cache"] / "predictions.jsonl")}
         write(loc["cache"] / "inference.json", values)
         print(f"END {key}: {values}", flush=True)
         if not values["replay_within_1e_6"]:
             raise ValueError(f"original validation metrics did not replay for {key}; inspect before continuing")
         del model
     verify_hashes(manifest["input_sha256"])
+    write(OUT / "capture_complete.json", {"at": now(), "models": KEYS,
+        "manifest_sha256": digest(OUT / "manifest.json"),
+        "inference_sha256": {key: digest(locations(key)["cache"] / "inference.json") for key in KEYS}})
     write(OUT / "status.json", {"stage": "inference_complete", "at": now(), "models": KEYS})
+
+
+def verify_captures():
+    complete = read(OUT / "capture_complete.json")
+    manifest_hash = digest(OUT / "manifest.json")
+    if complete.get("models") != list(KEYS) or complete.get("manifest_sha256") != manifest_hash:
+        raise ValueError("inference did not complete with these model/input bindings")
+    for key in KEYS:
+        loc = locations(key)
+        if digest(loc["cache"] / "inference.json") != complete["inference_sha256"][key]:
+            raise ValueError("inference receipt changed after capture")
+        record = read(loc["cache"] / "inference.json")
+        validate_capture_record(record, model=key, weights_sha256=digest(loc["weights"]),
+            manifest_sha256=manifest_hash, ground_truth_sha256=digest(OUT / "ground_truth.json"),
+            predictions_sha256=digest(loc["cache"] / "predictions.jsonl"))
+        original = read(loc["original"] / "metrics.json")["metrics"]
+        for metric, name in (("mAP50", "metrics/mAP50(B)"), ("mAP50_95", "metrics/mAP50-95(B)")):
+            if abs(record["ultralytics"][name] - original[metric]) > 1e-6:
+                raise ValueError("claimed replay flag differs from recorded values")
 
 
 def load_predictions(key, gt):
@@ -315,6 +342,7 @@ def plot_results(curves, coco_curves):
 def analyze():
     manifest = read(OUT / "manifest.json")
     verify_hashes(manifest["input_sha256"])
+    verify_captures()
     gt = read(OUT / "ground_truth.json")
     models, curves, coco_curves = {}, {}, {}
     for key in KEYS:
@@ -327,7 +355,7 @@ def analyze():
     result["gt_counts_diagnostic_strict"] = manifest["gt_counts_strict"]
     write(OUT / "comparison.json", result)
     plot_results(curves, coco_curves)
-    artifacts = [OUT / "ground_truth.json", OUT / "comparison.json"]
+    artifacts = [OUT / "ground_truth.json", OUT / "comparison.json", OUT / "capture_complete.json"]
     for key in KEYS:
         artifacts.extend(locations(key)["cache"] / name for name in
                          ("predictions.jsonl", "inference.json", "analysis.json", "coco_pr.npz",
@@ -341,6 +369,7 @@ def analyze():
 def audit():
     manifest = read(OUT / "manifest.json")
     verify_hashes(manifest["input_sha256"])
+    verify_captures()
     verify_hashes(read(OUT / "artifact_sha256.json"))
     gt, _, counts = ground_truth()
     if gt != read(OUT / "ground_truth.json"):
