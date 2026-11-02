@@ -1985,6 +1985,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 
 | 2026-11-02（H2零训练诊断及H1尺度操作点跨拟合） | `d943420`、`83b7435`、`db23e85`、`9464463`、`4a1ae9b`、`383b4af`、`7d3aa55`及本次结果文档中文提交，push | 从三方向选H2，先用四冻结权重缓存核对高精度逐GT增失、候选去向、FP组成、共同GT几何与Oracle容量；H2弱化后用5 split×2折校准/评估测试尺度条件阈值 | 第3.62节；paper/{high_precision_diagnostic_results,scale_operating_point_results}.md；outputs/paper1_high_precision_diagnostic_20261102/；outputs/paper1_scale_operating_point_20261102/ | 201tests；90%下711/752中有695/730完整缓存已匹配但低于阈值，共同GT几何未恶化；scale策略对两臂提高约4.4–5.4pp但P1独有优势仅seed1通过，总体继续线False | 完成诊断，零推理/零训练；不建议NWD/回归/逐边界训练，暂不给训练指令；将全局阈值/排序边界写入第一篇，未来需无GT质量信号—动作合同及至少30配对epoch；所有负向split、失败日志和审计保留 |
 
+| 2026-11-02（下一改进点建议：类别歧义感知分类监督） | 本次中文规划记录提交并push | 用户询问如何扩大第一篇成果、是否换改进点；复核既有诊断和负向探索，建议从几何/操作点切换到训练期分类可靠性，先检查教师top1/top2或完整类别分布是否提供超出原最高分c的信息 | paper/high_precision_diagnostic_results.md；paper/scale_operating_point_results.md；src/regionssod/training/p1.py；Humble Teacher CVPR2021官方摘要 | IoU0.50/precision90%下P1错类FP占1535/1525个FP中的1036/1030（约67.5%），B2也近似，不能据此认定P1独有因果；原c缩放整个正anchor类别BCE向量，现有缓存只保存最高类别/分数，不能恢复类别歧义；软标签已有Humble Teacher先例 | 仅提出优先候选，未实现或启动推理/训练。先准备少量训练区域教师完整类别分数诊断，隐藏GT仅审计；若信号有效，保持原正伪框/回归/分配/网络等固定，设计一项分类监督变量的完整30轮配对并给用户执行指令；核对新颖性与监督强度混杂，不把原c换名或软标签本身宣称首创。现有稿件继续整理，新候选不能覆盖原结果 |
+
 ### 10.1 新会话开始流程
 
 2026-10-30原图上下文诊断执行前的Git预检发现，历史`.gitignore`的`data/`
