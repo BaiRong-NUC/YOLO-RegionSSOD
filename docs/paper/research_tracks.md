@@ -50,8 +50,11 @@ NWD、回归置信度和覆盖保护均未达原继续条件，不默认叠加�
 ## D. 待验证候选：P1 + 类别歧义感知分类监督
 
 单独入口：[候选目录](candidates/class_ambiguity/README.md)。
-当前只有设计合同，未实现教师全类别分数提取器、损失变体或训练runner，未训练。
-以后训练产物用 `p1_class_ambiguity_*` 独立名称，不复用 `partial10_p1_*`。
+已完成[教师分数诊断](candidates/class_ambiguity/diagnostic_results.md)，通过预定门槛；
+全量35067原正框类别分数、独立损失、配对runner与PR评估已实现，学生尚未训练。
+训练产物用 `p1_class_ambiguity_*` 独立名称，不复用 `partial10_p1_*`。
+用户入口`python scripts/run_p1_class_ambiguity.py --train`顺序执行全新对照/候选各30轮，
+以[固定条件](candidates/class_ambiguity/student_protocol.md)判断是否值得后续投入。
 新候选只扩展分类监督；原尺度阈值、正伪框、原c软权重、ignore、回归和网络保持固定。
 分类监督影响共享特征和后续训练分配，因此不能声称训练动态完全不受影响。
 

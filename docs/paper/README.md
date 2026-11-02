@@ -12,8 +12,9 @@
 |---|---|
 | [结构与证据地图](paper1_writeup_plan.md) | 当前可写的主张、全部关键正负指标、图表安排与证据缺口 |
 | [成果保存点](preservation.md) | 原P1 Git基点、本地4.20 GiB产物副本、哈希及只读复核 |
-| [代码与改进点分轨](research_tracks.md) | 原P1、旧消融、评估工具、未实现候选分别定位 |
-| [P1＋类别歧义候选](candidates/class_ambiguity/README.md) | 在原成果上叠加一项分类监督变化的设计边界；当前不训练 |
+| [代码与改进点分轨](research_tracks.md) | 原P1、旧消融、评估工具、独立新候选分别定位 |
+| [P1＋类别歧义候选](candidates/class_ambiguity/README.md) | 零训练诊断通过，独立实现与两臂30轮入口；学生尚未训练 |
+| [类别歧义诊断结果](candidates/class_ambiguity/diagnostic_results.md) | 控制top1/面积/类别后的信息增益、原图bootstrap与全量旧框身份核对 |
 | [文献与Zotero地图](literature_map.md) | 主线/候选的文献职责、MCP检索与集合核对、阅读范围 |
 | [本轮验收与待办](organization_validation.md) | 208项测试、数值复核、回执恢复、缩写检查及文稿待完成项 |
 
