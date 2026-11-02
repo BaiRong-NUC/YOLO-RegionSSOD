@@ -38,7 +38,9 @@ def verify_inputs():
         raise ValueError("accepted diagnostic replay is required")
     base.verify_hashes(base.read(DIAGNOSTIC / "manifest.json")["input_sha256"])
     base.verify_hashes(base.read(DIAGNOSTIC / "artifact_sha256.json"))
-    base.verify_inputs()
+    base.verify_hashes(base.read(base.OUT / "manifest.json")["input_sha256"])
+    base.verify_hashes(base.read(base.OUT / "artifact_sha256.json"))
+    base.verify_captures()
 
 
 def manifest():
