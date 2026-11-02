@@ -14,22 +14,20 @@ python scripts/preserve_paper1.py --audit
 只核对历史归档，不训练、不写回原结果。`--create`已执行，默认目录拒绝重复覆盖。
 新[类别歧义候选](paper/candidates/class_ambiguity/README.md)以原P1为对照，
 保留尺度阈值、原c分类软权重和ignore，新增单项伪正分类目标分配。
-教师诊断通过，已完整导出原35067正框分数并完成独立实现；学生训练未启动。
+教师诊断与全量分数导出之后，两臂各30轮已于2026-11-03完成并独立验收。
+原P1对照/叠加候选都正常退出；548图val960、COCO-style AP_small/完整PR及重放通过。
+IoU.50/P90 small +0.8203pp，但AP50–95 −0.2631pp、AP_small −0.4162pp、P70 small −0.5418pp，
+未满足五项固定条件，不扩大此变体训练。完整结果及限制见[30轮报告](paper/candidates/class_ambiguity/results30.md)。
 
 ```bash
-python scripts/run_p1_class_ambiguity.py --check-only
-python -u scripts/run_p1_class_ambiguity.py --train
+python scripts/run_p1_class_ambiguity.py --audit
 ```
 
-用户执行第二条后，顺序训练全新原P1对照与候选各30完整epoch，
-使用原split0/teacher/COCO初始化/seed0/640/batch8/SGD/增强。
-自动val960/548图、COCO-style AP_small/完整PR/等精度召回及哈希与数值重放。
-仅`--check-only`不会训练。两臂独立`runs/p1_class_ambiguity_{reference,candidate}30_s0/`，
-总入口与日志`outputs/p1_class_ambiguity_pair30_s0/`；拒绝覆盖，失败不自动重试。
-完成后`python scripts/run_p1_class_ambiguity.py --audit`。
-P90 small recall≥+0.30pp且总体AP/AP_small/P70/固定点召回护栏均满足才考虑扩大；
-精确条件见[学生协议](paper/candidates/class_ambiguity/student_protocol.md)。
-原100轮训练和旧30轮结果均不重跑、不覆盖、不混入此配对。
+仅使用以上只读命令；原`--train`/`--check-only`会拒绝既有运行，勿重复启动。
+两臂目录`runs/p1_class_ambiguity_{reference,candidate}30_s0/`，
+日志/评估/审计目录`outputs/p1_class_ambiguity_pair30_s0/`。
+[学生协议](paper/candidates/class_ambiguity/student_protocol.md)保持训练前冻结版本；
+原100轮训练和旧30轮结果均不覆盖、不混入此配对。
 
 ## 当前只读补评估入口（2026-11-02）
 

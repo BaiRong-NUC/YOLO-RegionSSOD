@@ -1,6 +1,8 @@
 # 原P1＋类别分数分类监督
 
-日期2026-11-02。诊断已通过、全量分数已导出；学生训练尚未启动。
+日期2026-11-03。两臂各30轮及独立验收已完成；未通过全部固定继续条件。
+[完整结果](results30.md)：IoU.50/P90 small +0.8203pp，但AP50–95 −0.2631pp、
+AP_small −0.4162pp、P70 small −0.5418pp；IoU.75/P90亦下降，不直接扩到100轮。
 这是在原P1上的单项叠加，原P1仍是已完成主结果，独立保存点和历史产物保留。
 
 教师竞争类别比值在控制top1分数、预测面积和类别后仍提供额外错类信息：
@@ -28,18 +30,15 @@
 | 侧文件 | `outputs/p1_class_scores_20261102/` |
 | 配对实验产物 | `outputs/p1_class_ambiguity_pair30_s0/` |
 
-在仓库根目录、已激活yolo环境：
+在仓库根目录、已激活yolo环境，只读复核：
 
 ```bash
-python scripts/run_p1_class_ambiguity.py --check-only
-python -u scripts/run_p1_class_ambiguity.py --train
+python scripts/run_p1_class_ambiguity.py --audit
 ```
 
-第二条由用户执行，会顺序训练全新reference和candidate各30轮，
-再自动进行548原图960验证、AP_small/完整PR/等精度召回与数值重放验收。
-每臂日志在上述输出目录 `reference_stdout.log`、`candidate_stdout.log`。
-进度见 `status.json`。失败不自动重试，既有运行拒绝覆盖。
-完成后只读审计：`python scripts/run_p1_class_ambiguity.py --audit`。
+两臂已连续完成1–30轮，进程正常退出，548图原图960评估、AP_small/PR与独立重放通过。
+`--train`/`--check-only`仅为历史入口，会拒绝既有运行，当前不要再次执行。
+全部日志与评估保存在`outputs/p1_class_ambiguity_pair30_s0/`。
 
 P90下small recall至少+0.30pp且四项保留能力护栏全部满足，才建议考虑100轮。
 失败也保留原P1成果与本轮诊断，不按validation追调参数，不自动扩训。

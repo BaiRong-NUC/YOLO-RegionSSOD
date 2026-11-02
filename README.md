@@ -4,24 +4,21 @@
 [现有成果与证据地图](docs/paper/paper1_writeup_plan.md)、
 [代码/旧改进点/新候选分轨](docs/paper/research_tracks.md)。
 原P1已建立[Git保存点与本地产物副本](docs/paper/preservation.md)。
-新候选“P1＋类别分数分类监督”已完成零训练诊断与独立实现，尚未训练。
-诊断确认分组的错类预测AUROC从0.7916升至0.8214，这不是学生检测AP提升。
-在已有yolo环境可用`python scripts/preserve_paper1.py --audit`只读复核副本；
-当前两seed正式100轮已完成，下文历史训练命令不是待执行队列。
+类别分数分类监督的[完整30轮配对结果](docs/paper/candidates/class_ambiguity/results30.md)已于2026-11-03验收。
+相对同轮数原P1：IoU.50/P90 small recall +0.8203pp，但AP50–95 −0.2631pp、
+AP_small −0.4162pp、P70 small −0.5418pp，未通过全部固定条件，不扩大本变体训练。
+IoU.75/P90 small −0.2446pp；现有原P1正式100轮成果独立保留。
 
-新候选的[机制、诊断及固定继续线](docs/paper/candidates/class_ambiguity/README.md)已独立整理。
-用户需要启动时，在仓库根目录、已有`yolo`环境执行：
+当前只读复核，在已有yolo环境、仓库根目录：
 
 ```bash
-python scripts/run_p1_class_ambiguity.py --check-only
-python -u scripts/run_p1_class_ambiguity.py --train
+python scripts/run_p1_class_ambiguity.py --audit
+python scripts/preserve_paper1.py --audit
 ```
 
-顺序执行**全新原P1对照30轮＋叠加候选30轮**，自动完成548原图val960、
-AP_small/完整PR/P70/P90与审计。产物在`outputs/p1_class_ambiguity_pair30_s0/`，
-两臂日志为`reference_stdout.log`和`candidate_stdout.log`，进度为`status.json`。
-原100轮权重保留。该新配对尚未开始，不自动扩训或失败重试。
-完成后使用`python scripts/run_p1_class_ambiguity.py --audit`只读复核。
+两臂各30轮均已完成，不要重复执行`--train`或`--check-only`；它们会拒绝既有目录。
+新配对全部产物在`outputs/p1_class_ambiguity_pair30_s0/`，完整PR及逐类取舍见结果报告。
+下文原100轮训练命令同样属于历史协议，不是当前待执行队列。
 
 面向高分辨率航拍图像的区域局部标注小目标半监督检测实验仓库。
 

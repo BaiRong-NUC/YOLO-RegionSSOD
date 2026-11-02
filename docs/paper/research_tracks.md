@@ -47,14 +47,16 @@ NWD、回归置信度和覆盖保护均未达原继续条件，不默认叠加�
 上述工具不会替换原P1损失。尺度操作点代码继承完整缓存的匹配关系，
 没有对独立尺度筛选后的预测集重新一对一匹配；数值应称代理诊断。
 
-## D. 待验证候选：P1 + 类别歧义感知分类监督
+## D. 已完成30轮探索：P1 + 类别歧义感知分类监督
 
 单独入口：[候选目录](candidates/class_ambiguity/README.md)。
 已完成[教师分数诊断](candidates/class_ambiguity/diagnostic_results.md)，通过预定门槛；
-全量35067原正框类别分数、独立损失、配对runner与PR评估已实现，学生尚未训练。
+全量35067原正框类别分数及独立实现后，已于2026-11-03完成两臂各30轮和独立验收。
+[结果](candidates/class_ambiguity/results30.md)：IoU.50/P90 small +0.8203pp，
+但AP50–95 −0.2631pp、AP_small −0.4162pp、P70 small −0.5418pp，未通过固定继续线。
 训练产物用 `p1_class_ambiguity_*` 独立名称，不复用 `partial10_p1_*`。
-用户入口`python scripts/run_p1_class_ambiguity.py --train`顺序执行全新对照/候选各30轮，
-以[固定条件](candidates/class_ambiguity/student_protocol.md)判断是否值得后续投入。
+当前仅运行`python scripts/run_p1_class_ambiguity.py --audit`只读复核；不重跑或直接扩到100轮。
+[固定条件](candidates/class_ambiguity/student_protocol.md)保持原判定，正负结果均保留。
 新候选只扩展分类监督；原尺度阈值、正伪框、原c软权重、ignore、回归和网络保持固定。
 分类监督影响共享特征和后续训练分配，因此不能声称训练动态完全不受影响。
 
