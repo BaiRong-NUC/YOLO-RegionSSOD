@@ -1,11 +1,11 @@
 # 论文完成计划与项目交接
 
-> 最后更新：2026-11-01<br>
+> 最后更新：2026-11-02<br>
 > 当前执行范围：只推进A第一篇方法稿；B/C、蒸馏剪枝和树莓派部署留在远期规划，不并行启动。<br>
 > 最新补证据：分类软权重全量30epoch消融已完成独立验收；去软权重mAP50-95−0.1623pp、small recall+0.9143pp，未达到扩大训练条件；表4-S5/实验4.14已同步，当前不扩训。<br>
 > 最新安排：原P1/B2学生seed0正式100轮均完成独立验收；P1于2026-11-01 16:17:55真实exit0。P1−B2的mAP50-95+0.0528pp、small recall+2.1259pp（净+565），未匹配预测+1221、F1+0.1800pp。值得补一次学生seed1同100轮配对，由用户启动；不延长seed0或叠加模块。详见第3.55节；未自动恢复持续目标。<br>
 > 当前阶段：正式100轮seed0和原30轮两学生seed证据分开报告；原30轮平均配对增益为mAP50-95 +0.2893pp、small recall +1.7854pp，不与100轮混合统计。原 Gate 3 不变；正式结果见paper/p1_b2_full100_results.md，重复计划见paper/paper1_seed1_full100_protocol.md。<br>
-> 运行更新：B2学生seed1正式100轮已验收，临时监控b2-1已删除。用户于2026-11-02启动P1学生seed1正式100轮，工作进程09:54:10开始、首轮正常推进；临时监控p1-1每15分钟检查，正常训练静默，完成后独立验收同seed配对及两seed正式统计。详见第3.57–3.58节。<br>
+> 运行更新：B2学生seed1正式100轮已验收。P1于2026-11-02 13:43:11在第56轮中断，连续完整1–55轮及last.pt可恢复；原退出码未知。独立P1恢复入口已完成零训练步骤验证，等待用户启动剩余45轮；监控p1-1改用resume回执与验收路径，正常状态静默。详见第3.57–3.59节。<br>
 > 论文暂定题目：**面向高分辨率航拍图像的区域局部标注小目标半监督检测方法**  
 > 仓库：`D:\Python\YOLO-RegionSSOD`  
 > 计划起点：2026-10-26，可按实际启动日期整体平移
@@ -74,7 +74,7 @@ P1 尺度感知伪标签与 uncertain-ignore 是否带来稳定收益。
 | 尺度阈值全量确认 | 30 epoch、val960、固定操作点 recall 及独立验收完成；统一 0.50 相对完整 P1 的 mAP50-95 −0.6177 pp、small recall −0.3424 pp，逐类 1 升/9 降 | `outputs/p1_global_t050_pilot30_s0/{comparison,acceptance_audit}.json`；表 4-S2；第 3.18 节 | 全量结果支持尺度分层阈值更有利于总体检测和小目标覆盖；仍为单 split/seed，不扩写为跨 seed 稳定性 |
 | 尺度阈值配对学生 seed | seed1 两组各 30 epoch、完整 val960 和预测重放完成；尺度分层相对统一 0.50 的 mAP50-95 +0.2420 pp、small recall +0.6434 pp，与 seed0 两项同向 | `outputs/p1_scale_threshold_pair_s1/{comparison,acceptance_audit,independent_audit}.json`；表 4-S3；第 3.19 节 | 保留尺度分层；单 split/固定教师下两学生 seed 的平均配对增益为 +0.4299/+0.4929 pp，不作显著性或跨 split 主张 |
 | 正式 5/10/20% 数据 | 10% seed0 已生成；20 图同 seed 检查通过；5%/20% 未生成 | `data/visdrone_area10/summary.json`、`audit.json` | 生成 5%/20% split |
-| 正式 100 epoch 主矩阵 | B1/B2/P1 seed0及B2 seed1完成；seed1 P1已由用户启动，尚未完成 | 第3.54–3.58节；各臂independent_audit.json及P1启动回执 | 静默观察既有P1，完整结束后验收配对、盘点取舍及必要训练缺口，优先收束稿件 |
+| 正式 100 epoch 主矩阵 | B1/B2/P1 seed0及B2 seed1完成；seed1 P1在55轮后中断，独立恢复准备就绪，尚未完成 | 第3.54–3.59节；P1恢复归档及engineering_verified/check.json | 等用户启动余下45轮，按resume回执静默观察；完整结束后验收配对、盘点取舍及必要训练缺口，优先收束稿件 |
 | 论文正文 | 第1–4章、两seed统计/案例，以及表4-S5/实验4.14软权重全量消融已同步；原seed0主表保留 | `docs/paper/{experiments,results_tables,evidence,case_studies}.md`；第3.20、3.26节 | 正式矩阵与最终排版仍待补，后续先选一个低成本问题，不自动扩训 |
 | 文章与树莓派部署规划 | 用户新增三篇文章目标及最终树莓派部署要求；论文按录用、专利按“申请通过”，硬件与学校节点待确认 | `docs/publication_and_edge_deployment_plan.md`；第 3.21 节 | 先 A 方法稿、C 轻量化/部署稿，再扩展 B 可靠补全稿；树莓派先做导出与板端基线，均未启动 |
 | 第一篇实验缺口 | 已完成零训练漏检归因；6,471 tile/38,245 hidden GT 精确重放，按低成本列出 L0→L1→L2 | `docs/paper1_experiment_gaps.md`；`scripts/audit_paper1_gaps.py`；第 3.22 节 | 先做 ignore 可恢复增量与 NMS/max-det 候选覆盖小试；未过线不启动训练 |
@@ -1526,6 +1526,44 @@ P1 的 30 epoch 训练、完整原图 val960 和固定操作点小目标 recall 
   不启动后续训练、不自动恢复或替换已暂停/清除的持续研究目标。
   本次仅建立观察和交接记录，不更改训练源码/协议或判断方法效果。
 
+### 3.59 P1学生seed1的55轮检查点恢复交接（2026-11-02）
+
+- 用户报告VS Code窗口崩溃并要求继续训练。截图为窗口oom，
+  训练status/stderr在13:43:11记录KeyboardInterrupt，原包装4692和工作45248
+  按身份核实均停止；launch_receipt未记录真实exit_code，保留未知。
+  13:43:44实测物理内存约63.85GiB、可用34.27GiB、使用46.3%，
+  这是崩溃后的测量，不能据此反推瞬时占用；不把窗口oom等同于整机RAM或CUDA耗尽。
+- CSV连续有限1–55轮，累计13602.5秒；last.pt零起始epoch54、
+  原seed1/总100轮参数一致，优化器255项、EMA10496次更新及AMP scaler完整。
+  权重及优化器有限，last.pt SHA256为
+  `19c2aa987aa21465190c86e9f48a6b005006679501d7769265d19741e5fe6160`。
+  21个原始文件复制并逐项核对，保存在
+  `outputs/paper1_p1_formal100_s1_recovery_20261102/`，不覆盖原日志/状态/回执。
+- 新增独立入口`scripts/resume_paper1_p1_seed1.py`及
+  `paper/paper1_p1_seed1_recovery.md`，原训练源码、入口和冻结协议均不改。
+  显式传P1Trainer及原soft_weights/uncertain_ignore，禁止退回通用训练器。
+  实际续训只允许model/resume记账变化，单次入口默认拒绝重复恢复。
+- 已用真实检查点副本完成初始化后立即停止的验证，训练批次及优化器步骤均0：
+  start_epoch55/总100、scheduler54、255项优化器逐张量及参数组一致、
+  EMA权重/更新次数与AMP恢复一致，P1类型和选项正确，21个原始文件未变。
+  回执为归档`engineering_verified/check.json`。
+  首次副本验证因隔离目录派生name不同而拒绝，证据保留；
+  仅副本核对name/save_dir为隔离路径，不放宽真实续训参数。
+- 用户在独立Git Bash执行`python scripts/resume_paper1_p1_seed1.py --check-only`，
+  通过后执行`python -u scripts/resume_paper1_p1_seed1.py --resume`。
+  从第56轮重算，仅补45轮至原100轮，不由助手启动；按原速度约3.1小时，
+  含验证预留3.5–4小时。续训写resume前缀日志/回执，原退出码不补写为0。
+- 完整结束后用独立恢复入口`--audit`，验证原55轮CSV字节前缀及连续100轮、
+  原来源/实际args/548原图val960与recall预测重放、真实恢复exit0和工作停止；
+  计时为13602.5秒加恢复段，重验同seed1 B2及两seed正式100轮配对。
+  披露seed0 B2和seed1 P1分别恢复，不承诺逐位连续等价。
+  临时监控p1-1在准备期间暂停，交接后改为等待resume回执再观察，
+  无回执不自动启动；终态处理后删除，不自动重试/扩训或恢复持久研究目标。
+- 验证：完整`python -m pytest -q`的179项通过（含12项新恢复检查）；
+  原论文表137来源/8组recall检查及`git diff --check`通过。
+  交接源码/说明提交后再实际执行新入口`--check-only`，
+  核对全部37803冻结来源和同seed1 B2，不执行训练。
+
 ## 4. 固定实验协议
 
 ### 4.1 训练与评估
@@ -1826,6 +1864,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-11-01 23:18（B2学生seed1正式100轮验收） | 本次中文提交并push | 唯一B2完整结束后独立验收，更新论文/证据及用户P1命令 | 第3.57节；paper/b2_seed1_full100_results.md；outputs/paper1_b2_formal100_s1/independent_audit.json | exit0、原两进程停止、连续100轮、37803来源/实际args/548图预测重放通过；AP50-95=25.6683%、small=39.3611%（10461）；P1只读37803来源预检exit0且无输出 | B2不重训；仅提醒用户运行同seed1 P1，预留7–8小时；终态删除b2-1，不自动启动训练或恢复目标；单臂不认定方法收益 |
 
 | 2026-11-02 09:55（P1学生seed1临时监控） | 本次中文提交并push | 核实用户既有P1包装/训练进程身份、父子关系及首轮日志，创建15分钟临时心跳p1-1 | 第3.58节；outputs/paper1_p1_formal100_s1/monitor_initial_check_20261102.json | 包装4692/训练45248身份一致且存活；首轮197/1414批、stderr为空，尚无完整epoch | 正常训练静默；完整终态后独立验收同seed及两seed正式100轮结果并盘点下一步，提交push后删除监控；失败不重试，不自动扩训或恢复目标 |
+
+| 2026-11-02（P1学生seed1中断恢复准备） | 本次中文提交并push | 核实VS Code崩溃后训练在第56轮KeyboardInterrupt、原两进程停止，归档21文件；新增独立P1恢复/验收入口，剩余45轮由用户启动 | 第3.59节；paper/paper1_p1_seed1_recovery.md；outputs/paper1_p1_formal100_s1_recovery_20261102/engineering_verified/check.json | 连续1–55轮/13602.5秒、last.pt epoch54、原退出码未知；零批次零步骤验证P1及255优化器/EMA/AMP/调度恢复、原证据未变；179tests/原表/差异检查通过 | 提交后实际check-only，交接从第56轮续到100轮；监控改resume路径，完成后独立验收同seed和两seed正式配对，不自动开训或扩训 |
 
 ### 10.1 新会话开始流程
 

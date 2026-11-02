@@ -749,21 +749,28 @@ python scripts/run_paper1_full100.py --arm p1 --audit
 学生seed1的B2已于2026-11-01 23:04:51正常结束并独立验收通过：
 mAP50-95=25.6683%、small recall=39.3611%（10461/26577）。
 见[学生seed1 B2结果](docs/paper/b2_seed1_full100_results.md)；不要重复训练B2。
-下一步仅运行同seed1的P1检查重复性，大训练由用户启动，预留约7–8小时。
+同seed1的P1已于2026-11-02启动，13:43:11在第56轮中断。
+连续1–55轮及优化器/EMA/AMP检查点已保留，原退出码未知；
+当前改用独立恢复入口，只补第56–100轮，由用户启动，含评估预留约3.5–4小时。
 在已激活`yolo`的Git Bash执行：
 
 ```bash
 cd /d/Python/YOLO-RegionSSOD
 # B2已完成，仅需复核时使用：
 python scripts/run_paper1_seed1_full100.py --arm b2 --audit
-python scripts/run_paper1_seed1_full100.py --arm p1 --check-only
-python -u scripts/run_paper1_seed1_full100.py --arm p1 --train
+python scripts/resume_paper1_p1_seed1.py --check-only
+python -u scripts/resume_paper1_p1_seed1.py --resume
 ```
 
 这次仅改学生seed/输出名，不延长seed0、换教师或增加模块。
-日志为`outputs/paper1_{b2,p1}_formal100_s1/stdout.log`，
-可用`tail -n 20 -F`观察当前臂。完整路径、预算及验收见
-[seed1确认协议](docs/paper/paper1_seed1_full100_protocol.md)。
+续训日志为`outputs/paper1_p1_formal100_s1/resume_stdout.log`，
+可用`tail -n 20 -F`观察；续训后独立验收用
+`python scripts/resume_paper1_p1_seed1.py --audit`。
+不要重新执行原P1的`--train`或用通用YOLO训练器恢复。
+原日志/回执及55轮检查点归档保留；恢复不承诺逐位连续等价。
+建议单独打开Git Bash运行。完整证据与命令见
+[P1种子1恢复说明](docs/paper/paper1_p1_seed1_recovery.md)，
+原[seed1确认协议](docs/paper/paper1_seed1_full100_protocol.md)保持冻结。
 
 ## Baseline 定义
 

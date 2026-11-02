@@ -788,6 +788,31 @@ mAP50/50-95=42.5503%/25.6683%，small/medium/large recall=
 完整证据见`paper/b2_seed1_full100_results.md`；当前只交接同seed1 P1，
 不能用单臂或跨seed结果认定P1收益，不跨30/100轮混合统计。
 
+### 4.23 P1学生seed1在55轮后的显式恢复（2026-11-02）
+
+第4.21节P1启动命令已执行，13:43:11在第56轮KeyboardInterrupt后停止。
+CSV连续1–55轮、last.pt epoch54，优化器255项/EMA/AMP状态完整；
+原退出码未知，21个文件及冻结源码已复制并核对哈希，见
+`paper/paper1_p1_seed1_recovery.md`。VS Code窗口oom不足以认定整机64GB
+内存耗尽；崩溃后测量仍有约34.27GiB可用，不能反推崩溃瞬间占用。
+
+独立恢复入口显式使用P1Trainer、保留原方法和超参。
+真实检查点副本零批次/零优化器步骤验证通过，原证据不变。
+用户从独立Git Bash、已激活yolo、仓库根目录执行：
+
+```bash
+python scripts/resume_paper1_p1_seed1.py --check-only
+python -u scripts/resume_paper1_p1_seed1.py --resume
+```
+
+只补第56–100轮45轮；按原55轮平均速度，学生训练约3.1小时，
+含评估预留3.5–4小时，实际随负载变化。日志为
+`outputs/paper1_p1_formal100_s1/resume_stdout.log`，启动后才创建。
+完成后使用`python scripts/resume_paper1_p1_seed1.py --audit`，
+原P1 `--audit`按未中断协议，不能用于本次恢复结果。
+同seed1配对、两seed正式100轮统计均披露seed0 B2和seed1 P1的恢复，
+不与旧30轮混合；完整结束前不作最终性能判断。
+
 ## 5. 对照规则
 
 - B1 与 B2 必须从同一 `yolo11s.pt` 初始化。
