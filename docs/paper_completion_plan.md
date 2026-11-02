@@ -1561,8 +1561,12 @@ P1 的 30 epoch 训练、完整原图 val960 和固定操作点小目标 recall 
   无回执不自动启动；终态处理后删除，不自动重试/扩训或恢复持久研究目标。
 - 验证：完整`python -m pytest -q`的179项通过（含12项新恢复检查）；
   原论文表137来源/8组recall检查及`git diff --check`通过。
-  交接源码/说明提交后再实际执行新入口`--check-only`，
-  核对全部37803冻结来源和同seed1 B2，不执行训练。
+  交接源码/说明在`e54eb61`中文提交并push后，14:01实际执行新入口`--check-only`，
+  exit0、stderr空、全部37803冻结来源和同seed1 B2通过，
+  未创建resume/评估输出，不执行训练；归档回执`handoff_check.json`。
+  临时监控p1-1已更新为恢复入口/回执并启用，等待用户启动后静默核实。
+  VS Code本地main.log确认13:42:45.872为renderer process gone/oom，
+  补充证据为归档`window_crash_evidence.json`，不据此推定整机内存峰值。
 
 ## 4. 固定实验协议
 
@@ -1865,7 +1869,7 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 
 | 2026-11-02 09:55（P1学生seed1临时监控） | 本次中文提交并push | 核实用户既有P1包装/训练进程身份、父子关系及首轮日志，创建15分钟临时心跳p1-1 | 第3.58节；outputs/paper1_p1_formal100_s1/monitor_initial_check_20261102.json | 包装4692/训练45248身份一致且存活；首轮197/1414批、stderr为空，尚无完整epoch | 正常训练静默；完整终态后独立验收同seed及两seed正式100轮结果并盘点下一步，提交push后删除监控；失败不重试，不自动扩训或恢复目标 |
 
-| 2026-11-02（P1学生seed1中断恢复准备） | 本次中文提交并push | 核实VS Code崩溃后训练在第56轮KeyboardInterrupt、原两进程停止，归档21文件；新增独立P1恢复/验收入口，剩余45轮由用户启动 | 第3.59节；paper/paper1_p1_seed1_recovery.md；outputs/paper1_p1_formal100_s1_recovery_20261102/engineering_verified/check.json | 连续1–55轮/13602.5秒、last.pt epoch54、原退出码未知；零批次零步骤验证P1及255优化器/EMA/AMP/调度恢复、原证据未变；179tests/原表/差异检查通过 | 提交后实际check-only，交接从第56轮续到100轮；监控改resume路径，完成后独立验收同seed和两seed正式配对，不自动开训或扩训 |
+| 2026-11-02 14:01（P1学生seed1恢复交接） | `e54eb61`及本次中文记录，均push | 核实VS Code渲染进程oom后训练在第56轮KeyboardInterrupt、原两进程停止，归档21文件；新增独立P1恢复/验收入口，剩余45轮由用户启动 | 第3.59节；paper/paper1_p1_seed1_recovery.md；outputs/paper1_p1_formal100_s1_recovery_20261102/{engineering_verified/check,handoff_check}.json | 连续1–55轮/13602.5秒、last.pt epoch54、原退出码未知；零批次零步骤验证P1及255优化器/EMA/AMP/调度恢复、原证据未变；179tests/原表/差异检查及实际37803来源check-only exit0通过 | 等用户从第56轮续到100轮；p1-1已更新并启用，等待resume回执；完成后独立验收同seed和两seed正式配对，不自动开训或扩训 |
 
 ### 10.1 新会话开始流程
 
