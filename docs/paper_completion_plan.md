@@ -5,7 +5,7 @@
 > 最新补证据：分类软权重全量30epoch消融已完成独立验收；去软权重mAP50-95−0.1623pp、small recall+0.9143pp，未达到扩大训练条件；表4-S5/实验4.14已同步，当前不扩训。<br>
 > 最新安排：原P1/B2学生seed0正式100轮均完成独立验收；P1于2026-11-01 16:17:55真实exit0。P1−B2的mAP50-95+0.0528pp、small recall+2.1259pp（净+565），未匹配预测+1221、F1+0.1800pp。值得补一次学生seed1同100轮配对，由用户启动；不延长seed0或叠加模块。详见第3.55节；未自动恢复持续目标。<br>
 > 当前阶段：正式100轮seed0和原30轮两学生seed证据分开报告；原30轮平均配对增益为mAP50-95 +0.2893pp、small recall +1.7854pp，不与100轮混合统计。原 Gate 3 不变；正式结果见paper/p1_b2_full100_results.md，重复计划见paper/paper1_seed1_full100_protocol.md。<br>
-> 运行更新：B2学生seed1正式100轮已于2026-11-01 23:04:51真实exit0，23:18独立验收通过；AP50-95=25.6683%、small recall=39.3611%。P1只读预检37803来源通过，尚未启动，由用户运行；临时监控b2-1在本次终态收尾后删除。详见第3.57节。<br>
+> 运行更新：B2学生seed1正式100轮已验收，临时监控b2-1已删除。用户于2026-11-02启动P1学生seed1正式100轮，工作进程09:54:10开始、首轮正常推进；临时监控p1-1每15分钟检查，正常训练静默，完成后独立验收同seed配对及两seed正式统计。详见第3.57–3.58节。<br>
 > 论文暂定题目：**面向高分辨率航拍图像的区域局部标注小目标半监督检测方法**  
 > 仓库：`D:\Python\YOLO-RegionSSOD`  
 > 计划起点：2026-10-26，可按实际启动日期整体平移
@@ -74,7 +74,7 @@ P1 尺度感知伪标签与 uncertain-ignore 是否带来稳定收益。
 | 尺度阈值全量确认 | 30 epoch、val960、固定操作点 recall 及独立验收完成；统一 0.50 相对完整 P1 的 mAP50-95 −0.6177 pp、small recall −0.3424 pp，逐类 1 升/9 降 | `outputs/p1_global_t050_pilot30_s0/{comparison,acceptance_audit}.json`；表 4-S2；第 3.18 节 | 全量结果支持尺度分层阈值更有利于总体检测和小目标覆盖；仍为单 split/seed，不扩写为跨 seed 稳定性 |
 | 尺度阈值配对学生 seed | seed1 两组各 30 epoch、完整 val960 和预测重放完成；尺度分层相对统一 0.50 的 mAP50-95 +0.2420 pp、small recall +0.6434 pp，与 seed0 两项同向 | `outputs/p1_scale_threshold_pair_s1/{comparison,acceptance_audit,independent_audit}.json`；表 4-S3；第 3.19 节 | 保留尺度分层；单 split/固定教师下两学生 seed 的平均配对增益为 +0.4299/+0.4929 pp，不作显著性或跨 split 主张 |
 | 正式 5/10/20% 数据 | 10% seed0 已生成；20 图同 seed 检查通过；5%/20% 未生成 | `data/visdrone_area10/summary.json`、`audit.json` | 生成 5%/20% split |
-| 正式 100 epoch 主矩阵 | B1/B2/P1 seed0及B2 seed1完成；seed1 P1待用户启动 | 第3.54–3.57节；各臂independent_audit.json | 仅剩同seed1 P1正式100轮，配对完成后盘点取舍并优先收束稿件 |
+| 正式 100 epoch 主矩阵 | B1/B2/P1 seed0及B2 seed1完成；seed1 P1已由用户启动，尚未完成 | 第3.54–3.58节；各臂independent_audit.json及P1启动回执 | 静默观察既有P1，完整结束后验收配对、盘点取舍及必要训练缺口，优先收束稿件 |
 | 论文正文 | 第1–4章、两seed统计/案例，以及表4-S5/实验4.14软权重全量消融已同步；原seed0主表保留 | `docs/paper/{experiments,results_tables,evidence,case_studies}.md`；第3.20、3.26节 | 正式矩阵与最终排版仍待补，后续先选一个低成本问题，不自动扩训 |
 | 文章与树莓派部署规划 | 用户新增三篇文章目标及最终树莓派部署要求；论文按录用、专利按“申请通过”，硬件与学校节点待确认 | `docs/publication_and_edge_deployment_plan.md`；第 3.21 节 | 先 A 方法稿、C 轻量化/部署稿，再扩展 B 可靠补全稿；树莓派先做导出与板端基线，均未启动 |
 | 第一篇实验缺口 | 已完成零训练漏检归因；6,471 tile/38,245 hidden GT 精确重放，按低成本列出 L0→L1→L2 | `docs/paper1_experiment_gaps.md`；`scripts/audit_paper1_gaps.py`；第 3.22 节 | 先做 ignore 可恢复增量与 NMS/max-det 候选覆盖小试；未过线不启动训练 |
@@ -1503,6 +1503,29 @@ P1 的 30 epoch 训练、完整原图 val960 和固定操作点小目标 recall 
   不代启动P1、不重试B2、不自动恢复持久研究目标。
   P1完成后才更新同seed配对与两seed正式100轮统计，原Gate3及30轮证据保持。
 
+### 3.58 P1学生seed1启动核实与临时监控（2026-11-02）
+
+- 用户手动执行`python -u scripts/run_paper1_seed1_full100.py --arm p1 --train`。
+  包装PID4692，创建时间09:53:19.249228；训练PID45248，
+  创建时间09:54:10.710917。09:54:59核对两者创建时间/命令、父子关系及存活状态，
+  工作命令与launch_receipt一致；status=training，stdout已推进至首轮197/1414批，
+  stderr为空。首轮尚无CSV，不据此判失败或效果。
+- 初始核实保存于`outputs/paper1_p1_formal100_s1/monitor_initial_check_20261102.json`，
+  原日志/回执及训练目录保持不变；未启动新训练、重启或修改冻结来源。
+  按用户请求创建临时心跳`p1-1`，每15分钟核实进程身份、CSV/日志和真实退出码，
+  正常推进保持安静；只在完成、失败、显著异常或需要用户操作时通知。
+- 完整100轮之后仍须等待548原图val960/recall及包装真实退出。
+  正常exit0后用yolo环境执行
+  `python scripts/run_paper1_seed1_full100.py --arm p1 --audit`，
+  核对来源/实际args/产物/预测重放及同seed1 B2；
+  核对paired_comparison和仅含正式100轮的two_seed_comparison。
+  不能跨seed拼配或与30轮混合统计，固定点召回不称官方AP_small。
+- 终态后将AP、尺寸/匹配、类别退化、缓存可核实的误检/F1、成本和后续投入判断
+  写入论文/证据及第10节，中文提交并push，再删除`p1-1`。
+  失败/中断保留证据、未知退出码如实记录、不自动重试；
+  不启动后续训练、不自动恢复或替换已暂停/清除的持续研究目标。
+  本次仅建立观察和交接记录，不更改训练源码/协议或判断方法效果。
+
 ## 4. 固定实验协议
 
 ### 4.1 训练与评估
@@ -1801,6 +1824,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-11-01（P1/B2正式100轮配对验收） | `e62e456`及本次中文收尾提交，均push | 双方完整100轮/548原图val960/实际args/冻结来源及预测重放通过；新增逐目标/误检/类别/操作点只读盘点及学生seed1隔离入口 | 第3.55节；paper/p1_b2_full100_results.md；outputs/paper1_full100_effects_s0/analysis.json | P1−B2：AP50-95+0.0528pp、small+2.1259pp（净+565），未匹配预测+1221、F1+0.1800pp，类别7升3降，学生耗时+13.49%；167tests、24表格行/557分析来源通过 | 值得用户补学生seed1两臂各100轮；实际两臂各37803来源预检exit0，无新训练/推理或输出；不延长seed0/叠模块，完成后优先收束 |
 | 2026-11-01 17:47（B2学生seed1临时监控） | 本次中文提交并push | 核实用户既有B2训练包装/工作PID及创建时间/命令，创建15分钟临时心跳b2-1 | 第3.56节；outputs/paper1_b2_formal100_s1/monitor_initial_check_20261101.json | 包装10476/训练31640存活，第1轮批次增长、stderr为空；无完整epoch，不判效果 | 正常进度静默；终态独立验收、记录并提醒用户运行P1；失败不重试；收尾删除监控，不自动启动P1 |
 | 2026-11-01 23:18（B2学生seed1正式100轮验收） | 本次中文提交并push | 唯一B2完整结束后独立验收，更新论文/证据及用户P1命令 | 第3.57节；paper/b2_seed1_full100_results.md；outputs/paper1_b2_formal100_s1/independent_audit.json | exit0、原两进程停止、连续100轮、37803来源/实际args/548图预测重放通过；AP50-95=25.6683%、small=39.3611%（10461）；P1只读37803来源预检exit0且无输出 | B2不重训；仅提醒用户运行同seed1 P1，预留7–8小时；终态删除b2-1，不自动启动训练或恢复目标；单臂不认定方法收益 |
+
+| 2026-11-02 09:55（P1学生seed1临时监控） | 本次中文提交并push | 核实用户既有P1包装/训练进程身份、父子关系及首轮日志，创建15分钟临时心跳p1-1 | 第3.58节；outputs/paper1_p1_formal100_s1/monitor_initial_check_20261102.json | 包装4692/训练45248身份一致且存活；首轮197/1414批、stderr为空，尚无完整epoch | 正常训练静默；完整终态后独立验收同seed及两seed正式100轮结果并盘点下一步，提交push后删除监控；失败不重试，不自动扩训或恢复目标 |
 
 ### 10.1 新会话开始流程
 
