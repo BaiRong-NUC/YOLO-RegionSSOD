@@ -1,5 +1,13 @@
 # YOLO-RegionSSOD
 
+第一篇整理入口：[正文1–6章](docs/paper/README.md)、
+[现有成果与证据地图](docs/paper/paper1_writeup_plan.md)、
+[代码/旧改进点/新候选分轨](docs/paper/research_tracks.md)。
+原P1已建立[Git保存点与本地产物副本](docs/paper/preservation.md)。
+新候选按“P1＋类别歧义分类监督”独立规划，当前尚未实现或训练，不替换原结果。
+在已有yolo环境可用`python scripts/preserve_paper1.py --audit`只读复核副本；
+当前两seed正式100轮已完成，下文历史训练命令不是待执行队列。
+
 面向高分辨率航拍图像的区域局部标注小目标半监督检测实验仓库。
 
 本仓库对应一个明确的论文问题：每张高分辨率图像只标注少量区域，未标注区域
@@ -24,13 +32,14 @@ small recall，但不是P1独有优势，预先继续线未通过。故当前不
 只读复核（在已有`yolo`环境、仓库根目录；已有预测时不要再次推理）：
 
 ```bash
-python scripts/evaluate_paper1_small_pr.py --audit
+python scripts/audit_paper1_frozen.py --stage all
 python scripts/build_small_pr_results.py --check
-python scripts/diagnose_paper1_high_precision.py --audit
 python scripts/diagnose_paper1_high_precision.py --check-doc
-python scripts/evaluate_scaled_operating_point.py --audit
 python scripts/evaluate_scaled_operating_point.py --check-doc
 ```
+
+新复核回执自动写到`outputs/paper1_reaudits/<时间戳>/`，历史验收回执保持原字节；
+旧脚本直接`--audit`会改写回执时间戳，不再作为当前推荐入口。
 
 缓存、原图预测及PNG/PDF/SVG在忽略目录
 `outputs/paper1_small_pr_20261102/bound_v2/`；[协议](docs/paper/small_pr_protocol.md)

@@ -1,5 +1,25 @@
 # RegionSSOD 论文初稿
 
+## 当前阅读入口（2026-11-02整理）
+
+本次将正式100轮结果放到正文主线，并保留旧实验文件与所有正负结果。
+按顺序阅读：[1 引言](introduction.md) → [2 相关工作](related_work.md) →
+[3 方法](methods.md) → [4 正式结果](main_results.md) →
+[5 讨论](discussion.md) → [6 结论](conclusion.md) → [参考文献](references.md)。
+当前是有证据支撑的中文正文初稿，摘要、最终格式、引用统一和投稿缺口仍待处理。
+
+| 管理入口 | 用途 |
+|---|---|
+| [结构与证据地图](paper1_writeup_plan.md) | 当前可写的主张、全部关键正负指标、图表安排与证据缺口 |
+| [成果保存点](preservation.md) | 原P1 Git基点、本地4.20 GiB产物副本、哈希及只读复核 |
+| [代码与改进点分轨](research_tracks.md) | 原P1、旧消融、评估工具、未实现候选分别定位 |
+| [P1＋类别歧义候选](candidates/class_ambiguity/README.md) | 在原成果上叠加一项分类监督变化的设计边界；当前不训练 |
+| [文献与Zotero地图](literature_map.md) | 主线/候选的文献职责、MCP检索与集合核对、阅读范围 |
+| [本轮验收与待办](organization_validation.md) | 208项测试、数值复核、回执恢复、缩写检查及文稿待完成项 |
+
+以下为按时间保留的实验说明；旧`experiments.md`和`results_tables.md`包含原30轮矩阵，
+不把它们当作100轮主结果。新候选无效也不影响原P1主线继续写作。
+
 本目录保存基于已验收 B1、B2、P1 结果整理的中文论文初稿。
 2026-11-01完成B2/P1正式100轮seed0配对：P1的mAP50-95提高0.0528pp，
 小目标recall提高2.1259pp（净多565个），伴随未匹配预测增加1221个。

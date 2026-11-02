@@ -1,5 +1,21 @@
 # Baseline 执行协议
 
+## 成果保存与候选隔离（2026-11-02）
+
+原P1主线、旧消融和新增评估工具见[分轨索引](paper/research_tracks.md)；
+正文主结果见[正式100轮整理版](paper/main_results.md)。
+`paper1-p1-preserved-20261102`保存原代码基点，实验大文件另有本地独立副本，
+范围及哈希见[保存说明](paper/preservation.md)。
+
+```powershell
+python scripts/preserve_paper1.py --audit
+```
+
+只核对历史归档，不训练、不写回原结果。`--create`已执行，默认目录拒绝重复覆盖。
+新[类别歧义候选](paper/candidates/class_ambiguity/README.md)以原P1为对照，
+保留尺度阈值、原c分类软权重和ignore，仅计划增加一个分类监督变量。
+提取器/损失/runner尚未实现，因此当前不提供可执行训练命令，也不重跑既有100轮。
+
 ## 当前只读补评估入口（2026-11-02）
 
 两学生seed的B2/P1正式100轮均已完成，勿重复训练或恢复。新补证据只读取四个冻结
@@ -7,15 +23,16 @@ best.pt，在548完整原图val960保存conf≥0.001预测，再计算COCO-style
 完整PR和全尺寸precision约束下small recall；不修改权重或训练策略。
 
 ```bash
-python scripts/evaluate_paper1_small_pr.py --audit
+python scripts/audit_paper1_frozen.py --stage all
 python scripts/build_small_pr_results.py --check
-python scripts/diagnose_paper1_high_precision.py --audit
 python scripts/diagnose_paper1_high_precision.py --check-doc
-python scripts/evaluate_scaled_operating_point.py --audit
 python scripts/evaluate_scaled_operating_point.py --check-doc
 ```
 
-这两条为现有缓存审计和文档核对，不进行新推理/训练。生成入口、环境与固定参数见
+复核入口将新回执写入`outputs/paper1_reaudits/<时间戳>/`，不改写原验收回执；
+旧脚本的直接`--audit`仍保留历史行为，不推荐在冻结结果上直接调用。
+
+以上命令为现有缓存审计和文档核对，不进行新推理/训练。生成入口、环境与固定参数见
 [补评估协议](paper/small_pr_protocol.md)，实际全部结果见[补评估结果](paper/small_pr_results.md)。
 现有预测目录拒绝`--predict`重复执行；`--analyze`只重放缓存。
 高精度退化诊断和尺度条件跨拟合都只读上述缓存，不新推理/训练；协议分别见

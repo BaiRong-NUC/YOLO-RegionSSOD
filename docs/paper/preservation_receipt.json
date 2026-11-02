@@ -1,0 +1,14 @@
+{
+  "accepted": true,
+  "files": 58707,
+  "bytes": 4507658156,
+  "source_commit": "c1ecf6c284ad51f97474f62bdf654d87b2cfd6ff",
+  "manifest_sha256": "2f79cf0e82997813d84a282048d291c8d639438a3d442066e1a37eabaea08392",
+  "archives": {
+    "evidence.zip": "068c2328ceea1379da7f9682e2b114ee09f16cbcd003f9b4ac4f894f963b4148",
+    "source.zip": "40711fcbc38390bdc74764650a71e5eef5ef43116ce5b328b74b7ad3c49be5cf"
+  },
+  "originals_compared": true,
+  "archive_directory": "outputs/paper1_preservation/20261102_baseline",
+  "git_tag": "paper1-p1-preserved-20261102"
+}
