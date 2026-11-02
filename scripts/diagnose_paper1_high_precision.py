@@ -413,10 +413,17 @@ def plot_result(result):
 
 
 def run():
-    if (OUT / "manifest.json").exists():
+    if (OUT / "diagnosis.json").exists() or any((OUT / f"arrays_{key}.npz").exists() for key in base.KEYS):
         raise FileExistsError("existing diagnostic; use --audit instead of overwriting")
-    manifest = input_manifest()
-    base.write(OUT / "manifest.json", manifest)
+    if (OUT / "manifest.json").exists():
+        manifest = base.read(OUT / "manifest.json")
+        base.verify_hashes(manifest["input_sha256"])
+        expected = input_manifest()["input_sha256"]
+        if manifest["input_sha256"] != expected:
+            raise ValueError("failed-attempt manifest does not match current frozen inputs")
+    else:
+        manifest = input_manifest()
+        base.write(OUT / "manifest.json", manifest)
     result = compute(True)
     result = json_ready(result)
     base.write(OUT / "diagnosis.json", result)

@@ -108,3 +108,6 @@ python scripts/diagnose_paper1_high_precision.py --audit
 ```
 
 只读旧缓存；新输出已存在时`--run`拒绝覆盖，`--audit`只重放诊断，不新推理。
+实现补记：若`--run`在写出最终`diagnosis.json`前因保存/渲染工程错误退出，可归档该次
+`failure/stdout/exit`后，在输入manifest哈希完全一致且不存在最终`diagnosis.json`时重跑；
+最终结果一旦写出，`--run`始终拒绝覆盖。此次工程失败没有改变科学设定，也不属于按结果重跑。
