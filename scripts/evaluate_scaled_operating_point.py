@@ -238,7 +238,8 @@ def plot(result):
     axes[0].set_title("Scale policy improvement over global policy")
     axes[0].legend(fontsize=8)
     axes[0].grid(alpha=.25)
-    labels = ["B2 global", "B2 scale", "P1 global", "P1 scale"]
+    labels = [f"seed{seed} {arm.upper()} {policy}" for seed in (0, 1)
+              for arm in ("b2", "p1") for policy in ("global", "scale")]
     means, errors = [], []
     for seed in (0, 1):
         for arm in ("b2", "p1"):
@@ -247,7 +248,7 @@ def plot(result):
                 means.append(100 * summary["mean"])
                 errors.append(100 * summary["sample_sd"])
     x = np.arange(len(labels))
-    colors = ["#56B4E9", "#0072B2", "#E69F00", "#D55E00"]
+    colors = ["#56B4E9", "#0072B2", "#E69F00", "#D55E00"] * 2
     axes[1].bar(x, means, yerr=errors, capsize=3, color=colors)
     axes[1].set_xticks(x, labels, rotation=25, ha="right")
     axes[1].set_ylabel("Small recall / %")
@@ -301,14 +302,24 @@ def audit():
     print("Accepted exact cross-fit replay;0 inference,0 training.", flush=True)
 
 
+def render():
+    result = base.read(OUT / "crossfit.json")
+    plot(result)
+    paths = [OUT / name for name in ("crossfit.json", "fold_results.csv")]
+    paths += [OUT / f"scale_operating_point.{ext}" for ext in ("png", "pdf", "svg")]
+    base.write(OUT / "artifact_sha256.json", {str(path): base.digest(path) for path in paths})
+    base.write(OUT / "status.json", {"stage": "rendered", "at": now(), "inference": 0, "training_steps": 0})
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--run", action="store_true")
     group.add_argument("--audit", action="store_true")
+    group.add_argument("--render", action="store_true")
     args = parser.parse_args()
     try:
-        run() if args.run else audit()
+        run() if args.run else render() if args.render else audit()
     except Exception:
         base.write(OUT / "failure.json", {"at": now(), "traceback": traceback.format_exc()})
         raise
