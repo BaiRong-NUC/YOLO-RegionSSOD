@@ -6,7 +6,26 @@
 不能被视为纯背景。目标是复用 VisDrone、YOLO11 和航拍小目标经验，在单张
 RTX 4070 Ti 12 GB 上完成毕业/中文核心所需的完整实验。
 
-当前状态（2026-10-30）：B2/P1 固定 split/教师、学生 seed0/1 的独立 30 epoch
+当前状态（2026-11-02）：B2/P1在固定split0/教师下的两学生seed、各100轮均已验收。
+正式Ultralytics配对均值为mAP50-95 +0.1939pp、固定点small recall +2.2726pp。
+新增冻结权重的[AP_small、完整PR与等精度召回补评估](docs/paper/small_pr_results.md)，
+不启动新训练：COCO-style AP_small两seed方向不同；IoU0.50、precision≥70%时
+small recall平均+0.7036pp，precision≥90%时平均−0.2032pp。完整正负结果均保留，
+COCO-style指标不冒充VisDrone官方AP，原Gate3/4不追认为通过。
+本轮文献与Zotero归档见[机制线索](docs/paper/small_pr_literature.md)。
+
+只读复核（在已有`yolo`环境、仓库根目录；已有预测时不要再次推理）：
+
+```bash
+python scripts/evaluate_paper1_small_pr.py --audit
+python scripts/build_small_pr_results.py --check
+```
+
+缓存、原图预测及PNG/PDF/SVG在忽略目录
+`outputs/paper1_small_pr_20261102/bound_v2/`；[协议](docs/paper/small_pr_protocol.md)
+固定低分端、NMS/max_det和precision网格，区分validator与旧predict的缩放/匹配口径。
+
+历史30轮记录（2026-10-30）：B2/P1 固定 split/教师、学生 seed0/1 的独立 30 epoch
 配对复验已完成验收。P1 相对 B2 的 mAP50-95 两 seed 均提高，平均配对增益为
 **+0.2893±0.0644 个百分点**；small recall 为 **+1.7854±0.1304 个百分点**
 （样本 SD，ddof=1）。seed1 分别提高 0.2438/1.6932 个百分点，多匹配 450 个

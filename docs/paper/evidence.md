@@ -399,3 +399,25 @@ NMS IoU=0.70、max_det=500。自动与独立记录为
 - 保留seed0 B2和seed1 P1恢复事实、原未知退出码及所有负向探索。
   同split/教师两学生seed不支持显著性、跨split泛化、官方AP_small或首次机制主张。
   原Gate3/4不追认为通过；建议收束本轮主线训练、优先写作，必要论文缺口另行排序。
+
+
+## 冻结权重AP_small/完整PR/等精度补评估（2026-11-02）
+
+- 协议`small_pr_protocol.md`，全部数字表`small_pr_results.md`，生成核对脚本
+  `scripts/build_small_pr_results.py --check`；实验4.22与原30/100轮结果分开口径。
+- 正式输出`outputs/paper1_small_pr_20261102/bound_v2/`：`manifest.json`冻结四权重、
+  图像/标签、原独立验收/原产物清单、指标和实现/协议；每臂`inference.json`绑定
+  模型键、权重/manifest/GT/预测SHA256，`capture_complete.json`冻结回执身份。
+- 四臂各548图conf≥0.001，960/batch8/FP32/NMS0.70/max_det500，原Ultralytics
+  mAP50/50-95均精确重放。新原图预测、COCO/阈值NPZ、五档CSV、PNG/PDF/SVG完整保留。
+  旧predict与新validator固定点计数差异明确列出，不覆盖旧结果。
+- `--audit`只重放缓存，验证输入/产物哈希及全部AP/PR/等精度比较；不做新推理或训练。
+  首次数据配置解析工程失败、未绑定第一版及其日志保留在父目录；代码复核后bound_v2
+  用相同设置重建绑定，四臂原始预测与第一版字节哈希均相同，不是择优重跑。
+- AP_small两seed−0.2460/+0.6129pp；IoU0.50、precision≥70%时small增益
+  +0.6622/+0.7450pp，90%时−0.2446/−0.1618pp。所有档位与负向类别均报告。
+  COCO-style不是VisDrone官方AP；SD不是CI，两个学生seed不代表多split/教师。
+- 文献使用`small_pr_literature.md`，MCP检索/Zotero回执位于父目录
+  `literature_search_receipts.json`。Research / YOLO-RegionSSOD=`BMQTT9Y7`，新增STOD
+  `HBL9PADC`；复用`KV74E49Y/RQIKGRP9/K3VYDTZE/R6AMZBIU`。4篇有PDF，STOD仅摘要，
+  五篇均记录机器阅读范围，没有人类已读声明。本轮新方向仍为假设，无新训练效果。

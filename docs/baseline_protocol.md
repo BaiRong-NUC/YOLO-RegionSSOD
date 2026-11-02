@@ -1,5 +1,23 @@
 # Baseline 执行协议
 
+## 当前只读补评估入口（2026-11-02）
+
+两学生seed的B2/P1正式100轮均已完成，勿重复训练或恢复。新补证据只读取四个冻结
+best.pt，在548完整原图val960保存conf≥0.001预测，再计算COCO-style AP_small、
+完整PR和全尺寸precision约束下small recall；不修改权重或训练策略。
+
+```bash
+python scripts/evaluate_paper1_small_pr.py --audit
+python scripts/build_small_pr_results.py --check
+```
+
+这两条为现有缓存审计和文档核对，不进行新推理/训练。生成入口、环境与固定参数见
+[补评估协议](paper/small_pr_protocol.md)，实际全部结果见[补评估结果](paper/small_pr_results.md)。
+现有预测目录拒绝`--predict`重复执行；`--analyze`只重放缓存。
+新增结果表由独立生成器核对，不计入原`build_paper_tables.py --check`的137来源/8组recall。
+COCO-style AP、Ultralytics mAP和VisDrone官方指标分开报告；新旧predict/validator固定点
+计数也不混合。以下原始训练命令保留作协议记录，不是当前待执行训练队列。
+
 本文的 `powershell` 命令块适用于 PowerShell。Git Bash（提示包含 `MINGW64`）
 需要先按 `README.md` 的环境章节加载 `/d/MiniConda/etc/profile.d/conda.sh` 并激活
 `yolo`；使用 `cd /d/Python/YOLO-RegionSSOD` 切换目录，参数路径使用正斜杠。
