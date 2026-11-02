@@ -28,6 +28,22 @@ RTX 4070 Ti 12 GB 上完成毕业/中文核心所需的完整实验。
 即可通知助手验收。当前查看地址保存在 `outputs/p1_monitor/server.json`；
 查看器只读取现有日志与产物，关闭页面不影响训练。
 
+## 项目级科研 Skill
+
+本项目在 `.agents/skills/academic-research-suite/` 安装 ARS-Codex 3.24.0，
+来源为 `Imbad0202/academic-research-skills-codex`，固定上游提交
+`a1556557887f345aac99bdc6027e008e91fef236`。Codex 从项目目录加载该技能；
+下一轮对话可使用 `$academic-research-suite`，例如：
+
+```text
+$academic-research-suite 请用 ars-plan 盘点当前论文结构和证据缺口。
+$academic-research-suite 请用 ars-citation-check 核查当前论文引用。
+```
+
+技能入口和完整工作流随仓库保存；来源、许可证及安装记录见
+`.agents/skills/academic-research-suite/INSTALLATION.md`。
+使用时继续遵守根目录 `AGENTS.md` 的实验预算、证据边界及既有论文路径。
+
 ## 研究问题
 
 - 每张训练图只保留一个目标中心 tile 的标签。

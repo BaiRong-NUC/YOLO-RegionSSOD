@@ -1871,6 +1871,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 
 | 2026-11-02 14:01（P1学生seed1恢复交接） | `e54eb61`及本次中文记录，均push | 核实VS Code渲染进程oom后训练在第56轮KeyboardInterrupt、原两进程停止，归档21文件；新增独立P1恢复/验收入口，剩余45轮由用户启动 | 第3.59节；paper/paper1_p1_seed1_recovery.md；outputs/paper1_p1_formal100_s1_recovery_20261102/{engineering_verified/check,handoff_check}.json | 连续1–55轮/13602.5秒、last.pt epoch54、原退出码未知；零批次零步骤验证P1及255优化器/EMA/AMP/调度恢复、原证据未变；179tests/原表/差异检查及实际37803来源check-only exit0通过 | 等用户从第56轮续到100轮；p1-1已更新并启用，等待resume回执；完成后独立验收同seed和两seed正式配对，不自动开训或扩训 |
 
+| 2026-11-02（项目级科研技能安装） | 本次中文提交并push | 按用户指定仓库安装 ARS-Codex 3.24.0 到 `.agents/skills/academic-research-suite/`，固定上游 a1556557887f345aac99bdc6027e008e91fef236，保留来源与许可证，README补充使用入口 | `.agents/skills/academic-research-suite/{SKILL,INSTALLATION}.md` | 上游2657文件Git blob哈希全部匹配，项目179tests通过；仅完成安装，科研工作流未执行，无新训练或评估 | 后续显式使用 `$academic-research-suite`；既有实验预算、证据规则与论文路径继续适用 |
+
 ### 10.1 新会话开始流程
 
 2026-10-30原图上下文诊断执行前的Git预检发现，历史`.gitignore`的`data/`
