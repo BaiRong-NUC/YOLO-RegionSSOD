@@ -8,9 +8,11 @@ mAP50-95提高0.335pp、小目标recall提高1.878pp；2026-10-30补齐同split/
 学生seed0/1复验，两项平均配对增益为+0.2893±0.0644pp、+1.7854±0.1304pp
 （样本SD）。不将30轮与100轮混合统计。
 
-23:18另完成B2学生seed1正式100轮独立验收：AP50-95=25.6683%、
-small recall=39.3611%（10461/26577）。当前仅剩同seed1 P1由用户运行，
-完成前不更新方法配对收益；详见下方学生seed1基线细表。
+2026-11-02完成同seed1 P1的55轮后恢复及独立验收：相对B2的AP50-95
+提高0.3351pp、small recall提高2.4194pp（净+643），未匹配预测增加1435个。
+正式100轮两学生seed平均配对增益为+0.1939±0.1996pp、
++2.2726±0.2075pp（样本SD）。建议本轮主线训练收束，优先写作与已有机制分析；
+整体AP增幅随seed变化，原Gate3/4不追认为通过，论文证据缺口仍须按主张盘点。
 
 | 文件 | 内容 |
 |---|---|
@@ -22,6 +24,8 @@ small recall=39.3611%（10461/26577）。当前仅剩同seed1 P1由用户运行�
 | [evidence.md](evidence.md) | 表格来源、权重 SHA256、补评估记录和数字核对方式 |
 | [p1_b2_full100_results.md](p1_b2_full100_results.md) | 正式100轮seed0配对的AP/尺寸、逐目标增失、误检/类别/成本及研究决定 |
 | [b2_seed1_full100_results.md](b2_seed1_full100_results.md) | 正式100轮B2学生seed1的独立验收、原图指标、匹配数和P1手动交接 |
+| [p1_b2_seed1_full100_results.md](p1_b2_seed1_full100_results.md) | 已完成seed1配对及两seed正式100轮汇总；AP/覆盖/类别/误检/成本、恢复限制和收束建议 |
+| [paper1_p1_seed1_recovery.md](paper1_p1_seed1_recovery.md) | seed1 P1原55轮中断的冻结恢复说明；已执行完毕，当前只读验收 |
 | [paper1_seed1_full100_protocol.md](paper1_seed1_full100_protocol.md) | 用户顺序运行学生seed1 B2/P1各100轮的固定协议、命令、预算与解释边界 |
 | [ignore_recovery_analysis.md](ignore_recovery_analysis.md) | 第一篇追加的零训练诊断：锁定已有匹配，核对 ignore 条件容量上界、重复与低阈值候选代价，不作为学生增益 |
 | [cross_view_flip_analysis.md](cross_view_flip_analysis.md) | 固定随机小样本的水平翻转候选筛选，记录精度与覆盖权衡，未进入学生训练 |

@@ -362,3 +362,40 @@ NMS IoU=0.70、max_det=500。自动与独立记录为
   39.3611%/79.1273%/89.1284%，匹配10461/8795/951，总GT26577/11115/1067。
   CSV学生19111.9秒；独立新表及限制见`b2_seed1_full100_results.md`。
   不用单臂认定P1收益，不与30轮或其他学生seed混配。
+
+## P1学生seed1恢复完成与两seed正式100轮验收（2026-11-02）
+
+- 恢复包装28560（14:05:50.990478）/工作41744（14:06:08.174427）的
+  PID、创建时间和精确命令与resume_launch_receipt一致；17:20:27包装真实exit0，
+  终态均已停止、resume_stderr为空。原包装4692/工作45248的原退出码仍未知，
+  不覆盖原launch_receipt/status/stdout/stderr或21文件中断归档。
+- `python scripts/resume_paper1_p1_seed1.py --audit`17:35独立通过，
+  accepted=true；核对原55轮CSV前缀、完整有限1–100轮、37803原冻结来源、
+  学生seed1/split0实际args、P1Trainer和soft_weights/uncertain_ignore、
+  255项优化器/EMA/AMP/调度恢复、权重/产物哈希与548图预测重放，
+  同时重验同seed1 B2及seed0配对。独立输出和日志保存在
+  `outputs/paper1_p1_formal100_s1/independent_audit.json`及
+  `monitor_independent_audit_stdout_20261102.log`。
+- 训练`runs/partial10_p1_formal100_s1`；
+  val `runs/val/partial10_p1_formal100_s1_val960`；
+  recall `runs/size_recall/p1_formal100_s1/{metrics.json,images.txt,predictions.jsonl}`。
+  best SHA256 `298b842ac31ff24fd79b5f1493ed67966bd7fdb18b55d9104920e6ca3cadf0ca`；
+  last SHA256 `51cf6529f588c04cbc85fcef90d679967c9c260ca6c0baa4545d64e6cb773542`。
+- seed1配对与两seed汇总分别为同输出下`paired_comparison.json`和
+  `two_seed_comparison.json`。seed1 AP50-95 +0.3351pp、small +2.4194pp
+  （10461→11104、净+643）；两seed配对均值±样本SD
+  +0.1939±0.1996/+2.2726±0.2075pp，与旧30轮另报。
+- 新只读入口`scripts/audit_paper1_seed1_effects.py`复用冻结seed0分析规则，
+  缓存重放`outputs/paper1_full100_effects_s1/analysis.json`记录560项来源哈希，
+  包括共享分析、匹配辅助函数和新入口；没有新训练/推理或修改seed0分析。
+  seed1 small新增1406/丢失763、未匹配预测+1435、precision−2.6573pp、
+  F1+0.4031pp、类别AP5升5降，学生时间25193.2/19111.9秒（+31.82%）。
+- 新表及解释见`p1_b2_seed1_full100_results.md`和实验4.21。
+  ARS experiment-agent validate报告位于同分析目录`validation_report.md`，
+  11/11项统计谬误检查；状态ANALYZED，模型训练重跑可复现性未测试。
+  新表单独逐行对JSON核对，回执
+  `outputs/paper1_p1_formal100_s1/documentation_check_20261102.json`；
+  原表格生成器仍检查137来源/8组recall，不能用它代替新增表验收。
+- 保留seed0 B2和seed1 P1恢复事实、原未知退出码及所有负向探索。
+  同split/教师两学生seed不支持显著性、跨split泛化、官方AP_small或首次机制主张。
+  原Gate3/4不追认为通过；建议收束本轮主线训练、优先写作，必要论文缺口另行排序。

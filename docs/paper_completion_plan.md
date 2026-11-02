@@ -3,9 +3,9 @@
 > 最后更新：2026-11-02<br>
 > 当前执行范围：只推进A第一篇方法稿；B/C、蒸馏剪枝和树莓派部署留在远期规划，不并行启动。<br>
 > 最新补证据：分类软权重全量30epoch消融已完成独立验收；去软权重mAP50-95−0.1623pp、small recall+0.9143pp，未达到扩大训练条件；表4-S5/实验4.14已同步，当前不扩训。<br>
-> 最新安排：原P1/B2学生seed0正式100轮均完成独立验收；P1于2026-11-01 16:17:55真实exit0。P1−B2的mAP50-95+0.0528pp、small recall+2.1259pp（净+565），未匹配预测+1221、F1+0.1800pp。值得补一次学生seed1同100轮配对，由用户启动；不延长seed0或叠加模块。详见第3.55节；未自动恢复持续目标。<br>
-> 当前阶段：正式100轮seed0和原30轮两学生seed证据分开报告；原30轮平均配对增益为mAP50-95 +0.2893pp、small recall +1.7854pp，不与100轮混合统计。原 Gate 3 不变；正式结果见paper/p1_b2_full100_results.md，重复计划见paper/paper1_seed1_full100_protocol.md。<br>
-> 运行更新：B2学生seed1正式100轮已验收。P1于2026-11-02 13:43:11在第56轮中断，连续完整1–55轮及last.pt可恢复；原退出码未知。独立P1恢复入口已完成零训练步骤验证，等待用户启动剩余45轮；监控p1-1改用resume回执与验收路径，正常状态静默。详见第3.57–3.59节。<br>
+> 最新安排：P1/B2学生seed0/1正式100轮均已独立验收。seed1 P1−B2的mAP50-95+0.3351pp、small recall+2.4194pp（净+643），未匹配预测+1435、F1+0.4031pp。两个seed小目标覆盖收益重复出现，建议本轮主线训练收束、优先写作与已有机制分析；不自动扩训或恢复持续目标。详见第3.60节。<br>
+> 当前阶段：正式100轮两seed平均配对增益为mAP50-95 +0.1939±0.1996pp、small recall +2.2726±0.2075pp（样本SD），与原30轮两seed的+0.2893/+1.7854pp分开报告。原Gate3不追认为通过，原Gate4效应量亦未证实达到。正式结果见paper/p1_b2_seed1_full100_results.md。<br>
+> 运行更新：P1 seed1在55轮后由用户恢复，2026-11-02 17:20:27包装真实exit0、两进程停止；原55轮CSV前缀及21文件归档不变，原退出码仍未知。恢复独立验收、同seed1 B2重验及两seed配对完成；收尾删除临时监控p1-1，不重复训练。<br>
 > 论文暂定题目：**面向高分辨率航拍图像的区域局部标注小目标半监督检测方法**  
 > 仓库：`D:\Python\YOLO-RegionSSOD`  
 > 计划起点：2026-10-26，可按实际启动日期整体平移
@@ -56,7 +56,7 @@ P1 尺度感知伪标签与 uncertain-ignore 是否带来稳定收益。
 
 ## 3. 当前状态
 
-以下状态以 2026-10-30 为快照。后续会话必须先运行 `git status` 并核对实际产物，
+以下状态更新至2026-11-02。后续会话必须先运行 `git status` 并核对实际产物，
 不能只依赖本文档的旧描述。
 
 | 项目 | 状态 | 证据或位置 | 下一步 |
@@ -65,8 +65,8 @@ P1 尺度感知伪标签与 uncertain-ignore 是否带来稳定收益。
 | 数据构造 | 已实现；10% seed0 已生成 | `src/regionssod/data/partial.py` | 生成正式 5%/20% split |
 | B0 完整监督 | 配置已加入，未正式训练 | `configs/train_full.yaml` | 复用旧结果或重训 seed 0 |
 | B1 部分监督 | 正式 100 epoch 和独立 30 epoch pilot 均完成；val960 mAP50-95 分别为 0.248835、0.229114 | `runs/partial10_sup_s0/`、`runs/partial10_sup_pilot30_s0/` | 冻结为正式参考与 pilot 对照 |
-| B2 朴素自训练 | 两seed独立30轮及正式100轮均已验收；100轮seed1 AP50-95=25.6683%、small recall=39.3611% | 第3.20、3.54–3.57节；paper/b2_seed1_full100_results.md | seed0恢复事实保留，seed1未中断；B2不重训，等待用户运行同seed1 P1 |
-| P1 尺度感知方法 | 正式100轮seed0 AP50-95=25.8791%、small recall=41.4117%；相对B2 +0.0528/+2.1259pp，净+565小目标 | 第3.55节；paper/p1_b2_full100_results.md；实验4.19 | 认可小目标收益并披露误检代价，交接学生seed1同100轮确认；旧30轮两seed和原Gate3保留 |
+| B2 朴素自训练 | 两seed独立30轮及正式100轮均已验收；100轮seed1 AP50-95=25.6683%、small recall=39.3611% | 第3.20、3.54–3.60节；paper/b2_seed1_full100_results.md | seed0恢复事实保留，seed1未中断；已完成同seed1 P1配对，不重训 |
+| P1 尺度感知方法 | 两seed正式100轮均已验收；seed1 AP50-95=26.0034%、small recall=41.7805%，相对B2 +0.3351/+2.4194pp、净+643小目标 | 第3.60节；paper/p1_b2_seed1_full100_results.md；实验4.21 | 保留两seed覆盖收益与误检/类别/成本代价，优先收束稿件；不宣称总体AP稳定领先或原Gate3/4通过 |
 | 第①组 no-ignore 消融 | 30 epoch、val960、固定操作点 recall 及独立验收完成；相对完整 P1 的 mAP50-95 +0.0217 pp、small recall −0.1392 pp | `outputs/p1_no_ignore_pilot30_s0/{comparison,acceptance_audit}.json`；第 3.13 节 | 不能声称 ignore 独立提高整体 mAP；继续拆分软权重与尺度阈值，补配对 seed |
 | 软权重低成本筛选 | 1024 源图、两组各 5 epoch 和 val960 完成；mAP50-95 +0.0884 pp、small recall +0.0790 pp，低于 0.3 pp 候选线 | `outputs/screens/p1_soft_weights_1024_e5/{comparison,acceptance_audit}.json`；第 3.15 节 | 保留当时中性停止结论；最新A补证据授权下单独启动正式30epoch消融，见第3.26节，不追认短筛过线 |
 | 软权重全量单因素消融 | 30epoch/val960/recall/独立验收完成；去软权重mAP50-95−0.1623pp、small recall+0.9143pp | `outputs/p1_no_soft_weights_pilot30_s0/independent_audit.json`；第3.26节；表4-S5 | 未达扩大训练条件；保留完整P1主配置及取舍结果，不自动扩训 |
@@ -74,7 +74,7 @@ P1 尺度感知伪标签与 uncertain-ignore 是否带来稳定收益。
 | 尺度阈值全量确认 | 30 epoch、val960、固定操作点 recall 及独立验收完成；统一 0.50 相对完整 P1 的 mAP50-95 −0.6177 pp、small recall −0.3424 pp，逐类 1 升/9 降 | `outputs/p1_global_t050_pilot30_s0/{comparison,acceptance_audit}.json`；表 4-S2；第 3.18 节 | 全量结果支持尺度分层阈值更有利于总体检测和小目标覆盖；仍为单 split/seed，不扩写为跨 seed 稳定性 |
 | 尺度阈值配对学生 seed | seed1 两组各 30 epoch、完整 val960 和预测重放完成；尺度分层相对统一 0.50 的 mAP50-95 +0.2420 pp、small recall +0.6434 pp，与 seed0 两项同向 | `outputs/p1_scale_threshold_pair_s1/{comparison,acceptance_audit,independent_audit}.json`；表 4-S3；第 3.19 节 | 保留尺度分层；单 split/固定教师下两学生 seed 的平均配对增益为 +0.4299/+0.4929 pp，不作显著性或跨 split 主张 |
 | 正式 5/10/20% 数据 | 10% seed0 已生成；20 图同 seed 检查通过；5%/20% 未生成 | `data/visdrone_area10/summary.json`、`audit.json` | 生成 5%/20% split |
-| 正式 100 epoch 主矩阵 | B1/B2/P1 seed0及B2 seed1完成；seed1 P1在55轮后中断，独立恢复准备就绪，尚未完成 | 第3.54–3.59节；P1恢复归档及engineering_verified/check.json | 等用户启动余下45轮，按resume回执静默观察；完整结束后验收配对、盘点取舍及必要训练缺口，优先收束稿件 |
+| 正式 100 epoch 主矩阵 | B1 seed0及B2/P1学生seed0/1完成；P1 seed1的55轮后恢复已完整验收 | 第3.60节；两seed正式100轮比较及P1恢复证据 | 当前配对已收束；B0、其余预算/外部确认/S³OD同协议比较仍有缺口，按投稿主张排序，不自动铺满历史矩阵 |
 | 论文正文 | 第1–4章、两seed统计/案例，以及表4-S5/实验4.14软权重全量消融已同步；原seed0主表保留 | `docs/paper/{experiments,results_tables,evidence,case_studies}.md`；第3.20、3.26节 | 正式矩阵与最终排版仍待补，后续先选一个低成本问题，不自动扩训 |
 | 文章与树莓派部署规划 | 用户新增三篇文章目标及最终树莓派部署要求；论文按录用、专利按“申请通过”，硬件与学校节点待确认 | `docs/publication_and_edge_deployment_plan.md`；第 3.21 节 | 先 A 方法稿、C 轻量化/部署稿，再扩展 B 可靠补全稿；树莓派先做导出与板端基线，均未启动 |
 | 第一篇实验缺口 | 已完成零训练漏检归因；6,471 tile/38,245 hidden GT 精确重放，按低成本列出 L0→L1→L2 | `docs/paper1_experiment_gaps.md`；`scripts/audit_paper1_gaps.py`；第 3.22 节 | 先做 ignore 可恢复增量与 NMS/max-det 候选覆盖小试；未过线不启动训练 |
@@ -1568,6 +1568,43 @@ P1 的 30 epoch 训练、完整原图 val960 和固定操作点小目标 recall 
   VS Code本地main.log确认13:42:45.872为renderer process gone/oom，
   补充证据为归档`window_crash_evidence.json`，不据此推定整机内存峰值。
 
+### 3.60 P1学生seed1恢复完成与两seed正式100轮收束（2026-11-02）
+
+- 用户14:05启动既有恢复，包装28560/工作41744的PID、创建时间和精确命令
+  与resume回执一致；17:20:27包装真实exit0、stderr为空，终态核实时均停止。
+  CSV连续有限1–100轮，原55轮字节前缀、21文件中断归档及原未知退出码保留。
+- 17:35独立`python scripts/resume_paper1_p1_seed1.py --audit`通过，
+  accepted=true；37803冻结来源、学生seed1/split0实际args、P1Trainer与
+  soft_weights/uncertain_ignore、255项优化器/EMA/AMP/调度恢复、权重/产物、
+  548原图val960/固定点recall及预测重放核对一致，同时重验B2与seed0配对。
+- seed1 B2/P1的AP50-95=25.6683%/26.0034%（+0.3351pp），
+  AP50+0.5534pp；small recall=39.3611%/41.7805%（+2.4194pp），
+  匹配10461→11104，净+643；medium/large净+176/+3。
+  small逐目标新增1406、丢失763，286图改善/105下降/157持平。
+- 同conf0.25/匹配IoU0.50下，未匹配预测7826→9261（+1435）、
+  precision−2.6573pp、F1+0.4031pp；类别AP5升5降。
+  两seed的bicycle/awning-tricycle AP均下降；更严IoU0.75时small仍净+251，
+  但全尺寸F1−0.4233pp，不称为AP75或官方误检。新增只读入口
+  `scripts/audit_paper1_seed1_effects.py`沿用seed0的缓存分析规则，独立输出s1。
+- 两学生seed正式100轮平均配对增益±样本SD：AP50-95
+  +0.1939±0.1996pp、small +2.2726±0.2075pp，small各净+565/+643。
+  固定split/教师，披露seed0 B2及seed1 P1分别恢复，不承诺逐位连续等价。
+  不与旧30轮混合，不作显著性/跨split泛化/官方AP_small主张；
+  原Gate3不追认为通过，原Gate4预注册效应量也未证实达到。
+- seed1 P1学生13602.5+11590.7=25193.2秒（6.9981小时），
+  B2为19111.9秒（5.3089小时），多31.82%；数据量、负载与恢复不同，
+  非纯模块开销，教师/伪标签/最终评估另计。
+  综合两seed覆盖收益、整体AP幅度、类别/误检和投入，建议本轮主线训练收束，
+  优先写作与已有机制分析；不自动补seed2、延长轮数或新增模块。
+  B0、其他预算/外部确认/S³OD同协议对照仍缺，按投稿主张检查必要性，
+  不宣称论文证据已齐全或无条件追随历史完整矩阵。
+- 细表与来源见`paper/p1_b2_seed1_full100_results.md`、实验4.21及evidence。
+  缓存结果`outputs/paper1_full100_effects_s1/analysis.json`，
+  ARS validate报告保存在同目录，11/11谬误检查，状态ANALYZED，
+  仅重放既有证据而未重训验证模型可复现性。179项pytest已通过；
+  新表数字逐行对JSON核验，原表137来源/8组recall和`git diff --check`通过。
+  中文提交push后删除临时监控p1-1；不自动恢复或新建持续研究目标。
+
 ## 4. 固定实验协议
 
 ### 4.1 训练与评估
@@ -1872,6 +1909,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-11-02 14:01（P1学生seed1恢复交接） | `e54eb61`及本次中文记录，均push | 核实VS Code渲染进程oom后训练在第56轮KeyboardInterrupt、原两进程停止，归档21文件；新增独立P1恢复/验收入口，剩余45轮由用户启动 | 第3.59节；paper/paper1_p1_seed1_recovery.md；outputs/paper1_p1_formal100_s1_recovery_20261102/{engineering_verified/check,handoff_check}.json | 连续1–55轮/13602.5秒、last.pt epoch54、原退出码未知；零批次零步骤验证P1及255优化器/EMA/AMP/调度恢复、原证据未变；179tests/原表/差异检查及实际37803来源check-only exit0通过 | 等用户从第56轮续到100轮；p1-1已更新并启用，等待resume回执；完成后独立验收同seed和两seed正式配对，不自动开训或扩训 |
 
 | 2026-11-02（项目级科研技能安装） | 本次中文提交并push | 按用户指定仓库安装 ARS-Codex 3.24.0 到 `.agents/skills/academic-research-suite/`，固定上游 a1556557887f345aac99bdc6027e008e91fef236，保留来源与许可证，README补充使用入口 | `.agents/skills/academic-research-suite/{SKILL,INSTALLATION}.md` | 上游2657文件Git blob哈希全部匹配，项目179tests通过；仅完成安装，科研工作流未执行，无新训练或评估 | 后续显式使用 `$academic-research-suite`；既有实验预算、证据规则与论文路径继续适用 |
+
+| 2026-11-02 17:35（P1 seed1恢复终态及两seed正式100轮收束） | 本次中文结果提交并push | 核实恢复包装/工作停止及真实exit0，独立验收原55轮前缀/连续100轮/37803来源/548图预测，重验B2及两seed配对；新增只读缓存取舍分析 | 第3.60节；paper/p1_b2_seed1_full100_results.md；outputs/paper1_full100_effects_s1/analysis.json及validation_report.md | seed1 AP50-95+0.3351pp、small+2.4194pp（净+643），未匹配预测+1435、F1+0.4031pp、成本+31.82%；两seed均值AP+0.1939pp/small+2.2726pp；179tests、新表数字/来源及原表检查通过 | 本轮主线训练收束，优先写作与已有机制分析；Gate3/4不追认为通过，必要论文缺口另行排序；中文提交push后删除p1-1，不自动扩训或恢复持续目标 |
 
 ### 10.1 新会话开始流程
 

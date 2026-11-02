@@ -765,26 +765,27 @@ python scripts/run_paper1_full100.py --arm p1 --audit
 学生seed1的B2已于2026-11-01 23:04:51正常结束并独立验收通过：
 mAP50-95=25.6683%、small recall=39.3611%（10461/26577）。
 见[学生seed1 B2结果](docs/paper/b2_seed1_full100_results.md)；不要重复训练B2。
-同seed1的P1已于2026-11-02启动，13:43:11在第56轮中断。
-连续1–55轮及优化器/EMA/AMP检查点已保留，原退出码未知；
-当前改用独立恢复入口，只补第56–100轮，由用户启动，含评估预留约3.5–4小时。
-在已激活`yolo`的Git Bash执行：
+同seed1的P1已于2026-11-02在55轮后由用户恢复，17:20:27真实exit0，
+连续完整100轮、548原图val960/recall和预测重放通过独立验收。
+原55轮CSV前缀和21文件归档保留，原中断退出码仍未知。
+**两学生seed的正式配对均已完成，不要重复执行训练或恢复。**
+在已激活`yolo`的Git Bash只读复核：
 
 ```bash
 cd /d/Python/YOLO-RegionSSOD
-# B2已完成，仅需复核时使用：
 python scripts/run_paper1_seed1_full100.py --arm b2 --audit
-python scripts/resume_paper1_p1_seed1.py --check-only
-python -u scripts/resume_paper1_p1_seed1.py --resume
+python scripts/resume_paper1_p1_seed1.py --audit
+python scripts/audit_paper1_seed1_effects.py
 ```
 
-这次仅改学生seed/输出名，不延长seed0、换教师或增加模块。
-续训日志为`outputs/paper1_p1_formal100_s1/resume_stdout.log`，
-可用`tail -n 20 -F`观察；续训后独立验收用
-`python scripts/resume_paper1_p1_seed1.py --audit`。
-不要重新执行原P1的`--train`或用通用YOLO训练器恢复。
-原日志/回执及55轮检查点归档保留；恢复不承诺逐位连续等价。
-建议单独打开Git Bash运行。完整证据与命令见
+seed1 P1−B2：AP50-95+0.3351pp、small recall+2.4194pp（净+643），
+未匹配预测+1435、precision−2.6573pp、F1+0.4031pp，学生耗时多31.82%。
+两个正式100轮seed平均配对增益为AP50-95+0.1939±0.1996pp、
+small recall+2.2726±0.2075pp（样本SD）；原30轮另报。
+建议本轮主线训练收束、优先写作与已有机制分析，不自动加seed或轮数。
+原Gate3/4不追认为通过，B0等论文证据缺口仍需按投稿范围盘点。
+完整结果见[seed1与两seed正式配对](docs/paper/p1_b2_seed1_full100_results.md)。
+seed0 B2及seed1 P1的恢复均不承诺逐位连续等价。恢复历史见
 [P1种子1恢复说明](docs/paper/paper1_p1_seed1_recovery.md)，
 原[seed1确认协议](docs/paper/paper1_seed1_full100_protocol.md)保持冻结。
 
