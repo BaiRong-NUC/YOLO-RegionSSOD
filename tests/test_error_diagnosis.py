@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 
 from regionssod.evaluation.error_diagnosis import (
-    box_iou_matrix, classify_false_predictions, gt_candidate_summary,
+    box_iou_matrix, classify_false_predictions, gt_candidate_summary, json_ready,
     lost_gt_reason, paired_geometry, transition_counts,
 )
 from regionssod.evaluation.precision_recall import assign_predictions
@@ -54,3 +54,8 @@ def test_transition_accounting_is_exact_and_rejects_non_nested_frontiers():
     assert sum(cells) == 2 and cells[14] == 1 and cells[8] == 1
     with pytest.raises(ValueError):
         transition_counts([0], [0], [1], [0], [1])
+
+
+def test_json_conversion_handles_numpy_scalars_and_nested_arrays():
+    converted = json_ready({"scalar": np.int64(3), "array": np.array([np.float64(1.5)])})
+    assert converted == {"scalar": 3, "array": [1.5]}

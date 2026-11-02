@@ -13,7 +13,7 @@ import numpy as np
 import evaluate_paper1_small_pr as base
 from regionssod.evaluation.error_diagnosis import (
     ERROR_NAMES, LOST_NAMES, box_iou_matrix, classify_false_predictions,
-    gt_candidate_summary, lost_gt_reason, paired_geometry, transition_counts,
+    gt_candidate_summary, json_ready, lost_gt_reason, paired_geometry, transition_counts,
 )
 from regionssod.evaluation.precision_recall import (
     assign_predictions, precision_constrained_point, threshold_curve,
@@ -418,6 +418,7 @@ def run():
     manifest = input_manifest()
     base.write(OUT / "manifest.json", manifest)
     result = compute(True)
+    result = json_ready(result)
     base.write(OUT / "diagnosis.json", result)
     (OUT / "results_tables.md").write_text(tables(result), encoding="utf-8")
     plot_result(result)

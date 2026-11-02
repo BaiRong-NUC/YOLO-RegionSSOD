@@ -9,6 +9,19 @@ LOST_NAMES = ("active_matching_competition", "below_score_threshold", "coarse_no
               "wrong_class_candidate", "localization_near", "near_other_class", "saved_candidate_gap")
 
 
+def json_ready(value):
+    """Convert diagnosis arrays/scalars while preserving dictionaries and strings."""
+    if isinstance(value, dict):
+        return {str(key): json_ready(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [json_ready(item) for item in value]
+    if isinstance(value, np.ndarray):
+        return json_ready(value.tolist())
+    if isinstance(value, np.generic):
+        return json_ready(value.item())
+    return value
+
+
 def box_iou_matrix(predictions, truth):
     boxes = np.asarray(predictions, float).reshape(-1, 4)
     gt = np.asarray(truth, float).reshape(-1, 4)
