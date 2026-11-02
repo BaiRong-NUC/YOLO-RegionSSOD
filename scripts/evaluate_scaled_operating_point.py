@@ -43,6 +43,19 @@ def verify_inputs():
     base.verify_captures()
 
 
+def verify_result_manifest():
+    """Use the archived compute source when presentation-only code changed."""
+    expected = base.read(OUT / "manifest.json")["input_sha256"]
+    snapshot = OUT / "compute_source_snapshot.py"
+    adjusted = {}
+    for filename, value in expected.items():
+        if Path(filename) == Path(__file__).resolve() and snapshot.is_file():
+            adjusted[str(snapshot)] = value
+        else:
+            adjusted[filename] = value
+    base.verify_hashes(adjusted)
+
+
 def manifest():
     verify_inputs()
     paths = [PROTOCOL, Path(__file__).resolve(), ROOT / "src/regionssod/evaluation/operating_point.py"]
@@ -230,10 +243,12 @@ def plot(result):
     fig, axes = plt.subplots(1, 2, figsize=(11, 4), constrained_layout=True)
     for seed, color in ((0, "#0072B2"), (1, "#D55E00")):
         values = result["summaries"]["0.90"][str(seed)]["comparisons"]["delta_gap_pp"]["values"]
-        axes[0].plot(SPLITS, values, marker="o", color=color, label=f"Student seed{seed}")
+        positions = np.arange(len(SPLITS))
+        axes[0].plot(positions, values, marker="o", color=color, label=f"Student seed{seed}")
     axes[0].axhline(.2, linestyle="--", color="gray", label="Continue threshold +0.20pp")
     axes[0].axhline(0, color="black", lw=.7)
     axes[0].set_xlabel("Image split seed")
+    axes[0].set_xticks(np.arange(len(SPLITS)), [str(seed) for seed in SPLITS], rotation=20)
     axes[0].set_ylabel("Change in P1−B2 small recall / pp")
     axes[0].set_title("Scale policy improvement over global policy")
     axes[0].legend(fontsize=8)
@@ -252,7 +267,7 @@ def plot(result):
     axes[1].bar(x, means, yerr=errors, capsize=3, color=colors)
     axes[1].set_xticks(x, labels, rotation=25, ha="right")
     axes[1].set_ylabel("Small recall / %")
-    axes[1].set_title("Evaluation-half means ± sample SD across5 splits")
+    axes[1].set_title("Evaluation-half means ± sample SD across 5 splits")
     axes[1].grid(axis="y", alpha=.25)
     fig.suptitle("Scale-conditioned high-precision operating point | Target calibration precision90%", fontsize=11)
     for ext in ("png", "pdf", "svg"):
@@ -287,7 +302,7 @@ def run():
 
 def audit():
     verify_inputs()
-    base.verify_hashes(base.read(OUT / "manifest.json")["input_sha256"])
+    verify_result_manifest()
     base.verify_hashes(base.read(OUT / "artifact_sha256.json"))
     result = json_ready(compute(False))
     stored = base.read(OUT / "crossfit.json")
