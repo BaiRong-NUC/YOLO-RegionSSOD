@@ -25,6 +25,7 @@ from regionssod.evaluation.precision_recall import (
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "outputs/paper1_small_pr_20261102"
 DATA = ROOT / "data/visdrone_area10/dataset.yaml"
+SOURCE = Path("D:/Python/YOLO/data/visdrone/dataset.yaml")
 PROTOCOL = ROOT / "docs/paper/small_pr_protocol.md"
 LEVELS = (.5, .6, .7, .8, .9)
 KEYS = tuple(f"{arm}_s{seed}" for seed in (0, 1) for arm in ("b2", "p1"))
@@ -60,12 +61,15 @@ def locations(key):
 
 
 def ground_truth():
-    source = load_source_dataset(DATA)
+    # The full-source loader expects image directories for BOTH splits. The
+    # partial YAML has a training-list file and is only passed to Ultralytics.
+    source = load_source_dataset(SOURCE)
     images = iter_images(source.images_val)
     dataset = {"info": {"scope": "current YOLO validation labels; not official VisDrone"},
                "images": [], "annotations": [],
                "categories": [{"id": k + 1, "name": v} for k, v in source.names.items()]}
-    hashes, counts = {str(DATA): digest(DATA)}, Counter(small=0, medium=0, large=0)
+    hashes = {str(DATA): digest(DATA), str(SOURCE): digest(SOURCE)}
+    counts = Counter(small=0, medium=0, large=0)
     for image_id, image in enumerate(images, 1):
         label = label_path_for_image(image, source.images_val, source.labels_val)
         hashes[str(image)] = digest(image)
