@@ -1,5 +1,14 @@
 # YOLO-RegionSSOD
 
+2026-11-03新增[V2召回／AP分歧与原P1瓶颈诊断](docs/paper/diagnostics/competitive_negative_v2_bottleneck/results.md)：
+相同FP预算下V2比P1少137个small匹配；完成零训练／零新推理重放和318tests。
+[人工正锚点可信竞争类负监督](docs/paper/candidates/reliable_competitor_negative/README.md)仅是下一验证计划，
+未实现训练入口。缓存只读复核：
+
+```powershell
+& C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe scripts/diagnose_p1_v2_bottleneck.py --audit
+```
+
 当前状态（2026-11-03）：**V2完整30轮及复用B2／P1的统一三方法评估、独立审计完成**。
 原P1−B2的AP50–95+0.3349pp；V2−P1 AP−0.1628pp／AP_small−0.2279pp／FP+7.8971%，
 七护栏仅2项通过，停止V2、保留原P1。见[三方法完整结果](docs/paper/candidates/competitive_negative_v2/results30.md)。

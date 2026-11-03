@@ -1,6 +1,7 @@
 # 论文完成计划与项目交接
 
 > 最后更新：2026-11-03<br>
+> 最新诊断：V2固定conf.25 small净+99，但同7889 FP预算为−137、同27237预测数为−84；新增623 FP含错类218／背景166／重复121／近定位78／近异类40。原P1 P90的small FN中60.03%有同类低分可匹配框，高分FP中69.91%错类；严格IoU另有定位上限，不能认定唯一训练根因。完成零训练／零推理缓存精确重放及318tests，优先验证“人工GT正锚点可信竞争类负监督”，仅计划、无候选训练入口，不启动训练，见第3.74节。<br>
 > 最新终态：AMP修复V2改进组完整30轮／exit0、三方法统一548图val960及独立audit通过。原P1−B2的AP50–95+0.3349pp／conf.25 small+2.2012pp；V2−P1的AP−0.1628pp／AP_small−0.2279pp／P90 small+0.3650pp／FP+7.8971%，七护栏仅2项通过，停止本候选、保留原P1，不扩训。完整表与限制见第3.73节及paper/candidates/competitive_negative_v2/results30.md；终态收尾删除p1-v2。<br>
 > 最新排障：真实单批CUDA AMP复现表明，1个伪前景TAL质量8.7088e-9转FP16成为0，触发竞争负项过强断言；649个伪前景无教师／分配类别不一致，原P1损失正常。完成零优化步骤定位和dtype控制重放，286tests通过；未修订原训练实现或重训，见第3.70节。<br>
 > 历史工程失败：原新主对照B2／P1完成30轮，但旧candidate首批断言exit1、0完整轮／无权重；原目录未统一评估，不给旧candidate性能结论。39,828输入和原证据保留，旧p1已删除，见第3.69节；该失败不覆盖顶部V2完整结果。<br>
@@ -1964,6 +1965,49 @@ Ultralytics总体AP是冻结验证器输出及主表重放，缓存重新计算�
 当前无新训练任务；下一项最值得准备的是原P1／B2独立区域split配对证据，B0仍缺，
 均需另行冻结和执行，不能承诺性能提升。本轮仅报告／状态文档，中文commit并push后删除p1-v2。
 
+### 3.74 V2召回／AP分歧与原P1瓶颈缓存诊断（2026-11-03）
+
+用户要求解释本次改进的召回上升／AP下降／FP增加并推荐一个新方向，不启动训练。
+先保存`paper/diagnostics/competitive_negative_v2_bottleneck/protocol.md`，再只读当前统一
+三模型548图预测与既有教师开放区域事件；val、旧design／confirmation均已看过，明确探索性。
+隐藏GT不读，不拟合／选参数。59项绑定、双IoU固定点／micro PR、新增逐预测／逐GT数组
+及JSON精确重放；诊断44.766秒、独立audit exit0；全套318tests通过。
+
+- conf.25 V2−P1 small+99，预测+707、全尺寸TP+84／FP+623；同FP7889时small
+  9659→9522（−137，−.5155pp），同K27237时9659→9575（−84，−.3161pp）。
+  P90局部+97仍保留，但P70−125、严格P90−27，不是全前沿改善。
+- IoU.50新增623 FP中错类218、背景166、重复121、同类近定位78、近异类40；
+  严格IoU新增743中近定位337最大。V2减少top2抑制却保留top1目标，符合放松正确负监督
+  的风险，但无strength，不能区分语义／强度因果；分类梯度也可改变共享特征和后续分配。
+- 原P1 IoU.50/P90的22149个small FN中13297（60.03%）有同类低分可匹配框；
+  1386 FP中969（69.91%）错类、重复仅21。GT-only删除错类使P90 small
+  16.6610%→29.5970%，仅不可部署／不可加和的容量探针，不是未来方法收益。
+- 严格IoU下9939个small GT仅有同类.50候选、FP近定位422/857，定位限制真实存在；
+  但P1／B2共同16109个small GT的P1平均IoU+.005229、中心／边界误差更低，
+  不支持原P1首先因回归恶化的概括。V2共同16471个small IoU−.001381，不据此重启旧NWD。
+- 三方法双IoU全部固定点均无cap末分数≥点阈值，500数量上限不能解释这些点直接删框；
+  仍不能排除NMS／.001／pre-NMS及低分AP截断。
+- 教师r≥.25可定位单类框top1错类率49.34%／46.31%，非歧义5.26%／3.83%；
+  但动作中top2真实正确仅46.71%／41.61%。歧义含信息不推出负项放松安全，
+  开放区域教师见过，亦不能外推未标注伪框真实错误率。
+
+最多三个方向：优先只对已匹配人工GT且非零质量的正锚点，将学生当前最难非真类负BCE
+乘2，保留伪标签／正目标／ignore／TAL／回归，对照为同锚点相同新增负logit梯度L1均匀控制。
+另两个方向是伪框类别监督弃权（继续减弱语义监督有风险）和定位质量排序
+（尚无新的可实现GT-free信号），本轮不实现。最小下一步仅零优化步骤的来源／AMP／
+梯度验证，通过后才准备原P1／候选／控制各完整30轮，粗估6–9小时学生+评估。
+新方案门槛在独立计划中明列，不改原V2失败，不在val调权重／类别名单；当前没有新训练入口。
+
+重读S³OD预印本III-D／Soft Teacher3.2–3.3；Humble Teacher PDF3–5页且视觉核验第4页、
+Credible Teacher PDF2–5页／方法HTML部分阅读。原集合BMQTT9Y7条目／PDF保留，新增机器
+部分阅读笔记S9WF6SIN／BPGJUBME，无重复导入、无用户全文已读或首创新颖性主张；
+LabelMatch仍未读全文。完整结果／11项解释检查见
+`paper/diagnostics/competitive_negative_v2_bottleneck/results.md`，候选只计划见
+`paper/candidates/reliable_competitor_negative/README.md`。产物`outputs/p1_v2_bottleneck_20261103/`，
+复核`python scripts/diagnose_p1_v2_bottleneck.py --audit`。不训练、不新推理、不建监控，
+原P1和全部失败保留。若暂不试方法，独立区域split的原P1／B2配对及B0仍是补证据优先项。
+中文commit并push。
+
 ## 4. 固定实验协议
 
 ### 4.1 训练与评估
@@ -2300,6 +2344,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-11-03 14:38（V2改进组启动核对与监控） | 本次中文记录并push | 用户启动后核对真实进程／参数／39,864来源及复用权重，建立每15分钟临时p1-v2 | 第3.72节；outputs/p1_competitive_negative_main30_v2_s0/monitor_initial_check_20261103_143811_980833.json | candidate首批成功，1下溢锚点保持原P1、两项正类改动均0；第1轮持续推进；B2／P1未重训 | 正常静默，完整30轮及自动三权重评估后只读audit／比较绝对值和三项增量；失败保留不重试；终态报告／提交push后删除p1-v2 |
 
 | 2026-11-03（V2三方法终态比较） | 本次中文记录并push | V2连续30轮exit0，复用本次B2／P1，统一548图val960与新日志只读audit通过 | 第3.73节；paper/candidates/competitive_negative_v2/{results30,terminal_validation}.md；outputs/p1_competitive_negative_main30_v2_s0/terminal_audit_20261103_171004_802028.log | P1−B2的AP+0.3349pp／small+2.2012pp；V2−P1 AP−0.1628pp／AP_small−0.2279pp／P90+0.3650pp／FP+7.8971%；七线仅2过，30份机制快照保护正类 | 停止V2，保留原P1及旧失败；无strength机制NOT_TESTED、同split／teacher／seed0开发val不外推；无新训练／推理，提交push后删除p1-v2；优先准备独立区域split证据 |
+
+| 2026-11-03（V2失效原因与原P1瓶颈零训练诊断） | 本次中文提交并push | 先协议，三权重548图缓存／教师开放区域重放；同FP／K、FP／FN、共同GT几何、截断和GT-only容量探针 | 第3.74节；paper/diagnostics/competitive_negative_v2_bottleneck/；outputs/p1_v2_bottleneck_20261103/；diagnose_p1_v2_bottleneck.py --audit | conf.25 small+99，但同FP−137／同K−84；P1 P90 FN低分同类60.03%、高分FP错类69.91%；缓存／JSON／数组audit exit0，318tests；零训练／零新推理 | 保留原P1及旧失败；优先验证人工正锚点可信竞争负监督与等强度控制，仅计划、无训练入口；不认定唯一因果／新颖性，不调val、不建监控；独立区域split仍为补证据优先项 |
 
 ### 10.1 新会话开始流程
 

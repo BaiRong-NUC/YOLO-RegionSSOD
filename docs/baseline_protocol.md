@@ -1,5 +1,10 @@
 # Baseline 执行协议
 
+新增只读诊断（不训练／推理）：`python scripts/diagnose_p1_v2_bottleneck.py --audit`；
+[V2失效与原P1瓶颈](paper/diagnostics/competitive_negative_v2_bottleneck/results.md)及
+[新方向计划](paper/candidates/reliable_competitor_negative/README.md)。
+新方向没有已验证训练入口，勿将计划当作训练命令。
+
 ## 当前主对照终态：V2完成，复用B2／P1比较已审计（2026-11-03）
 
 V2完整30轮／exit0、548图统一评估与只读audit通过，七护栏仅2项通过，停止V2。
