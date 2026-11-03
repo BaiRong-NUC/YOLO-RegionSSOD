@@ -1,6 +1,13 @@
 # Baseline 执行协议
 
-## 当前主对照入口：复用B2／P1，仅训练AMP修订改进组（2026-11-03）
+## 当前主对照终态：V2完成，复用B2／P1比较已审计（2026-11-03）
+
+V2完整30轮／exit0、548图统一评估与只读audit通过，七护栏仅2项通过，停止V2。
+原P1−B2 AP50–95+0.3349pp；V2−P1 AP−0.1628pp／AP_small−0.2279pp／FP+7.8971%。
+详见[三方法结果](paper/candidates/competitive_negative_v2/results30.md)与
+[终态验证](paper/candidates/competitive_negative_v2/terminal_validation.md)。
+原P1及旧失败证据保留；当前只读`python scripts/run_p1_main_comparison_repair.py --audit`。
+以下为执行前准备记录，已有目录不得再`--train`／`--check-only`，不扩大100轮。
 
 原主三臂B2／P1均成功完成30轮，竞争负项首批发生AMP目标下溢断言。
 V2已工程验证，只新训练一个改进学生30轮，复用同次主对照的B2／P1冻结best。
@@ -12,7 +19,7 @@ V2已工程验证，只新训练一个改进学生30轮，复用同次主对照�
 ```
 
 预检不训练／推理；[V2执行说明与验证记录](paper/candidates/competitive_negative_v2/README.md)。
-用户实际执行命令（本次未启动）：
+历史用户执行命令（现已完成，不重跑）：
 
 ```powershell
 & C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe -u scripts/run_p1_main_comparison_repair.py --train

@@ -1,14 +1,15 @@
 # YOLO-RegionSSOD
 
-当前建议入口（2026-11-03 AMP修复）：**复用已完成30轮的B2／原P1，只训练修订改进组30轮**，
-之后统一评估三权重，给绝对值及P1−B2、改进−P1、改进−B2。
-[V2修复、验证与准确执行命令](docs/paper/candidates/competitive_negative_v2/README.md)。
+当前状态（2026-11-03）：**V2完整30轮及复用B2／P1的统一三方法评估、独立审计完成**。
+原P1−B2的AP50–95+0.3349pp；V2−P1 AP−0.1628pp／AP_small−0.2279pp／FP+7.8971%，
+七护栏仅2项通过，停止V2、保留原P1。见[三方法完整结果](docs/paper/candidates/competitive_negative_v2/results30.md)。
+现有目录不重训，只读复核：
 
 ```powershell
-& C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe scripts/run_p1_main_comparison_repair.py --check-only
+& C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe scripts/run_p1_main_comparison_repair.py --audit
 ```
 
-此命令不训练／推理；V2已通过单批CUDA AMP和315tests，本次未启动训练。
+此命令不训练／推理；V2的工程验证与性能终态分开，见[V2记录](docs/paper/candidates/competitive_negative_v2/README.md)。
 原主三臂candidate首批失败、B2／P1均已成功，其证据及冻结合同保留，勿在原目录重跑。
 
 2026-11-03新增[第一篇扩大方向评审](docs/paper/candidates/competitive_negative/direction_review.md)：
@@ -22,7 +23,7 @@
 ```
 
 两命令均不训练／新推理，仅作历史诊断复核；旧学生合同和固定停止条件见
-[独立学生协议](docs/paper/candidates/competitive_negative/student_protocol.md)，当前训练只用顶部V2入口。
+[独立学生协议](docs/paper/candidates/competitive_negative/student_protocol.md)，当前无新训练任务。
 
 第一篇整理入口：[正文1–6章](docs/paper/README.md)、
 [现有成果与证据地图](docs/paper/paper1_writeup_plan.md)、

@@ -1,7 +1,11 @@
 # 竞争负项V2：AMP修复与B2／P1复用
 
-状态（2026-11-03）：修复、缓存重放、单批CUDA AMP及315项测试通过；
-**未启动训练，尚无V2性能结论。** [验证记录](validation.md)／[独立冻结协议](protocol.md)。
+最新状态（2026-11-03）：V2完整30轮／exit0及三权重统一评估、只读终态审计通过。
+改进−P1：AP50–95−0.1628pp、AP_small−0.2279pp、P90 small+0.3650pp，
+FP+7.8971%，七护栏仅2项通过，停止本候选、不扩训；原P1保留。
+见[完整三方法结果](results30.md)／[终态独立验证](terminal_validation.md)。
+以下为执行前准备记录，已完成目录不能再执行`--train`／`--check-only`；复核只用`--audit`。
+[工程验证记录](validation.md)／[独立冻结协议](protocol.md)保持原样。
 
 原实验保留在`outputs/p1_competitive_negative_main30_s0/`，原candidate首批失败记录不改。
 复用其中已完整30轮且exit0的B2与原P1，只重新初始化并训练改进组30轮。

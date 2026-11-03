@@ -1,5 +1,8 @@
 # AMP修订与复用调度验证（2026-11-03）
 
+后续终态：V2完整30轮及统一三方法评估已经完成，见[结果](results30.md)和
+[独立终态验证](terminal_validation.md)。以下保留执行前工程验证范围，不替代终态记录。
+
 ## Material Passport
 
 - Origin Skill / Mode: academic-research-suite / experiment-agent validate
