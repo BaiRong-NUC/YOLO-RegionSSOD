@@ -62,6 +62,12 @@ NWD、回归置信度和覆盖保护均未达原继续条件，不默认叠加�
 
 ## E. 复现与保存
 
+2026-11-03新增独立候选：[竞争类别负项衰减](candidates/competitive_negative/README.md)。
+`training/competitive_negative.py`与`configs/candidates/competitive_negative/`单独保存，
+原P1及类别分数实现/合同未改。`diagnose_competitive_negative.py`完成六缓存重放；
+`run_p1_competitive_negative.py`提供新原P1/语义动作/强度控制三臂30轮的预检与手动入口。
+当前仅工程准备，未训练/未取得新学生效果；不替换上文任何已完成结果。
+
 [成果保存说明](preservation.md)记录Git保存点和本地大文件副本；
 [论文结构与证据](paper1_writeup_plan.md)负责写作导航；
 [文献地图](literature_map.md)把参考论文分别连接到已完成主线和未验证候选。

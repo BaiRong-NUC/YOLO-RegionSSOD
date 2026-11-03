@@ -1,5 +1,22 @@
 # Baseline 执行协议
 
+## 2026-11-03：原P1互补候选准备，尚未训练
+
+[竞争负项候选](paper/candidates/competitive_negative/README.md)保留原P1正目标，
+仅调整歧义top2的负监督，另设匹配负梯度L1强度控制。
+[六缓存重放/教师统计](paper/candidates/competitive_negative/diagnostic_results.md)已完成，
+所有结果为已查看数据上的探索。当前只读复核/零步骤预检：
+
+```powershell
+& C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe scripts/diagnose_competitive_negative.py --audit
+& C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe scripts/run_p1_competitive_negative.py --check-only
+```
+
+三臂各30轮、AP/P70/严格IoU/误报护栏与精确手动启动命令见
+[独立学生合同](paper/candidates/competitive_negative/student_protocol.md)。
+旧30轮已结束，当前没有新训练运行，勿重复旧训练。
+原P1/类别分数代码和合同不改，不与历史B2或100轮拼接三臂结果。
+
 ## 成果保存与候选隔离（2026-11-02）
 
 原P1主线、旧消融和新增评估工具见[分轨索引](paper/research_tracks.md)；

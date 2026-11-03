@@ -93,3 +93,13 @@ COCO-style 的 AP_all 平均差为 +0.1792pp，与 Ultralytics 的 +0.1939pp 分
 
 现有成果足以启动有结果支撑的完整初稿；能否满足目标期刊的创新和实验要求仍未判定。
 原Gate3/4保持原结论。
+
+## 6. 2026-11-03扩大成果研究更新
+
+完成[六学生缓存/教师竞争类别诊断](candidates/competitive_negative/diagnostic_results.md)，
+优先准备[保持正类目标的负项衰减＋强度控制三臂30轮](candidates/competitive_negative/student_protocol.md)。
+这是待验证的新研究轨，不能进入已完成方法贡献或主结果表；原类别分数失败继续保留。
+最近邻与机器实际阅读范围见[文献复核](candidates/competitive_negative/literature_review.md)。
+若优先补原论文证据，推荐新的10%区域split的B2/P1配对；5%/20%、B0与同协议
+S³OD的价值、成本及主张边界见[方向评审](candidates/competitive_negative/direction_review.md)。
+本次未训练，不改变原正式100轮正文数字。

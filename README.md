@@ -1,5 +1,18 @@
 # YOLO-RegionSSOD
 
+2026-11-03新增[第一篇扩大方向评审](docs/paper/candidates/competitive_negative/direction_review.md)：
+已完成六学生缓存与教师分数的[零训练诊断](docs/paper/candidates/competitive_negative/diagnostic_results.md)，
+优先准备保留正目标的竞争类别负项衰减及强度控制，学生尚未训练。
+原P1与旧类别分数负结果均保留，不将新候选视为已验证升级。
+
+```powershell
+& C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe scripts/diagnose_competitive_negative.py --audit
+& C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe scripts/run_p1_competitive_negative.py --check-only
+```
+
+两命令均不训练/新推理；三臂各30轮的可选执行命令及固定停止条件见
+[独立学生协议](docs/paper/candidates/competitive_negative/student_protocol.md)，由用户执行。
+
 第一篇整理入口：[正文1–6章](docs/paper/README.md)、
 [现有成果与证据地图](docs/paper/paper1_writeup_plan.md)、
 [代码/旧改进点/新候选分轨](docs/paper/research_tracks.md)。
