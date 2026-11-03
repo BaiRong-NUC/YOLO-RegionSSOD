@@ -1,8 +1,8 @@
 # 论文完成计划与项目交接
 
 > 最后更新：2026-11-03<br>
-> 运行更新：用户已于10:04启动新主三臂，当前B2首轮正常增长；39,828项输入哈希及实际参数核对通过，临时监控p1每15分钟静默检查，完成后审计B2/P1/改进绝对结果与三项增量并删除。见第3.68节。<br>
-> 当前对照已按用户澄清更新：B2基线、原P1、P1＋竞争负项为三个全新30轮学生，主表同时给绝对值及三项差值；强度控制另列为可选第四组。新入口run_p1_main_comparison.py，未启动，见第3.67节。<br>
+> 运行终态：新主对照B2／原P1均连续完成30轮并exit0；竞争负项candidate在首批损失前向断言失败、exit1，0完整轮且无权重；统一val960／PR评估未执行，不能给三臂性能结论。39,828冻结输入复核一致，原证据及独立快照保留，不自动重试；终态收尾删除p1，见第3.69节。<br>
+> 当前对照：B2基线、原P1、P1＋竞争负项的绝对值及三项差值仍为待完成目标；新入口run_p1_main_comparison.py本次已工程失败，勿在原输出目录重跑。协议见第3.67节。<br>
 > 本轮研究：竞争负项候选完成六学生缓存/教师分数零训练诊断与隔离工程准备；原P1正目标保留，三臂30轮加入负梯度强度控制，尚未启动。支持信号与误报反证、文献差异、停止条件及精确手动命令见第3.66节。<br>
 > 成果保留：现有P1源码基点c1ecf6c已制作独立代码/产物副本，58,707文件约4.20 GiB；正文入口paper/README.md、100轮主结果及讨论/结论已整理。新方向“原P1＋类别分数分类监督”已完成两臂各30轮及独立验收，IoU.50/P90 small +0.8203pp但AP/AP_small/P70退化，未通过扩大条件；详见第3.65节，原成果保留。<br>
 > 当前执行范围：只推进A第一篇方法稿；B/C、蒸馏剪枝和树莓派部署留在远期规划，不并行启动。<br>
@@ -1838,6 +1838,23 @@ baseline子进程46736（10:04:40，父8452）的CIM完整命令、创建时间�
 本轮仅核对/监控与文档记录，没有新训练或推理启动；主计划文件已确认不在该运行
 冻结输入映射中，本次文档修改不会使后续worker的输入校验失效。
 
+### 3.69 主三臂candidate首批工程失败终态（2026-11-03 14:08）
+
+心跳发现包装stage=failed；原B2／reference均连续1–30轮且exit0，CSV累计时间
+6697.56／7078.94秒。candidate在第1轮0/1414批的损失前向抛出
+`ValueError: original hard pseudo-positive TAL target required`，exit1，无CSV／权重。
+断言同时检查教师top1一致性、正目标质量及单类非零性，原日志不能确定具体触发分支。
+这是工程失败，不是完整30轮的性能负结果；此前工程测试不能替代真实CUDA验证。
+
+终态只读复核39,828输入，缺失／哈希不一致均0；无本入口Python进程。
+17份原日志／状态／参数／CSV独立快照哈希一致，四份已完成权重哈希另存于
+`outputs/p1_competitive_negative_main30_s0/terminal_failure_20261103_140708_a233c4/failure_receipt.json`。
+自动统一评估、训练审计和main_comparison／decision均未生成，未运行成功终态audit，
+未追加推理；七项性能护栏NOT_EVALUATED，无strength机制NOT_TESTED。
+报告见`paper/candidates/competitive_negative/main_comparison_failure_20261103.md`。
+源码／冻结合同／输入完全不改，不自动修复、重训、恢复或扩100轮；
+后续若排障须独立验证和新冻结输出，已完成B2／P1保留。中文提交push后删除临时p1。
+
 ## 4. 固定实验协议
 
 ### 4.1 训练与评估
@@ -2164,6 +2181,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-11-03（用户明确基线/P1/改进主对照） | 本次中文提交并push | 增加新B2完整30轮，主三臂给绝对值及三项差值，强度控制另列可选第四组 | 第3.67节；paper/candidates/competitive_negative/main_comparison_protocol.md；run_p1_main_comparison.py | 实际旧三臂未启动；新B2冻结教师/27667伪框/11095tile绑定及零步骤预检；工程测试见validation | 准备完成，未训练；当前用新入口，保留旧合同与所有证据；不跨30/100轮叠加增益 |
 
 | 2026-11-03 10:06（主三臂启动核对与监控） | 本次中文记录并push | 用户已启动后核对真实命令/父子链、39,828输入哈希及B2实际args，建立p1每15分钟临时心跳 | 第3.68节；outputs/p1_competitive_negative_main30_s0/monitor_initial_check_20261103.json | B2首轮持续增长；baseline/reference/candidate三臂，无控制组；临时监控ACTIVE | 正常静默，完整30轮及自动评估后独立audit并比较绝对值/三项增量；异常保留证据、不重跑；终态报告/中文提交push后删除p1 |
+
+| 2026-11-03 14:08（主三臂工程失败收尾） | 本次中文记录并push | B2／P1连续30轮exit0；candidate首批硬正目标断言exit1，未进入统一评估；保留证据并收尾临时监控 | 第3.69节；paper/candidates/competitive_negative/main_comparison_failure_20261103.md；outputs/p1_competitive_negative_main30_s0/terminal_failure_20261103_140708_a233c4/ | 39,828冻结输入全部一致，17原文件快照一致，四权重哈希保存，无训练进程；candidate完整轮次0／无权重 | 工程失败不判性能；三臂差值和七护栏NOT_EVALUATED，机制NOT_TESTED；不自动修复／重跑／追加推理，文档commit并push后删除p1 |
 
 ### 10.1 新会话开始流程
 
