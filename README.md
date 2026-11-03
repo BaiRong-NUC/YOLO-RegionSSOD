@@ -1,18 +1,19 @@
 # YOLO-RegionSSOD
 
-当前建议入口（2026-11-03用户明确成果对照）：**B2基线、原P1、P1＋竞争负项各30轮**，
-自动显示绝对值及P1−B2、改进−P1、改进−B2；强度控制单独可选。
-[新主对照协议与手动启动命令](docs/paper/candidates/competitive_negative/main_comparison_protocol.md)。
+当前建议入口（2026-11-03 AMP修复）：**复用已完成30轮的B2／原P1，只训练修订改进组30轮**，
+之后统一评估三权重，给绝对值及P1−B2、改进−P1、改进−B2。
+[V2修复、验证与准确执行命令](docs/paper/candidates/competitive_negative_v2/README.md)。
 
 ```powershell
-& C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe scripts/run_p1_main_comparison.py --check-only
+& C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe scripts/run_p1_main_comparison_repair.py --check-only
 ```
 
-此命令不训练/推理。旧三臂机制合同及入口保留作历史版本，当前优先使用新主对照入口。
+此命令不训练／推理；V2已通过单批CUDA AMP和315tests，本次未启动训练。
+原主三臂candidate首批失败、B2／P1均已成功，其证据及冻结合同保留，勿在原目录重跑。
 
 2026-11-03新增[第一篇扩大方向评审](docs/paper/candidates/competitive_negative/direction_review.md)：
 已完成六学生缓存与教师分数的[零训练诊断](docs/paper/candidates/competitive_negative/diagnostic_results.md)，
-优先准备保留正目标的竞争类别负项衰减及强度控制，学生尚未训练。
+该阶段准备保留正目标的竞争类别负项衰减及强度控制，后续状态以顶部V2入口为准。
 原P1与旧类别分数负结果均保留，不将新候选视为已验证升级。
 
 ```powershell
@@ -20,8 +21,8 @@
 & C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe scripts/run_p1_competitive_negative.py --check-only
 ```
 
-两命令均不训练/新推理；三臂各30轮的可选执行命令及固定停止条件见
-[独立学生协议](docs/paper/candidates/competitive_negative/student_protocol.md)，由用户执行。
+两命令均不训练／新推理，仅作历史诊断复核；旧学生合同和固定停止条件见
+[独立学生协议](docs/paper/candidates/competitive_negative/student_protocol.md)，当前训练只用顶部V2入口。
 
 第一篇整理入口：[正文1–6章](docs/paper/README.md)、
 [现有成果与证据地图](docs/paper/paper1_writeup_plan.md)、

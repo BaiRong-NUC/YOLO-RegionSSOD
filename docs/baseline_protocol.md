@@ -1,18 +1,27 @@
 # Baseline 执行协议
 
-## 当前主对照入口：基线→P1→改进（2026-11-03用户澄清）
+## 当前主对照入口：复用B2／P1，仅训练AMP修订改进组（2026-11-03）
 
-默认三个全新学生：B2全局阈值基线、原P1、P1＋竞争负项，各完整30轮。
-同split/teacher/初始化/学生seed与评估路径，同时报告三个绝对结果和三项差值。
-不把旧B2或100轮增益与新30轮拼接。强度控制可用`--with-control`作为第四组，另列机制结果。
+原主三臂B2／P1均成功完成30轮，竞争负项首批发生AMP目标下溢断言。
+V2已工程验证，只新训练一个改进学生30轮，复用同次主对照的B2／P1冻结best。
+同split／teacher／COCO初始化／seed／训练参数；源码commit差异明确披露。
+不拼历史30轮或100轮数字；无strength，机制NOT_TESTED。
 
 ```powershell
-& C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe scripts/run_p1_main_comparison.py --check-only
+& C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe scripts/run_p1_main_comparison_repair.py --check-only
 ```
 
-预检不训练；主三臂手动启动/审计命令及成本、完整停止条件见
-[主对照新协议](paper/candidates/competitive_negative/main_comparison_protocol.md)。
-当前未启动训练，以下旧三臂机制入口保留为历史版本。
+预检不训练／推理；[V2执行说明与验证记录](paper/candidates/competitive_negative_v2/README.md)。
+用户实际执行命令（本次未启动）：
+
+```powershell
+& C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe -u scripts/run_p1_main_comparison_repair.py --train
+```
+
+该命令只训练改进组，完成后自动统一评估／审计三权重，产出三项差值并判定七项护栏。
+新输出`outputs/p1_competitive_negative_main30_v2_s0/`，新run`p1_maincmp_improved_v2_30_s0`。
+终态只读`python scripts/run_p1_main_comparison_repair.py --audit`。
+旧原协议／失败证据／已完成权重均保留；以下旧三臂机制入口仅作历史版本。
 
 ## 2026-11-03：原P1互补候选准备，尚未训练
 

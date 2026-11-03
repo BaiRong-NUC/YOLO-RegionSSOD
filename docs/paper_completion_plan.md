@@ -1,6 +1,7 @@
 # 论文完成计划与项目交接
 
 > 最后更新：2026-11-03<br>
+> 当前执行入口：AMP修复V2已通过单批CUDA、缓存／梯度／调度验证和315tests；复用同次B2／P1完整30轮权重，只运行新改进组30轮后统一评估三方法。入口run_p1_main_comparison_repair.py，预检通过，本次未启动训练；原实验及失败证据保留，见第3.71节。<br>
 > 最新排障：真实单批CUDA AMP复现表明，1个伪前景TAL质量8.7088e-9转FP16成为0，触发竞争负项过强断言；649个伪前景无教师／分配类别不一致，原P1损失正常。完成零优化步骤定位和dtype控制重放，286tests通过；未修订原训练实现或重训，见第3.70节。<br>
 > 运行终态：新主对照B2／原P1均连续完成30轮并exit0；竞争负项candidate在首批损失前向断言失败、exit1，0完整轮且无权重；统一val960／PR评估未执行，不能给三臂性能结论。39,828冻结输入复核一致，原证据及独立快照保留，不自动重试；终态收尾删除p1，见第3.69节。<br>
 > 当前对照：B2基线、原P1、P1＋竞争负项的绝对值及三项差值仍为待完成目标；新入口run_p1_main_comparison.py本次已工程失败，勿在原输出目录重跑。协议见第3.67节。<br>
@@ -1874,6 +1875,31 @@ FP16在semantic／strength均失败、FP32均通过。历史首批无张量，�
 本轮只定位／验证，不修改冻结训练源码／合同，不重启／恢复／补评估。
 新增定位代码及三项边界测试，全套pytest286 passed；中文commit并push。
 
+### 3.71 AMP独立修复验证与复用B2／P1的单组执行准备（2026-11-03）
+
+按用户明确授权修复／验证／准备命令，不启动训练。先写V2独立协议，新增
+`training/competitive_negative_v2.py`及独立semantic30配置，原P1／旧candidate源码、
+合同及失败输出完全保留。真实分配类别／原TAL目标负责来源校验；FP16下溢或原零质量
+前景的额外动作权重为1，原正类始终受保护；其余仍用原r>=.25、top2负项减半。
+
+- 重放1988前景／649伪前景；semantic／strength各19个active，非零目标与旧权重精确一致。
+- 真实单批8图CUDA AMP：旧实现仍报错、V2正常，1下溢目标保留；同预测分配／box／DFL
+  完全一致、正目标及分配正类权重变化0，训练循环／反向／优化均0、参数哈希不变。
+- 新入口`run_p1_main_comparison_repair.py`仅允许candidate worker，预检核对原39828输入、
+  失败证据、B2／P1连续1–30轮exit0及四权重；新输出／run存在就拒绝，无自动重试／恢复。
+- 复用同次`p1_maincmp_b2_30_s0`与`p1_maincmp_p1_30_s0`；新run为
+  `p1_maincmp_improved_v2_30_s0`，主输出`outputs/p1_competitive_negative_main30_v2_s0/`。
+  只剩改进学生约2–3小时粗估，另加548图val960／三权重AP_small与双IoU PR及审计。
+- 主表包含三绝对结果、P1−B2／改进−P1／改进−B2、全部类别正负差值／FP／成本；
+  原七项护栏不变，源码commit差异／复用如实披露，无strength机制NOT_TESTED，不自动100轮。
+- 全套pytest315 passed in 8.78s；调度／报告合成集成测试不启动模型或推理。
+  真实验证回执在`outputs/p1_competitive_negative_v2_validation_20261103/`，
+  只读预检回执独立保存到`outputs/p1_main_comparison_v2_preflights/`。
+
+精确命令、来源和限制见`paper/candidates/competitive_negative_v2/{README,protocol,validation}.md`。
+本轮没有正式训练／评估，也无V2性能结论；训练启动后才建立临时监控。
+README／baseline协议已更新；中文commit并push，保留原历史负结果及Gate3／4边界。
+
 ## 4. 固定实验协议
 
 ### 4.1 训练与评估
@@ -2204,6 +2230,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-11-03 14:08（主三臂工程失败收尾） | 本次中文记录并push | B2／P1连续30轮exit0；candidate首批硬正目标断言exit1，未进入统一评估；保留证据并收尾临时监控 | 第3.69节；paper/candidates/competitive_negative/main_comparison_failure_20261103.md；outputs/p1_competitive_negative_main30_s0/terminal_failure_20261103_140708_a233c4/ | 39,828冻结输入全部一致，17原文件快照一致，四权重哈希保存，无训练进程；candidate完整轮次0／无权重 | 工程失败不判性能；三臂差值和七护栏NOT_EVALUATED，机制NOT_TESTED；不自动修复／重跑／追加推理，文档commit并push后删除p1 |
 
 | 2026-11-03（竞争负项首批定位） | 本次中文记录并push | 先协议，单批CUDA AMP零优化步骤复现，缓存dtype控制重放与回归测试 | 第3.70节；paper/candidates/competitive_negative/debug_results_20261103.md；outputs/p1_competitive_negative_debug_20261103_v1/ | 649伪前景无类别绑定错；1个TAL质量8.7088e-9转FP16为0触发过强断言，同预测原P1损失正常；286tests，参数及监测原文件未变 | 完成工程定位，非训练性能；原实现／合同和失败证据保留，不自动重训；后续独立修订需分开类别合法性和数值检查并保护strength正类 |
+
+| 2026-11-03（AMP修复与B2／P1复用准备） | 本次中文记录并push | 独立V2数值修复、缓存／梯度／单批CUDA及只调度candidate的来源审计入口 | 第3.71节；paper/candidates/competitive_negative_v2/；outputs/p1_competitive_negative_v2_validation_20261103/ | 1988前景缓存通过；真实8图AMP通过，分配／box／DFL不变、正类改动0／优化0；315tests；复用预检通过 | 未启动训练；只准备新改进组30轮命令，原B2／P1权重及旧失败证据保留；完成后统一评估三方法与三项差值；七护栏不变、机制NOT_TESTED、不自动100轮 |
 
 ### 10.1 新会话开始流程
 
