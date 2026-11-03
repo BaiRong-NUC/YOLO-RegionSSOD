@@ -1,14 +1,16 @@
 # Baseline 执行协议
 
-2026-11-03新准备：人工GT正锚点竞争负监督与等强度控制均已工程验证，
-新参考／候选／控制三臂各完整30轮，默认全部重新从同COCO初始化，不复用历史P1数字。
-工程通过，学生性能及机制仍NOT_TESTED；本次未训练／val推理／创建监控。
-准确手动启动、自动统一548图评估及只读audit见
-[独立三臂协议](paper/candidates/reliable_competitor_negative/student_protocol.md)。
+2026-11-04新终态：人工GT可信竞争负监督全新参考／候选／控制三臂各完整30轮、exit0，
+548图val960及独立只读audit通过；原P1与旧V2失败独立保留。
+候选−新P1 AP50–95−0.3502pp／AP_small−0.1088pp／conf.25 small−3.1682pp，
+P90 small+1.1890pp／FP−22.5377%／错类FP−25.5983%；十线5过，按合同停止候选。
+候选−控制AP−0.2034pp／AP_small+0.2063pp，机制未建立，不调val／重试／恢复／100轮。
+完整绝对值、正负差值、全部类别与成本见[新三臂结果](paper/candidates/reliable_competitor_negative/results30.md)，
+[独立audit边界](paper/candidates/reliable_competitor_negative/terminal_validation.md)。现仅只读：
 
 ```powershell
 Set-Location D:/Python/YOLO-RegionSSOD
-& C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe scripts/run_reliable_competitor_negative.py --check-only
+& C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe -B scripts/run_reliable_competitor_negative.py --audit
 ```
 
 新增只读诊断（不训练／推理）：`python scripts/diagnose_p1_v2_bottleneck.py --audit`；

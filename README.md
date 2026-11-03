@@ -1,18 +1,19 @@
 # YOLO-RegionSSOD
 
-2026-11-03当前准备：[人工GT正锚点可信竞争类负监督](docs/paper/candidates/reliable_competitor_negative/README.md)
-已实现候选／等强度控制与显式来源运输，单个8图AMP batch和缓存工程验证通过，
-零优化步骤、未启动训练；**学生性能／语义机制均未验证**。
-三臂新参考各30轮的冻结协议、成本与手动命令见
-[执行协议](docs/paper/candidates/reliable_competitor_negative/student_protocol.md)。
-先运行零训练预检（不会创建训练输出）：
+2026-11-04当前终态：[人工GT可信竞争负监督三臂结果](docs/paper/candidates/reliable_competitor_negative/results30.md)。
+全新P1参考／候选／等强度控制各完整30轮、exit0，统一548图val960及独立只读audit通过。
+候选−P1：AP50–95−0.3502pp／AP_small−0.1088pp／conf.25 small recall−3.1682pp；
+P90 small+1.1890pp、FP−22.5377%、wrong-class FP−25.5983%，收益与代价同时保留。
+十项投入门槛仅5项通过；相对控制AP−0.2034pp，机制未建立，按冻结合同停止候选、保留原P1。
+工程通过不等于性能条件通过。当前只读复核（不要在已有目录重训／恢复）：
 
 ```powershell
 Set-Location D:/Python/YOLO-RegionSSOD
-& C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe scripts/run_reliable_competitor_negative.py --check-only
+& C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe -B scripts/run_reliable_competitor_negative.py --audit
 ```
 
-本次不训练、不创建空监控；实际启动后再建立临时监控，终态处理后删除。
+完整十项门槛、全部类别／FP类型／成本及审计边界见[独立验证](docs/paper/candidates/reliable_competitor_negative/terminal_validation.md)。
+原[工程与学生合同](docs/paper/candidates/reliable_competitor_negative/student_protocol.md)为冻结历史，现以本终态为准；不调val／重试／扩训。
 
 2026-11-03新增[V2召回／AP分歧与原P1瓶颈诊断](docs/paper/diagnostics/competitive_negative_v2_bottleneck/results.md)：
 相同FP预算下V2比P1少137个small匹配；完成零训练／零新推理重放和318tests。
