@@ -62,6 +62,11 @@ NWD、回归置信度和覆盖保护均未达原继续条件，不默认叠加�
 
 ## E. 复现与保存
 
+2026-11-03用户澄清成果对照后，当前入口更新为`run_p1_main_comparison.py`：
+新B2/原P1/P1＋竞争负项主三臂各30轮，报告P1−B2、改进−P1、改进−B2。
+[新合同](candidates/competitive_negative/main_comparison_protocol.md)独立保存，
+强度控制可选第四组，主结果与机制结果分列；旧合同/实现保留，未启动训练。
+
 2026-11-03新增独立候选：[竞争类别负项衰减](candidates/competitive_negative/README.md)。
 `training/competitive_negative.py`与`configs/candidates/competitive_negative/`单独保存，
 原P1及类别分数实现/合同未改。`diagnose_competitive_negative.py`完成六缓存重放；

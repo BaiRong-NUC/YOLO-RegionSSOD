@@ -1,5 +1,19 @@
 # Baseline 执行协议
 
+## 当前主对照入口：基线→P1→改进（2026-11-03用户澄清）
+
+默认三个全新学生：B2全局阈值基线、原P1、P1＋竞争负项，各完整30轮。
+同split/teacher/初始化/学生seed与评估路径，同时报告三个绝对结果和三项差值。
+不把旧B2或100轮增益与新30轮拼接。强度控制可用`--with-control`作为第四组，另列机制结果。
+
+```powershell
+& C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe scripts/run_p1_main_comparison.py --check-only
+```
+
+预检不训练；主三臂手动启动/审计命令及成本、完整停止条件见
+[主对照新协议](paper/candidates/competitive_negative/main_comparison_protocol.md)。
+当前未启动训练，以下旧三臂机制入口保留为历史版本。
+
 ## 2026-11-03：原P1互补候选准备，尚未训练
 
 [竞争负项候选](paper/candidates/competitive_negative/README.md)保留原P1正目标，

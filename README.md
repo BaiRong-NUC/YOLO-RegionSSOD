@@ -1,5 +1,15 @@
 # YOLO-RegionSSOD
 
+当前建议入口（2026-11-03用户明确成果对照）：**B2基线、原P1、P1＋竞争负项各30轮**，
+自动显示绝对值及P1−B2、改进−P1、改进−B2；强度控制单独可选。
+[新主对照协议与手动启动命令](docs/paper/candidates/competitive_negative/main_comparison_protocol.md)。
+
+```powershell
+& C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe scripts/run_p1_main_comparison.py --check-only
+```
+
+此命令不训练/推理。旧三臂机制合同及入口保留作历史版本，当前优先使用新主对照入口。
+
 2026-11-03新增[第一篇扩大方向评审](docs/paper/candidates/competitive_negative/direction_review.md)：
 已完成六学生缓存与教师分数的[零训练诊断](docs/paper/candidates/competitive_negative/diagnostic_results.md)，
 优先准备保留正目标的竞争类别负项衰减及强度控制，学生尚未训练。
