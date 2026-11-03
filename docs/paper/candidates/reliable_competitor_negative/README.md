@@ -1,11 +1,11 @@
-# 待验证方向：人工正锚点的可信竞争类负监督
+# 人工正锚点的可信竞争类负监督：实现与三臂准备
 
 ## Material Passport
 
 - Origin Skill / Mode: academic-research-suite / experiment-agent plan
 - Origin Date: 2026-11-03 (Asia/Shanghai)
-- Verification Status: PLANNED；未实现候选训练器、未验证学生效果、未启动训练
-- Version Label: human_positive_competitor_negative_plan_v1
+- Verification Status: 工程验证通过；学生性能NOT_TESTED；机制NOT_TESTED；未启动训练
+- Version Label: reliable_competitor_negative_v1
 
 ## 假设与最小动作
 
@@ -48,7 +48,10 @@ sigmoid极端下溢时使用稳定精度并显式保持零新增梯度，不靠�
 人工／伪框来源和类别绑定、正目标及分配正类权重改动0、原TAL／box／DFL不变、
 附加动作只落到人工正锚点的非y类、未触发样本与原P1梯度相等、语义／控制新增
 负logit梯度L1相等、AMP／零质量边界和参数不变。前向／张量重放不是性能证据。
-本次只完成计划，没有执行这一步，也没有候选源码／可直接启动的训练命令。
+本次按先行[工程合同](engineering_protocol.md)实现并验证，详见[验证记录](validation.md)。
+源码独立为`src/regionssod/training/reliable_competitor_negative.py`，
+配置独立为`configs/candidates/reliable_competitor_negative/`，旧P1／V2不改。
+来源和真实类别在任何零质量筛选之前检查，解码ignore之前也校验全部对象。
 
 通过工程检查后，再审阅冻结三臂同split0／teacher／COCO初始化／seed0／30轮／
 640／batch8／SGD／AMP／548图val960方案；无新增伪框、阈值、增强或数据重采样。
@@ -77,4 +80,5 @@ sigmoid极端下溢时使用稳定精度并显式保持零新增梯度，不靠�
 锚点筛选或类别名单；全过也不自动100轮，需另做学生seed和独立区域split确认。
 
 结果依据与文献差异见[缓存瓶颈报告](../../diagnostics/competitive_negative_v2_bottleneck/results.md)。
-当前最小下一步是审阅并工程验证这一单变量；**本文件不是训练执行入口**。
+可审阅的冻结三臂及准确手动命令见[独立执行协议](student_protocol.md)。
+默认新训练原P1参考，不复用历史数字；本次只运行工程检查和零训练预检。

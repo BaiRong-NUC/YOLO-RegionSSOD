@@ -1,9 +1,20 @@
 # Baseline 执行协议
 
+2026-11-03新准备：人工GT正锚点竞争负监督与等强度控制均已工程验证，
+新参考／候选／控制三臂各完整30轮，默认全部重新从同COCO初始化，不复用历史P1数字。
+工程通过，学生性能及机制仍NOT_TESTED；本次未训练／val推理／创建监控。
+准确手动启动、自动统一548图评估及只读audit见
+[独立三臂协议](paper/candidates/reliable_competitor_negative/student_protocol.md)。
+
+```powershell
+Set-Location D:/Python/YOLO-RegionSSOD
+& C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe scripts/run_reliable_competitor_negative.py --check-only
+```
+
 新增只读诊断（不训练／推理）：`python scripts/diagnose_p1_v2_bottleneck.py --audit`；
 [V2失效与原P1瓶颈](paper/diagnostics/competitive_negative_v2_bottleneck/results.md)及
 [新方向计划](paper/candidates/reliable_competitor_negative/README.md)。
-新方向没有已验证训练入口，勿将计划当作训练命令。
+上述为旧诊断与初始计划，当前工程实现与三臂入口见顶部新协议。
 
 ## 当前主对照终态：V2完成，复用B2／P1比较已审计（2026-11-03）
 

@@ -1,9 +1,23 @@
 # YOLO-RegionSSOD
 
+2026-11-03当前准备：[人工GT正锚点可信竞争类负监督](docs/paper/candidates/reliable_competitor_negative/README.md)
+已实现候选／等强度控制与显式来源运输，单个8图AMP batch和缓存工程验证通过，
+零优化步骤、未启动训练；**学生性能／语义机制均未验证**。
+三臂新参考各30轮的冻结协议、成本与手动命令见
+[执行协议](docs/paper/candidates/reliable_competitor_negative/student_protocol.md)。
+先运行零训练预检（不会创建训练输出）：
+
+```powershell
+Set-Location D:/Python/YOLO-RegionSSOD
+& C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe scripts/run_reliable_competitor_negative.py --check-only
+```
+
+本次不训练、不创建空监控；实际启动后再建立临时监控，终态处理后删除。
+
 2026-11-03新增[V2召回／AP分歧与原P1瓶颈诊断](docs/paper/diagnostics/competitive_negative_v2_bottleneck/results.md)：
 相同FP预算下V2比P1少137个small匹配；完成零训练／零新推理重放和318tests。
-[人工正锚点可信竞争类负监督](docs/paper/candidates/reliable_competitor_negative/README.md)仅是下一验证计划，
-未实现训练入口。缓存只读复核：
+[人工正锚点可信竞争类负监督](docs/paper/candidates/reliable_competitor_negative/README.md)后续实现状态见顶部；
+原瓶颈诊断缓存只读复核：
 
 ```powershell
 & C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe scripts/diagnose_p1_v2_bottleneck.py --audit

@@ -1,7 +1,8 @@
 # 论文完成计划与项目交接
 
 > 最后更新：2026-11-03<br>
-> 最新诊断：V2固定conf.25 small净+99，但同7889 FP预算为−137、同27237预测数为−84；新增623 FP含错类218／背景166／重复121／近定位78／近异类40。原P1 P90的small FN中60.03%有同类低分可匹配框，高分FP中69.91%错类；严格IoU另有定位上限，不能认定唯一训练根因。完成零训练／零推理缓存精确重放及318tests，优先验证“人工GT正锚点可信竞争类负监督”，仅计划、无候选训练入口，不启动训练，见第3.74节。<br>
+> 当前准备：人工GT正锚点可信竞争负监督／等强度控制／显式来源运输已实现，单个8图真实AMP batch及同缓存重放通过，参数不变、优化步0。三臂各完整30轮已准备，默认新参考；本次不训练、不建监控。工程通过，学生性能及机制NOT_TESTED；见第3.75节与独立执行协议。<br>
+> 最新诊断：V2固定conf.25 small净+99，但同7889 FP预算为−137、同27237预测数为−84；新增623 FP含错类218／背景166／重复121／近定位78／近异类40。原P1 P90的small FN中60.03%有同类低分可匹配框，高分FP中69.91%错类；严格IoU另有定位上限，不能认定唯一训练根因。完成零训练／零推理缓存精确重放及318tests；当时的新方向计划与诊断见第3.74节，后续工程准备见第3.75节，本次仍不训练。<br>
 > 最新终态：AMP修复V2改进组完整30轮／exit0、三方法统一548图val960及独立audit通过。原P1−B2的AP50–95+0.3349pp／conf.25 small+2.2012pp；V2−P1的AP−0.1628pp／AP_small−0.2279pp／P90 small+0.3650pp／FP+7.8971%，七护栏仅2项通过，停止本候选、保留原P1，不扩训。完整表与限制见第3.73节及paper/candidates/competitive_negative_v2/results30.md；终态收尾删除p1-v2。<br>
 > 最新排障：真实单批CUDA AMP复现表明，1个伪前景TAL质量8.7088e-9转FP16成为0，触发竞争负项过强断言；649个伪前景无教师／分配类别不一致，原P1损失正常。完成零优化步骤定位和dtype控制重放，286tests通过；未修订原训练实现或重训，见第3.70节。<br>
 > 历史工程失败：原新主对照B2／P1完成30轮，但旧candidate首批断言exit1、0完整轮／无权重；原目录未统一评估，不给旧candidate性能结论。39,828输入和原证据保留，旧p1已删除，见第3.69节；该失败不覆盖顶部V2完整结果。<br>
@@ -2008,6 +2009,36 @@ LabelMatch仍未读全文。完整结果／11项解释检查见
 原P1和全部失败保留。若暂不试方法，独立区域split的原P1／B2配对及B0仍是补证据优先项。
 中文commit并push。
 
+### 3.75 人工GT正锚点竞争负监督：工程实现与新三臂准备（2026-11-03）
+
+用户授权完成实现／工程验证／实验准备，明确本次不训练。起点核对main干净、HEAD bd1435d。
+使用项目ARS experiment-agent validate；先写工程合同，再保存新源码、配置、测试和报告。
+原P1继续为主方法，V2完整30轮2／7失败和全部历史证据保留，不追改第3.73／3.74结论。
+
+新候选仅增强人工GT有效正锚点最难非真类负BCE为2倍；detach学生概率，固定ID解并列。
+控制同锚点所有非真类乘1+p_k/sum(p_negative)，仅局部负logit梯度L1匹配。
+沿原P1标量token路径显式运输来源／真实类别／对象ID，通过mosaic／裁剪后仍绑定。
+置信度为1的伪框仍为伪来源；损坏来源先拒绝，零有效质量／FP16目标下溢不动作。
+不改P1 TAL／分母／ignore／正类权重／伪框监督／box／DFL，不加模块／教师推理／重采样。
+
+合法旧前景缓存1988锚点重放通过；为检查新运输和完整loss，只额外取一个真实8图batch、
+640／CUDA FP16 AMP前向一次，未反传／未创建优化器／训练循环0／val推理0，参数SHA相同。
+新参考完整loss和三臂TAL／box／DFL逐位一致；1341个人工正锚点动作，497个伪正锚点保护，
+26个人工零有效质量不触发；候选／控制逐锚点新增负logit L1最大绝对误差8.67683e-8。
+来源负向审查加强ignore解码前及TAL索引整数转换前拒绝，之后仅重放同一缓存，无第二真实batch。
+mosaic开启／close路径与原P1同种子图像／框／类别／ignore逐位一致；合成实际autograd覆盖AMP。
+训练模式临时模型BN buffer可更新，参数不变不等于所有buffer不变；无学生checkpoint保存。
+
+默认新配对原P1／候选／等强度控制各完整30轮，同split0／教师／COCO初始化／seed0，
+640／batch8／SGD／AMP／548图val960，不重训B2。预计学生6–9小时，实际新增开销未测。
+训练前冻结新8项性能／2项机制投入门槛，任一失败即停，不追val调系数／名单／筛选，
+不自动重试／恢复／扩大100轮；已有输出拒绝覆盖，完成后统一评估／权重预测绑定／只读audit。
+本次只做预检和工程，未启动三臂或创建空监控；实际启动时再建立临时监控。
+**工程通过，学生性能NOT_TESTED，机制NOT_TESTED**；同已看开发val不称独立确认／首创。
+新增文献0，不重复导入Zotero。源码、工程证据／未解决风险／命令见
+`paper/candidates/reliable_competitor_negative/{README,engineering_protocol,validation,student_protocol}.md`。
+最终完整pytest、预检和中文提交push状态见第10节与validation.md验收记录。
+
 ## 4. 固定实验协议
 
 ### 4.1 训练与评估
@@ -2346,6 +2377,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-11-03（V2三方法终态比较） | 本次中文记录并push | V2连续30轮exit0，复用本次B2／P1，统一548图val960与新日志只读audit通过 | 第3.73节；paper/candidates/competitive_negative_v2/{results30,terminal_validation}.md；outputs/p1_competitive_negative_main30_v2_s0/terminal_audit_20261103_171004_802028.log | P1−B2的AP+0.3349pp／small+2.2012pp；V2−P1 AP−0.1628pp／AP_small−0.2279pp／P90+0.3650pp／FP+7.8971%；七线仅2过，30份机制快照保护正类 | 停止V2，保留原P1及旧失败；无strength机制NOT_TESTED、同split／teacher／seed0开发val不外推；无新训练／推理，提交push后删除p1-v2；优先准备独立区域split证据 |
 
 | 2026-11-03（V2失效原因与原P1瓶颈零训练诊断） | 本次中文提交并push | 先协议，三权重548图缓存／教师开放区域重放；同FP／K、FP／FN、共同GT几何、截断和GT-only容量探针 | 第3.74节；paper/diagnostics/competitive_negative_v2_bottleneck/；outputs/p1_v2_bottleneck_20261103/；diagnose_p1_v2_bottleneck.py --audit | conf.25 small+99，但同FP−137／同K−84；P1 P90 FN低分同类60.03%、高分FP错类69.91%；缓存／JSON／数组audit exit0，318tests；零训练／零新推理 | 保留原P1及旧失败；优先验证人工正锚点可信竞争负监督与等强度控制，仅计划、无训练入口；不认定唯一因果／新颖性，不调val、不建监控；独立区域split仍为补证据优先项 |
+
+| 2026-11-03（人工GT可信竞争负监督工程实现与三臂准备） | 从干净bd1435d开始；本次中文提交并push | ARS先工程合同；独立来源token／候选2倍负项／同锚点等强度控制；新reference／candidate／control各30轮入口、自动统一评估与只读audit | 第3.75节；paper/candidates/reliable_competitor_negative/；scripts/{validate,run}_reliable_competitor_negative.py；outputs/reliable_competitor_negative_engineering/validation_final.json | 一个8图AMP batch仅一次forward；参数SHA不变、优化步0；TAL／box／DFL／正目标精确不变；1341人工锚点动作／497伪锚点保护／26零质量无动作；L1误差8.68e-8；完整806tests通过、真实预检39906来源exit0 | 工程通过，学生性能／机制NOT_TESTED；不训练／val推理／隐藏GT／新论文／空监控；默认新参考，冻结8性能+2机制线，任一失败停、不调val／重试／恢复／100轮；旧P1及V2失败保留；精确PowerShell与6–9小时预算见独立协议 |
 
 ### 10.1 新会话开始流程
 
