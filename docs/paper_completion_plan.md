@@ -1,6 +1,7 @@
 # 论文完成计划与项目交接
 
 > 最后更新：2026-11-04<br>
+> 最新工程终态（10:47:57）：用户手动启动正目标几何重排三臂入口，reference在验证数据集初始化时因Trainer方法复用的零参数super继承不兼容而exit1，0完整epoch、无results.csv/best；candidate/control未启动。父/worker均已停止，独立只读audit exit0且terminal_evidence_verified=true，但accepted=false/performance=NOT_ACCEPTED；不作方法性能失败判定。原封印目录/源码/合同保留，未修复或重试；监控终态清理，详见第10节。<br>
 > 本轮新研究：在b1db01e干净工作区上完成正目标几何排序文献/零训练诊断与独立最小实现，未启动学生训练。实际CUDA AMP人工small多锚点126个中100个逆序、32个大差逆序，small目标搬移8.7506%；框外质量35.3208→38.6970的反证保留。新原P1/候选/匹配扰动控制各30轮及11条保覆盖门槛已冻结；935tests、完整loss/来源/audit及零训练预检通过，学生性能/机制仍未验证。见第3.77节及paper/candidates/positive_quality_transport/，不覆盖下列旧终态。<br>
 > 当前终态：人工GT可信竞争负监督新参考／候选／控制各完整30轮exit0，统一548图val960及独立只读audit通过。候选−P1 AP50–95−0.3502pp／AP_small−0.1088pp／conf.25 small−3.1682pp；P90 small+1.1890pp／FP−22.5377%／wrong-class FP−25.5983%。10项门槛5过，停止候选；对控制AP−0.2034pp，机制未建立。工程通过与性能投入条件分开；保留原P1及旧V2失败，不重试／恢复／扩训；详见第3.76节和新结果／独立验证报告，临时rcn-30终态收尾删除。<br>
 > 最新诊断：V2固定conf.25 small净+99，但同7889 FP预算为−137、同27237预测数为−84；新增623 FP含错类218／背景166／重复121／近定位78／近异类40。原P1 P90的small FN中60.03%有同类低分可匹配框，高分FP中69.91%错类；严格IoU另有定位上限，不能认定唯一训练根因。完成零训练／零推理缓存精确重放及318tests；当时的新方向计划与诊断见第3.74节，后续工程准备见第3.75节，本次仍不训练。<br>
@@ -2464,6 +2465,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-11-04（人工GT可信竞争负监督三臂终态） | 源码91cc57d；本次中文报告提交并push | 三新学生完整30轮exit0；统一548图val960、COCO/双IoU PR/固定FP分解，原进程停后只读audit通过 | 第3.76节；paper/candidates/reliable_competitor_negative/{results30,terminal_validation}.md；outputs/rcn30_terminal_audit_20261104_0235.log | 候选−P1 AP−0.3502pp／AP_small−0.1088pp／conf.25 small−3.1682pp；P90+1.1890pp／FP−22.5377%／错类FP−25.5983%；对控制AP−0.2034pp／AP_small+0.2063pp；5/10线通过，39906输入/57产物/数组/决定重放一致 | 性能4/8、机制1/2，按合同停止，原P1主线与旧V2失败保留；工程通过不等性能条件通过／机制建立；不调val／重试／恢复／扩训；只读缓存验收，无新增训练/推理/论文；提交push并删除rcn-30 |
 
 | 2026-11-04（正目标几何重排研究与零训练准备） | 起点b1db01e；本次中文提交并push | ARS原文/作者代码核验、最多三方向取舍、先行协议后重放48批缓存；仅复用既有8图像素一次训练后forward；独立新loss/控制/三臂准备 | 第3.77节；paper/diagnostics/positive_quality_transport/；paper/candidates/positive_quality_transport/；scripts/run_positive_quality_transport.py --check-only | 实际AMP人工small逆序100/126、大差32/126、搬移8.7506%；框外质量增加反证保留；参考/TAL/boxDFL/保护项逐位一致，候选控制附加L1匹配；935tests通过；零学生训练、零optimizer/新loader/val推理 | 工程完成，性能NOT_TESTED/机制NOT_ESTABLISHED；新11线与三臂各30轮已冻结，预计6–12小时且开销未测；不覆盖旧失败，不自动训练/恢复/100轮，实际启动才建监控 |
+
+| 2026-11-04 10:48（正目标三臂工程失败终态） | 训练源码060dc0f；本次只记状态并push | 用户10:45:44启动父21196，10:47:26完成预检并dispatch reference23212；10:47:57 worker exit1，父/worker均停止；临时监控捕获并执行一次只读audit | outputs/positive_quality_transport_three30_s0/ 原封印证据；外部pqt_failure_audit_20261104_1048.log及pqt_failure_terminal_receipt_20261104_1048.json | reference在val数据集构造调用复用的ReliableCompetitorTrainer.build_dataset，零参数super不接受PositiveQualityTrainer实例，TypeError；0完整epoch/无CSV或best；candidate/control未启动；audit进程exit0且terminal_evidence_verified=true，但accepted=false、performance=NOT_ACCEPTED | 这是Trainer集成工程失败，不是30轮性能失败或11门槛判定；先前缓存/935tests/预检未覆盖该真实Trainer验证路径。保持原源码/合同/失败目录，未自动修复/重试/恢复；需独立修复与新目录方案后再决定手动执行；临时观察终态删除，无源码修改故不重复pytest |
 
 ### 10.1 新会话开始流程
 
