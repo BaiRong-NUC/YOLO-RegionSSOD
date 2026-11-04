@@ -1,5 +1,20 @@
 # Baseline 执行协议
 
+2026-11-04新增方法研究准备：[人工同对象正目标几何重排](paper/candidates/positive_quality_transport/README.md)。
+独立保存新src/config/runner及协议，不改原P1/旧候选；实际CUDA AMP完整loss/来源检查通过，
+935tests通过。只完成诊断与工程，学生性能NOT_TESTED，机制NOT_ESTABLISHED。
+
+```powershell
+Set-Location D:/Python/YOLO-RegionSSOD
+& C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe -B scripts/run_positive_quality_transport.py --check-only
+```
+
+准确未来手动训练/自动统一评估/只读终态audit命令、三臂各完整30轮、11条保覆盖门槛、
+成本及不重试/恢复/100轮规则见[新学生协议](paper/candidates/positive_quality_transport/student_protocol.md)。
+本轮没有运行--train/新学生，没有新loader batch或val推理；仅复用旧8图像素一次
+训练后模型前向，其余为缓存重放。真实启动后才创建临时监控。
+下述旧候选的失败终态/合同独立保留，不能当本次学生结果。
+
 2026-11-04新终态：人工GT可信竞争负监督全新参考／候选／控制三臂各完整30轮、exit0，
 548图val960及独立只读audit通过；原P1与旧V2失败独立保留。
 候选−新P1 AP50–95−0.3502pp／AP_small−0.1088pp／conf.25 small−3.1682pp，

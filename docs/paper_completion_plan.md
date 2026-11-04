@@ -1,6 +1,7 @@
 # 论文完成计划与项目交接
 
 > 最后更新：2026-11-04<br>
+> 本轮新研究：在b1db01e干净工作区上完成正目标几何排序文献/零训练诊断与独立最小实现，未启动学生训练。实际CUDA AMP人工small多锚点126个中100个逆序、32个大差逆序，small目标搬移8.7506%；框外质量35.3208→38.6970的反证保留。新原P1/候选/匹配扰动控制各30轮及11条保覆盖门槛已冻结；935tests、完整loss/来源/audit及零训练预检通过，学生性能/机制仍未验证。见第3.77节及paper/candidates/positive_quality_transport/，不覆盖下列旧终态。<br>
 > 当前终态：人工GT可信竞争负监督新参考／候选／控制各完整30轮exit0，统一548图val960及独立只读audit通过。候选−P1 AP50–95−0.3502pp／AP_small−0.1088pp／conf.25 small−3.1682pp；P90 small+1.1890pp／FP−22.5377%／wrong-class FP−25.5983%。10项门槛5过，停止候选；对控制AP−0.2034pp，机制未建立。工程通过与性能投入条件分开；保留原P1及旧V2失败，不重试／恢复／扩训；详见第3.76节和新结果／独立验证报告，临时rcn-30终态收尾删除。<br>
 > 最新诊断：V2固定conf.25 small净+99，但同7889 FP预算为−137、同27237预测数为−84；新增623 FP含错类218／背景166／重复121／近定位78／近异类40。原P1 P90的small FN中60.03%有同类低分可匹配框，高分FP中69.91%错类；严格IoU另有定位上限，不能认定唯一训练根因。完成零训练／零推理缓存精确重放及318tests；当时的新方向计划与诊断见第3.74节，后续工程准备见第3.75节，本次仍不训练。<br>
 > 最新终态：AMP修复V2改进组完整30轮／exit0、三方法统一548图val960及独立audit通过。原P1−B2的AP50–95+0.3349pp／conf.25 small+2.2012pp；V2−P1的AP−0.1628pp／AP_small−0.2279pp／P90 small+0.3650pp／FP+7.8971%，七护栏仅2项通过，停止本候选、保留原P1，不扩训。完整表与限制见第3.73节及paper/candidates/competitive_negative_v2/results30.md；终态收尾删除p1-v2。<br>
@@ -2075,6 +2076,50 @@ Ultralytics总体AP仅绑定原validator输出，缓存独立重算范围是COCO
 `results30.md`和`terminal_validation.md`，冻结已有候选文件原样；更新第10节／主README／baseline，
 中文commit并push仅本轮报告，终态处置后删除临时监控rcn-30。未改源码，不重复运行已通过的806tests。
 
+### 3.77 人工同对象正目标几何重排：研究、零训练诊断与最小实现（2026-11-04）
+
+用户明确要求提高方法收益/可辩护贡献，本轮不启动学生训练。起点main干净、HEAD b1db01e，
+保护原P1和全部正负证据。使用项目ARS deep-research/experiment-agent流程，
+先保存独立诊断协议、来源补充协议和工程合同；核验S³OD差异及TOOD/VFL/RS原文/作者代码，
+另读2026 FSS正式HTML方法/实验相关段，未找到可确认作者代码，不声称其实现已核验。
+原生子代理做来源核验与反方检查。最多比较三个方向：同对象正目标几何排序、可靠区域
+跨锚点正负排名、教师多视图可靠性；后两者缺空间来源或可靠新增信息，当前不实现。
+
+首选只在人工来源同对象既有有效正锚点中，将原真类BCE目标值按detach普通IoU重排；
+不改变TAL/正集合/分母/box/DFL/负类/伪框，没有新权重、阈值、名单、骨干或分支。
+原TAL已质量对齐；特定区别是固定分配与原目标值集合的人工同对象排列，尚非创新成立。
+原32/后16批训练后缓存small逆序对象73.4129%/64.4564%、大差逆序22.8162%/21.3570%，
+目标搬移6.3368%/6.6057%；混合来源不能用confidence=1识别人标，旧insufficient结论保留。
+
+随后仅复用旧8图工程缓存像素做一次训练后原P1 AMP前向，参数及buffer SHA不变；
+无新DataLoader batch/optimizer/学生训练循环/val推理/隐藏GT读取。显式人工来源补齐后，
+再次只读完整head张量按原P1 CUDA AMP/TAL/BCE dtype路径重放：人工small有效多锚点126，
+100个逆序、32个>.05差逆序、质量搬移8.7506%。FP32代理为33个，二者不混写。
+反证是框外small目标质量35.3208→38.6970，可能增加分类/回归不一致；加权IoU改善
+只是排序构造性质，不能称学生收益，也不能由代理统计确定唯一训练根因。
+
+独立新loss/src/config/runner不修改旧P1或旧失败合同，来源运输复用冻结实现。
+初稿散列排列控制搬移L1过大（251.0567 vs111.5723），在学生运行前修订为非几何方向
+凸插值，匹配同对象总目标质量/支持/搬移L1；旧工程回执另存unmatched_control。
+最终候选/控制总L1为111.572260618/111.572259753；逐对象L1误差≤1.78814e-7，
+实际FP16附加head梯度L1误差≤9.53674e-7。控制不保值集合、changed866/1167，
+不称最终绝对/参数梯度完全匹配。参考完整loss/scoregrad和TAL/分母/boxDFL精确一致，
+伪来源/负类/未触发目标与梯度保持；全部935tests通过，不把工程通过当机制成立。
+
+准备全新参考/候选/控制各完整30轮、原split0/teacher/COCO/学生seed0、640/batch8/SGD/AMP，
+自动统一548图val960/COCO/双IoU PR/全FP/错类、权重预测绑定及只读终态audit；
+11项固定条件要求AP≥+.10pp/AP_small≥+.10pp/P90≥+.30pp，同时conf.25/P70/严格P90不退、
+全尺寸FP/错类不增，并胜过匹配扰动控制。不可达/非有限失败，任一失败即停止，
+不重训B2/重试/恢复/100轮；旧实际三臂约8小时，新排序开销未测，预留6–12小时非保证。
+本轮仅check-only/审计，训练目录不存在、无空监控。文献部分机器阅读与Zotero处理
+见literature_review：TOOD原条目、RS只增集合、VFL新增AM4MTCB9/FSS新增TZD6SP4I，
+均附PDF但不据此称已读；FSS导入卷期页过时已按出版社纠正，不作人类全文已读标记。
+准确手动命令及所有限制见`paper/candidates/positive_quality_transport/student_protocol.md`。
+原P1正式100轮与Gate3/4保持原判定；学生性能NOT_TESTED、机制NOT_ESTABLISHED。
+最终`--check-only`真实exit0/accepted=true，40,242项绑定；11310训练图和548图val人口一致，
+training/forward/created_files均false，四个新训练输出/run目录不存在。
+完整pytest最终935 passed in17.46s，git diff --check通过；仅本轮23个文件中文提交并push。
+
 ## 4. 固定实验协议
 
 ### 4.1 训练与评估
@@ -2417,6 +2462,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-11-03（人工GT可信竞争负监督工程实现与三臂准备） | 从干净bd1435d开始；本次中文提交并push | ARS先工程合同；独立来源token／候选2倍负项／同锚点等强度控制；新reference／candidate／control各30轮入口、自动统一评估与只读audit | 第3.75节；paper/candidates/reliable_competitor_negative/；scripts/{validate,run}_reliable_competitor_negative.py；outputs/reliable_competitor_negative_engineering/validation_final.json | 一个8图AMP batch仅一次forward；参数SHA不变、优化步0；TAL／box／DFL／正目标精确不变；1341人工锚点动作／497伪锚点保护／26零质量无动作；L1误差8.68e-8；完整806tests通过、真实预检39906来源exit0 | 工程通过，学生性能／机制NOT_TESTED；不训练／val推理／隐藏GT／新论文／空监控；默认新参考，冻结8性能+2机制线，任一失败停、不调val／重试／恢复／100轮；旧P1及V2失败保留；精确PowerShell与6–9小时预算见独立协议 |
 
 | 2026-11-04（人工GT可信竞争负监督三臂终态） | 源码91cc57d；本次中文报告提交并push | 三新学生完整30轮exit0；统一548图val960、COCO/双IoU PR/固定FP分解，原进程停后只读audit通过 | 第3.76节；paper/candidates/reliable_competitor_negative/{results30,terminal_validation}.md；outputs/rcn30_terminal_audit_20261104_0235.log | 候选−P1 AP−0.3502pp／AP_small−0.1088pp／conf.25 small−3.1682pp；P90+1.1890pp／FP−22.5377%／错类FP−25.5983%；对控制AP−0.2034pp／AP_small+0.2063pp；5/10线通过，39906输入/57产物/数组/决定重放一致 | 性能4/8、机制1/2，按合同停止，原P1主线与旧V2失败保留；工程通过不等性能条件通过／机制建立；不调val／重试／恢复／扩训；只读缓存验收，无新增训练/推理/论文；提交push并删除rcn-30 |
+
+| 2026-11-04（正目标几何重排研究与零训练准备） | 起点b1db01e；本次中文提交并push | ARS原文/作者代码核验、最多三方向取舍、先行协议后重放48批缓存；仅复用既有8图像素一次训练后forward；独立新loss/控制/三臂准备 | 第3.77节；paper/diagnostics/positive_quality_transport/；paper/candidates/positive_quality_transport/；scripts/run_positive_quality_transport.py --check-only | 实际AMP人工small逆序100/126、大差32/126、搬移8.7506%；框外质量增加反证保留；参考/TAL/boxDFL/保护项逐位一致，候选控制附加L1匹配；935tests通过；零学生训练、零optimizer/新loader/val推理 | 工程完成，性能NOT_TESTED/机制NOT_ESTABLISHED；新11线与三臂各30轮已冻结，预计6–12小时且开销未测；不覆盖旧失败，不自动训练/恢复/100轮，实际启动才建监控 |
 
 ### 10.1 新会话开始流程
 
