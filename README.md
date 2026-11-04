@@ -1,19 +1,22 @@
 # YOLO-RegionSSOD
 
-2026-11-04新研究准备：[人工同对象正目标几何重排](docs/paper/candidates/positive_quality_transport/README.md)。
-已完成原文/作者代码核验、先行协议后的零学生训练诊断及独立实现；实际AMP来源/完整loss通过，
-935项测试通过。框外目标质量增加等反证保留，学生性能与机制仍未验证。
-原P1和下述旧候选失败全部保留，未启动训练、未创建空监控。
+2026-11-04执行修复：[正目标重排V2独立Trainer修复](docs/paper/candidates/positive_quality_transport_v2/README.md)。
+V1用户手动执行在reference验证数据集构造时报super继承错误，0完整epoch；
+candidate/control未启动，旧源码/输出已封印保留，不算方法性能失败。
+V2只修Trainer派发，原loss/模型、三臂各30轮与11门槛不变；新输出独立。
+本次不启动训练，学生性能与机制仍未验证；实际启动后再建临时观察。
 
 ```powershell
 Set-Location D:/Python/YOLO-RegionSSOD
-& C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe -B scripts/run_positive_quality_transport.py --check-only
+& C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe -B scripts/run_positive_quality_transport_v2.py --check-only
 ```
 
 新参考/候选/匹配扰动控制各完整30轮、11条保覆盖条件及准确手动启动/终态audit命令见
-[冻结学生协议](docs/paper/candidates/positive_quality_transport/student_protocol.md)。
+[V2执行协议](docs/paper/candidates/positive_quality_transport_v2/student_protocol.md)。
 预检无模型前向/训练输出，旧实际三臂约8小时仅作成本参照，新排序开销未测。
 诊断支持和反证见[完整报告](docs/paper/diagnostics/positive_quality_transport/results.md)。
+原V1入口已终态，勿重跑或删除旧目录；原935测试曾遗漏实际Trainer验证路径，
+V2增加三mode真实dataloader/合成batch回归，工程结果见[V2检查记录](docs/paper/candidates/positive_quality_transport_v2/validation.md)。
 
 2026-11-04当前终态：[人工GT可信竞争负监督三臂结果](docs/paper/candidates/reliable_competitor_negative/results30.md)。
 全新P1参考／候选／等强度控制各完整30轮、exit0，统一548图val960及独立只读audit通过。

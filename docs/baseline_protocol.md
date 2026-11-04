@@ -1,18 +1,20 @@
 # Baseline 执行协议
 
-2026-11-04新增方法研究准备：[人工同对象正目标几何重排](paper/candidates/positive_quality_transport/README.md)。
-独立保存新src/config/runner及协议，不改原P1/旧候选；实际CUDA AMP完整loss/来源检查通过，
-935tests通过。只完成诊断与工程，学生性能NOT_TESTED，机制NOT_ESTABLISHED。
+2026-11-04最新执行路径：[正目标重排V2独立Trainer修复](paper/candidates/positive_quality_transport_v2/README.md)。
+V1用户手动reference在val数据集初始化发生super继承错误，0完整epoch，candidate/control未启动；
+失败封印与源码保留。V2只修集成派发，原loss/模型/三臂与11门槛不变，采用全新目录。
+学生性能NOT_TESTED，机制NOT_ESTABLISHED；完整检查见[V2工程记录](paper/candidates/positive_quality_transport_v2/validation.md)。
 
 ```powershell
 Set-Location D:/Python/YOLO-RegionSSOD
-& C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe -B scripts/run_positive_quality_transport.py --check-only
+& C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe -B scripts/run_positive_quality_transport_v2.py --check-only
 ```
 
 准确未来手动训练/自动统一评估/只读终态audit命令、三臂各完整30轮、11条保覆盖门槛、
-成本及不重试/恢复/100轮规则见[新学生协议](paper/candidates/positive_quality_transport/student_protocol.md)。
-本轮没有运行--train/新学生，没有新loader batch或val推理；仅复用旧8图像素一次
-训练后模型前向，其余为缓存重放。真实启动后才创建临时监控。
+成本及不重试/恢复/100轮规则见[V2执行协议](paper/candidates/positive_quality_transport_v2/student_protocol.md)。
+本次修复没有运行--train、新真实batch、检测模型forward/optimizer或真实val推理；
+合成图像走真实dataloader，既有完整head缓存重放。旧研究那一次训练后forward不重复。
+真实启动后才创建临时监控；原V1已失败终态，勿重跑/覆盖旧目录。
 下述旧候选的失败终态/合同独立保留，不能当本次学生结果。
 
 2026-11-04新终态：人工GT可信竞争负监督全新参考／候选／控制三臂各完整30轮、exit0，
