@@ -1,11 +1,11 @@
 # YOLO-RegionSSOD
 
-2026-11-05最新终态：[有界保留事件监督实现及精确边支撑阻塞](docs/paper/candidates/bounded_retention/results.md)。
-已实现独立来源外集、增强身份/观测运输、同界loss/control与真实Trainer；零训练检查未通过，三臂未启动。
-实际增强框的精确top=636.8081，而640画布全部锚点最大y=636，原非负DFL支撑无法表示；按合同停止。
-原P1、历史失败及本轮两版合同/停止快照保留；不clamp、丢对象或改E来开训。
-只读复核：`python scripts/audit_bounded_retention_terminal.py --audit`；完整证据/已执行命令见报告。
-公开保留事件含模拟生成GT衍生侧信息，未读取隐藏训练GT；CABB/GFL边界、收缩反解释均保留，无性能或原创性结论。
+2026-11-05最新终态：[原P1编码语义复核与V3未知边空集](docs/paper/candidates/bounded_retention/p1_encoding_results.md)。
+上一轮E支撑门是额外合同；原P1保留连续几何，仅DFL编码饱和。V3已显式恢复此语义，坐标/对象不变。
+真实检查前12batch通过，第13batch未知bottom连续可行约[637.5464,640]却无字面DFL原子；当前离散质量候选停止。
+编码union会丢掉区间位置/插值权重，不能当无损修复或以较弱MAP控制直接开训。三臂未启动，1316tests通过。
+只读复核：`python scripts/audit_bounded_retention_p1_encoding.py --audit`。原P1、V1/V2及新V3证据保留。
+未否定保留事件信息或连续定位；未读隐藏训练GT，公开事件模拟侧信息、CABB/GFL边界及收缩解释不变。
 
 既有B审查：[合法人工实例跨尺度观测B：停止泛化候选](docs/paper/diagnostics/human_multiscale_observation_review/results.md)。
 6471个人工tile原生长边131–548，载入640均放大，不存在“首次缩到640后补回细节”的前提；

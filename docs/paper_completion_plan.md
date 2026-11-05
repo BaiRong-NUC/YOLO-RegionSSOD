@@ -1,7 +1,7 @@
 # 论文完成计划与项目交接
 
 > 最后更新：2026-11-05<br>
-> 当前方法工程终态：ARS有界保留事件监督已实现独立来源外集、真实增强观测运输、同界loss/MAP与Trainer，但在零训练实际增强检查中停止。部分未知对象的精确top=636.8081，640画布全部8400锚点最大y=636，原非负DFL支撑无法满足固定E；不clamp、丢对象或改标签开训。三臂未启动，性能/机制未测，最终学生配置未冻结。原P1、失败证据与本轮版本1/2合同快照保留；公开保留事件含模拟生成GT衍生侧信息，来源仅认证保守外集，未读隐藏训练GT，不宣称原创性。见第3.82节、第10节及[工程报告](paper/candidates/bounded_retention/results.md)。<br>
+> 当前方法审查终态：此前E必须可由非负原子精确表示是额外合同；原P1保留连续CIoU目标，仅DFL编码饱和。V3已在不改E/不丢对象条件下解除该门并复现旧反例通过，但第13真实batch的未知bottom连续区间约[637.5464,640]没有字面DFL原子，32候选全空。当前离散质量候选停止；不否定保留事件信息或连续定位。编码union丢失区间/插值信息，不能借非空支撑和较弱MAP直接开训。三臂0epoch，1316tests/31绑定/28快照重放通过，原P1与V1/V2/V3证据保留，无隐藏训练GT读取或新颖性/性能结论。见第3.83节、第10节及[编码复核报告](paper/candidates/bounded_retention/p1_encoding_results.md)。<br>
 > 既有B审查：ARS合法人工实例跨尺度观测B已完成，停止泛化候选（STOP_GENERIC_B_NO_DISTINCT_SIGNAL）。6471个人工tile长边131–548，载入640均放大，首次640下采样细节缺口不成立；全图960确增上下文，但同目标名义线性尺度仅为tile640的35.54%–41.10%。人工实例对应不同于旧伪框稳定性诊断，亦可能新增训练约束；对照SoCo/PseCo/MixTeacher/密度裁片/MSAD，尚无独立新信号/动作，不实现loss或训练，也不宣称跨尺度学习普遍无效。见第3.80节及[独立审查](paper/diagnostics/human_multiscale_observation_review/results.md)。<br>
 > 上一轮来源决定：已完成ARS“完整人工区域内跨对象排序A”来源审查：6471个人工tile/105058个导出框身份与当前P1清单一致，但裁片过滤丢失足迹/空间完整性证书，增强后证明也未建立；G1通过、G2/G3 NOT_ESTABLISHED，停止A，不做排序统计/loss/训练。实际面积比.09931134–.10027778低于可见门槛.35，纯合成反例排除仅靠固定边缘剔除认证背景；不代表实际可靠负例不存在。6484项绑定/新审查精确重放及1093tests通过，不读隐藏标签或用隐藏计数补齐。原P1/失败封印/冻结合同保护，无新监控；见第3.79节、第10节及[来源报告](paper/diagnostics/reliable_region_ranking_feasibility/results.md)。以下既有记录不替代上方当前方法决定。<br>
 > 已有三臂终态：正目标几何重排V2三新学生各完整30轮exit0，548图val960及终态audit工程通过，但11线仅4过，停止候选；候选−P1 AP50–95−.3145pp/AP_small−.3453pp/conf.25 small−.9444pp，IoU.50/P90+.5418pp却对控制−.0301pp。同FP少160个small/同K少103，去掉任一类别后AP_small差值仍负。该轮提出的A仅获来源审查资格，已按上一条完成并停止；原三臂正负结果不改。见第3.78节与[复盘](paper/diagnostics/positive_quality_negative_review/results.md)。<br>
@@ -2303,6 +2303,34 @@ v2真实`native_event_integration_01`，PID2456，UTC04:57:56至05:01:19自然�
 可重放入口`python scripts/audit_bounded_retention_terminal.py --audit`；仅本轮终态复核，不重新运行旧实验audit。
 README/baseline入口同步；中文commit并push。后续若改变固定E或定位表示，须明确是新科学合同，不能续跑本停止版本。
 
+### 3.83 复核额外E合同、原P1编码修订及U事件终态（2026-11-05）
+
+从干净f87cf6f开始，用户要求ARS审查停止是否来自额外合同，合理修订独立验证通过后直接三臂各30轮。
+核对安装8.4.172：原P1/BboxLoss用原连续框算CIoU，bbox2dist/DFLoss另用clip(d,0,14.99)编码。
+因此此前“E必须可表示”确属附加门槛；旧V2 STOP只否定旧合同，不能据此否定整个机制。
+
+先冻结`p1_encoding_contract.md`，新增独立v3 loss/Trainer/checker，保留raw E/物理几何/身份/原子oracle。
+原生DFL只在克隆编码上饱和；不改标签或U mask，不丢对象。独立31项CPU/CUDA AMP验证通过，
+全known完整loss/梯度逐位等价，旧object142895的E-top仍636.8081，合法原子变[9,9,9,9,4,4,4]。
+
+新真实`p1_encoding_integration_01`，PID49196，UTC05:16:50至05:20:51，自然停止，241.2241秒。
+前12batch通过；第13batch object164630/occurrence399，仅bottom未知。139个U实例通过，第140个失败。
+物理边界下包络637.5463731至画布640，而画布内字面DFL原子最大636；32native候选全空。
+全部E距离0.06868..5.15417均合法，不再是E门问题。独立连续outer见证bottom638/639/640均通过保留条件；
+bin0/1的(.625,.375)也可解码bottom639，所以不得称真实框或原P1连续定位无解。
+
+进一步审查编码支撑union：它能消除整数格点空集，却丢掉原DFL插值权重，C=[.2,.4]与[.6,.8]均变{0,1}。
+mass/编码MAP不能区分，最优物理point-DFL能够区分；原强控制资格不能自动继承。
+故不把新编码事件冒充原物理质量的无损修复；未来若更换概率测度，需独立定义和认证连续点强控制。
+本轮明确停止当前字面离散质量方向，保留事件信息本身未被否定，不声称所有连续替代方案不可行。
+
+完整1316tests通过；`audit_bounded_retention_p1_encoding.py --audit`核对31输入/28快照及当前合法来源行，
+旧E修订成功/新U空集/连续可行/编码信息损失均字节重放一致。未读隐藏训练GT或旧质量缓存。
+V3完整真实AMP比较未执行，显式batch forward尝试0/optimizer0/val inference0；构造stride probe另记。
+首epoch覆盖未完成、三臂0epoch，无性能/机制判定；原P1/V1/V2/V3及历史合同/失败保护。
+独立输出`outputs/bounded_retention_p1_encoding_review_20261105/`，详见`paper/candidates/bounded_retention/p1_encoding_results.md`。
+入口和第10节同步，中文commit并push；未启动学生，未创建训练监控，不自动重试或扩训。
+
 ## 4. 固定实验协议
 
 ### 4.1 训练与评估
@@ -2685,6 +2713,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-11-02（现有成果保护与第一篇整理） | 本次中文提交并push；原基点`c1ecf6c` | 使用ARS结构/写作合同、paper-search与Zotero MCP整理现有证据；增加独立成果快照、代码分轨、100轮正文与讨论/结论；候选按原P1叠加单一分类变量设计 | 第3.63节；paper/{README,paper1_writeup_plan,research_tracks,preservation,literature_map}.md；scripts/preserve_paper1.py；outputs/paper1_preservation/20261102_baseline | 58,707产物文件约4.20 GiB，归档及原件逐项哈希一致；核心文献已在BMQTT9Y7集合；新候选未实现/训练，未创造新效果数字 | 保留旧P1为独立主线；先教师全类别分数诊断再决定候选训练；当前无训练命令，Gate3/4不变；验证记录随本次提交保存 |
 
 | 2026-11-05（有界保留事件监督独立实现与零训练终态） | 起点2dcece9；本次中文实现/证据提交并push（提交号见git log） | ARS先工程/科学合同，合法来源外集、增强实例/累计clip运输、同集合TAL/CIoU/DFL/MAP、正确Trainer集成；扩大真实增强流及独立反方复核 | 第3.82节；paper/candidates/bounded_retention/results.md；outputs/bounded_retention_engineering_20261105/；audit_bounded_retention_terminal.py --audit | 105058原行→105057native对象/1重复alias；02真实首批AMP有限；03的U名义负距另立native-event协议修订；v2第二batch精确top636.8081高于8400网格最大y636，7候选全空；25绑定/24快照/终态字节重放通过，完整1285tests通过 | STOP_BEFORE_STUDENT_TRAINING：工程覆盖门失败，三臂0epoch/无性能评估，最终学生配置未冻结；不改E/丢对象/clamp/新head绕过，不读取隐藏训练GT，不自动重试；原P1/失败/两版本合同源码快照保护；README/baseline同步，无训练监控需清理 |
+
+| 2026-11-05（原P1编码语义复核与V3字面U方向停止） | 起点f87cf6f；本次中文提交并push（提交号见git log） | ARS核对原生DFL/CIoU，先冻结新编码合同；独立v3移除额外E可表示性门，31专项/真实扩大增强流/反方及编码union审查 | 第3.83节；paper/candidates/bounded_retention/p1_encoding_results.md；outputs/bounded_retention_p1_encoding_review_20261105/；audit_bounded_retention_p1_encoding.py --audit | 旧E坐标不改且7候选均恢复支撑；前12batch通过，第13batch U-bottom约[637.5464,640]无字面原子/32候选空，E均合法；连续outer见证及DFL均值可行；1316tests，31绑定/28快照/终态字节重放通过 | 停止当前离散质量方向，三臂0epoch；纠正旧E门过强而非回写旧STOP；编码union有信息损失/强物理点控制未认证，不以换事件强行开训；不否定保留信息或连续定位。无隐藏GT/旧质量缓存/模型batch推理/训练监控，原P1和两旧版及新V3证据保护 |
 
 ## 11. 风险与退出条件
 

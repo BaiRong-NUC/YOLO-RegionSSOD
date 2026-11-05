@@ -1,11 +1,11 @@
 # Baseline 执行协议
 
-2026-11-05最新方法决定：[有界保留事件监督工程终态](paper/candidates/bounded_retention/results.md)。
-独立loss/同界MAP/观测运输/Trainer已实现，真实零训练检查在精确边的非负DFL支撑门停止。
-实际框top636.8081高于全部网格锚点最大y636；所有7个native候选为空，不改变精确标签或丢对象救活。
-三臂各30轮未启动，最终学生合同/配置未冻结；原P1协议和历史指标/失败证据保留。
-重放入口：`python scripts/audit_bounded_retention_terminal.py --audit`。仅终态几何/哈希复核，不启动模型或训练。
-公开保留事件含模拟生成GT衍生侧信息，来源为保守物理外集；不访问隐藏训练GT、不宣称原创性或性能成立。
+2026-11-05最新方法决定：[原P1编码复核与V3终态](paper/candidates/bounded_retention/p1_encoding_results.md)。
+纠正额外E可表示性合同：原P1的DFL编码会饱和，CIoU仍使用原连续坐标；V3没有丢对象或降级E。
+前12真实batch通过，第13batch的U连续区间非空但32native候选无字面原子；停止当前离散质量方向。
+不把编码union非空当物理机制通过；它丢掉插值权重，需另行认证连续点强控制，不能直接启动三臂。
+三臂各30轮未启动；1316tests通过，31输入/28快照/终态重放通过。原P1协议及历史证据保持。
+重放入口：`python scripts/audit_bounded_retention_p1_encoding.py --audit`。公开模拟保留侧信息及来源outer局限不变。
 
 既有B决定：[合法人工实例跨尺度观测B审查](paper/diagnostics/human_multiscale_observation_review/results.md)。
 6471个人工tile长边131–548，均小于640，不能把原生ROI称为补回首次640下采样细节；
