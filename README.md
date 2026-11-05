@@ -2,12 +2,14 @@
 
 2026-11-05当前工作：V4确定性矩形积分未通过完整3U容量检查（19999cells，残差界0.4247）。
 这不是连续目标无效；已先冻结[目标不变的V5后验采样计算合同](docs/paper/candidates/bounded_retention/continuous_sampling_contract.md)，
-V5独立实现及全库1715 tests已通过，四例完整3U数值容量通过；真实双阶段增强/AMP检查尚待执行，三臂未启动。
+V5真实检查在第21batch被额外的E-canvas门阻断；独立V6保留E原值，仅限制U积分域，完整1862 tests通过。
+V6真实双阶段增强/AMP检查尚待执行，三臂未启动；V5代码及失败快照保持。
 原E、全部对象、插值权重、面积耦合与最强连续点控制不变。
 有限样本梯度有方差，报告值与精确NLL分开；不宣称纯sum/min消融、原创性或性能成立。
 执行清单见[独立验证合同](docs/paper/candidates/bounded_retention/continuous_sampling_validation.md)，
 [已知边观测语义](docs/paper/candidates/bounded_retention/continuous_observation_semantics.md)明确名义E与latent U的混合表示。
-新零优化入口：`python scripts/check_bounded_retention_sampling.py --scan-all-batches`；不启动训练，失败不自动重试。
+当前零优化入口：`python scripts/check_bounded_retention_native_e.py --scan-all-batches`；不启动训练，失败不自动重试。
+修订依据见[原生E合同](docs/paper/candidates/bounded_retention/native_e_revision_contract.md)。
 
 此前终态：[原P1编码语义复核与V3未知边空集](docs/paper/candidates/bounded_retention/p1_encoding_results.md)。
 上一轮E支撑门是额外合同；原P1保留连续几何，仅DFL编码饱和。V3已显式恢复此语义，坐标/对象不变。
