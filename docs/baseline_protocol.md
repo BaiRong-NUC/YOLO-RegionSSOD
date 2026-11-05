@@ -12,6 +12,9 @@
 新输出`outputs/bounded_retention_continuous_three30_s0/`，原P1→候选→同界全局点DFL各30轮，
 已有目录禁止再次启动。终态只读`python scripts/run_bounded_retention_continuous_v2.py --audit`。
 全548图val960、best.pt和主/次指标定义见合同；尚无新性能结论。
+2026-11-05 UTC10:21:51已启动调度PID30104，原P1 worker45600已执行第1轮；
+只读监控PID18428，状态在`outputs/monitors/bounded_retention_continuous_three30_s0/health.json`。
+这不是三臂完成记录；候选/控制尚未派发，禁止重复执行上述启动命令。
 
 工程历史：V4确定性积分容量未过；[V5后验采样合同](paper/candidates/bounded_retention/continuous_sampling_contract.md)
 在新实现前冻结，目标/对象/原E/同界全局点控制不变；未启动学生。全门通过后才冻结并直接执行顺序三臂各30轮，

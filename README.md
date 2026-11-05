@@ -3,7 +3,9 @@
 2026-11-05当前工作：V6连续相容集合监督的来源/完整增强流/真实AMP联合验证通过，
 完整2042 tests通过；[三臂合同](docs/paper/candidates/bounded_retention/three_arm30_contract.md)
 及[启动修订](docs/paper/candidates/bounded_retention/three_arm30_launch_addendum.md)已冻结。
-最终24004输入绑定通过只读核验，将按原P1→候选→最强同界连续点DFL各30轮顺序执行。
+最终24004输入绑定通过只读核验，已于2026-11-05 18:21（北京时间）启动顺序任务：
+原P1→候选→最强同界连续点DFL各30轮。调度PID30104、当前P1 PID45600、监控PID18428。
+已观察到P1实际第1轮batch执行；候选/控制尚待顺序派发，未完成三臂，不作性能判断。
 [工程结果](docs/paper/candidates/bounded_retention/continuous_amp_results.md)不是训练性能结果。
 
 ```powershell
