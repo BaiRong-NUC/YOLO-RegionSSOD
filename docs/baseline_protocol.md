@@ -1,6 +1,14 @@
 # Baseline 执行协议
 
-2026-11-05最新方法决定：[合法人工实例跨尺度观测B审查](paper/diagnostics/human_multiscale_observation_review/results.md)。
+2026-11-05最新方法决定：[公开保留事件约束的有界定位分布监督审查](paper/diagnostics/next_mechanism_review/results.md)。
+状态CONDITIONAL_ZERO_TRAINING_AUDIT_ONLY；只推荐下一步来源/工程验证，尚无新loss/训练入口。
+公开保留规则提供输入框面积上界，研究同界集合上的联合质量；CABB集合与GFL分布并非新思想，
+必须公平比较同界点/模式/MAP控制，并检验仅收缩/变尖的反解释。真实事件/舍入/增强/消费者一致性未过。
+本轮只读取合法人工标签，不访问隐藏GT数值；公开事件含模拟生成GT衍生侧信息，非自然标注通用保证。
+严格触边数量不是截断率或有效训练数；新结果只作代数/来源代理证据。原P1及失败证据/冻结合同保留，
+不修改既有命令、不启动训练/模型forward/val推理/旧终态audit或新监控。
+
+既有B决定：[合法人工实例跨尺度观测B审查](paper/diagnostics/human_multiscale_observation_review/results.md)。
 6471个人工tile长边131–548，均小于640，不能把原生ROI称为补回首次640下采样细节；
 全图960增上下文而同对象更小（名义线性比例.35542797–.411）。人工对应关系可构造，
 但部分框不能补全全图GT，现有P1全图loss也不会自动只监督正例。

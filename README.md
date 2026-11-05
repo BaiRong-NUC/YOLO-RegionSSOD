@@ -1,6 +1,13 @@
 # YOLO-RegionSSOD
 
-2026-11-05最新方法审查：[合法人工实例跨尺度观测B：停止泛化候选](docs/paper/diagnostics/human_multiscale_observation_review/results.md)。
+2026-11-05最新机制审查：[公开保留事件约束的有界定位分布监督](docs/paper/diagnostics/next_mechanism_review/results.md)。
+只保留一项值得零训练来源/工程审查的假设：从已保留人工框及公开.35规则推导输入框面积上界，
+约束同一有界相容集合的联合概率质量。CABB已有集合监督，GFL已有DFL；合成差异不是原创性/收益通过。
+同界点/模式强对照、因子分布可能只收缩的反解释和真实运输缺口均保留；尚不实现loss或训练。
+本轮只读合法人工标签，不访问隐藏GT数值；保留事件包含模拟生成GT衍生侧信息，不能当自然人工采集保证。
+4145严格文本触边/88横纵触边只是记录盘点，非真实截断/有效样本数；原P1/失败证据/合同保护，无新训练命令。
+
+既有B审查：[合法人工实例跨尺度观测B：停止泛化候选](docs/paper/diagnostics/human_multiscale_observation_review/results.md)。
 6471个人工tile原生长边131–548，载入640均放大，不存在“首次缩到640后补回细节”的前提；
 全图960可增加上下文，但同目标名义线性尺度仅为tile640的35.54%–41.10%。
 人工实例对应不同于旧伪框质量诊断，也可增加训练约束；对照SoCo/PseCo/MixTeacher等，

@@ -1,7 +1,8 @@
 # 论文完成计划与项目交接
 
 > 最后更新：2026-11-05<br>
-> 当前方法审查：ARS合法人工实例跨尺度观测B已完成，停止泛化候选（STOP_GENERIC_B_NO_DISTINCT_SIGNAL）。6471个人工tile长边131–548，载入640均放大，首次640下采样细节缺口不成立；全图960确增上下文，但同目标名义线性尺度仅为tile640的35.54%–41.10%。人工实例对应不同于旧伪框稳定性诊断，亦可能新增训练约束；对照SoCo/PseCo/MixTeacher/密度裁片/MSAD，尚无独立新信号/动作，不实现loss或训练，也不宣称跨尺度学习普遍无效。见第3.80节及[独立审查](paper/diagnostics/human_multiscale_observation_review/results.md)。<br>
+> 当前方法审查：ARS从原P1与失败证据筛出一项条件性假设：利用已保留人工正框的公开选择事件（可见比例≥.35）推导输入标注框面积上界，研究同一有界观测集合上的联合定位分布质量约束。CABB已有裁剪相容集合、GFL已有DFL；新约束/非等价合成反例不等于原创性或收益通过，最强同界点/模式控制与收缩反命题保留。6471合法人工标签哈希复核，105058框仅4145严格文本触边、88横纵均触边，非真实cut率/有效训练数。只推荐零训练来源/工程审查，真实事件运输/舍入/消费者一致性未过，不实现loss/训练、不访问隐藏GT数值；公开保留事件含模拟生成GT衍生侧信息，不能泛化为自然人工采集保证。见第3.81节、第10节及[机制审查](paper/diagnostics/next_mechanism_review/results.md)。<br>
+> 既有B审查：ARS合法人工实例跨尺度观测B已完成，停止泛化候选（STOP_GENERIC_B_NO_DISTINCT_SIGNAL）。6471个人工tile长边131–548，载入640均放大，首次640下采样细节缺口不成立；全图960确增上下文，但同目标名义线性尺度仅为tile640的35.54%–41.10%。人工实例对应不同于旧伪框稳定性诊断，亦可能新增训练约束；对照SoCo/PseCo/MixTeacher/密度裁片/MSAD，尚无独立新信号/动作，不实现loss或训练，也不宣称跨尺度学习普遍无效。见第3.80节及[独立审查](paper/diagnostics/human_multiscale_observation_review/results.md)。<br>
 > 上一轮来源决定：已完成ARS“完整人工区域内跨对象排序A”来源审查：6471个人工tile/105058个导出框身份与当前P1清单一致，但裁片过滤丢失足迹/空间完整性证书，增强后证明也未建立；G1通过、G2/G3 NOT_ESTABLISHED，停止A，不做排序统计/loss/训练。实际面积比.09931134–.10027778低于可见门槛.35，纯合成反例排除仅靠固定边缘剔除认证背景；不代表实际可靠负例不存在。6484项绑定/新审查精确重放及1093tests通过，不读隐藏标签或用隐藏计数补齐。原P1/失败封印/冻结合同保护，无新监控；见第3.79节、第10节及[来源报告](paper/diagnostics/reliable_region_ranking_feasibility/results.md)。以下既有记录不替代上方当前方法决定。<br>
 > 已有三臂终态：正目标几何重排V2三新学生各完整30轮exit0，548图val960及终态audit工程通过，但11线仅4过，停止候选；候选−P1 AP50–95−.3145pp/AP_small−.3453pp/conf.25 small−.9444pp，IoU.50/P90+.5418pp却对控制−.0301pp。同FP少160个small/同K少103，去掉任一类别后AP_small差值仍负。该轮提出的A仅获来源审查资格，已按上一条完成并停止；原三臂正负结果不改。见第3.78节与[复盘](paper/diagnostics/positive_quality_negative_review/results.md)。<br>
 > 最新修复准备：新增独立V2 Trainer集成修复，仅改变train/val数据集派发，原科学loss/模型与11门槛不变；原V1失败封印/源码/合同全部保护。三mode真实dataloader合成batch回归、两份旧缓存完整loss重放、完整1088tests及40267项绑定check-only exit0通过；新执行入口`run_positive_quality_transport_v2.py`，详见paper/candidates/positive_quality_transport_v2/。本次未启动训练/新真实batch/检测模型forward/optimizer，未验证完整Trainer setup，学生性能NOT_TESTED、机制NOT_ESTABLISHED；真实启动后再建临时观察。<br>
@@ -2233,6 +2234,45 @@ SoCo去重归档为Q6Z5S2AM，复用MSAD Q5P6YRER并加项目集合；部分机�
 详见`paper/diagnostics/human_multiscale_observation_review/{protocol,results}.md`与
 `outputs/human_multiscale_observation_review_20261105/{geometry.py,geometry.json,geometry_receipt.json}`。
 
+### 3.81 原P1之后的机制方向：公开保留事件约束的有界定位分布监督（2026-11-05）
+
+承接aa1d621，按用户要求继续academic-research-suite定向研究、原文核验与独立反方。
+本轮只保留一项研究假设，状态REVIEW_COMPLETE / CONDITIONAL_ZERO_TRAINING_AUDIT_ONLY；
+没有实现候选loss/Trainer，没有训练放行、性能结论或已确立原创性。
+
+新约束来自合法正框的已保留事件：源码条件A_visible/A_input+1e-12≥.35，
+故输入标注框面积≤A_visible/(.35−1e-12)。它不恢复具体隐藏框、不提供背景保证；
+本轮不访问隐藏GT数值，但必须披露保留事件包含模拟生成时依赖输入GT面积的侧信息。
+不能默认自然人工标注具有同一保证；所有强对照均须获得同样规则及合法几何界。
+初始贴边只保留多种相容解释，不能认作真实cut；后续视觉裁剪也不能主动丢弃已知精确坐标。
+
+CABB（CVPR2021）已定义裁剪相容完整框集合及点框回归，GFL（NeurIPS2020）已有分布定位/DFL。
+本问题的可测试差异是公开保留事件给出的有限、宽高耦合观测集合及其概率质量监督；
+同界CABB点/众数适配、MAP及最紧单边界均是必须公平控制的近邻解释。
+待检验混合公式保留精确边原DFL，只对未知边在固定精确连续坐标的集合求质量；
+全已知时显式严格恢复原DFL，不将单点/两bin集合概率冒充插值交叉熵。
+
+固定合成例：两个平均框同为6×6且可行，集合质量仍可为1与.75；
+反方补充控制唯一众数也同为6×6后，集合质量仍可为1与11/16。
+均值/众数坐标约束、集合内MAP与联合质量不普遍等价，且面积事件不能拆成独立边系数缩放。
+但因子化分布仍不表达任意边相关性，可能只让尺寸收缩/分布变尖；Z=1不识别真实框。
+这是机制区别，不是裁片造成旧负结果、提高AP、校准或新颖性证明。
+
+先行协议后只重读6471合法人工标签，SHA与A旧结果/回执一致；105058框中4145严格文本触边，
+4053仅单边、90双边、2三边；横纵均涉及边界88个。非真实截断率、最终有效数或tiny收益；
+不加epsilon，不按这些数调门槛，不制造增强歧义。来源区间/事件运输、DFL有限支撑/负距离、
+TAL/IoU/DFL同观测消费者尚未工程认证，未过则停止，不补隐藏GT或加模块救活。
+
+第一轮6483项输入绑定，结果SHA d25358cbb2723f28bc7d0238e2a35eac5f32becb46ef72ee96f65b6b1f9f4d06；
+反方补充单独执行前声明、4项绑定，SHA cf8a1611f024aa80158c07c0a7db86b95d3eb18900ea3ff727f0c38d65f0a5c1。
+两份新结果精确字节重放；文档链接/diff/提交白名单检查。正式仓库只改文档，未重复完整pytest；
+新ignored分析脚本/JSON未公开发布。不读取新manifest/隐藏标签或计数，不解码像素/加载权重，
+模型forward/backward/训练/val推理/旧终态audit/新监控均0。原P1及失败证据/合同不变。
+CABB去重新增NF7VIMS2，GFL复用2WWVF6XL并补齐元数据，部分机器阅读笔记/索引实际范围见报告。
+
+详见`paper/diagnostics/next_mechanism_review/{protocol,adversarial_supplement,results}.md`与
+新ignored `outputs/next_mechanism_review_20261105/`。第10节记录、中文commit并push；无新训练命令。
+
 ## 4. 固定实验协议
 
 ### 4.1 训练与评估
@@ -2586,6 +2626,7 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 
 | 2026-11-05（完整人工区域内跨对象排序A来源可行性审查） | 起点56e242f；本次中文审查提交并push（提交号见git log） | ARS先行协议；只投影合法人工清单/标签/manifest与构造参数，源码与安装增强审读、纯合成不可识别反例及独立反方核查 | 第3.79节；paper/diagnostics/reliable_region_ranking_feasibility/{protocol,results}.md；scripts/audit_reliable_region_ranking_feasibility.py --audit；outputs/reliable_region_ranking_feasibility_20261105/ | 6471人工tile/105058保留框与11310训练清单身份一致；面积比.09931134–.10027778、可见门槛.35；保留标签无法恢复被过滤足迹，固定侵蚀无背景保证；6484绑定/新审查精确重放、完整1093tests通过 | G1 PASS、G2/G3 NOT_ESTABLISHED，STOP_BEFORE_RANKING_DIAGNOSTICS，停止A；不代表实际负例不存在或新学生性能失败。不读隐藏标签/用隐藏计数补齐、不做排序统计/梯度/loss/forward/训练，不切换其他方向；原P1/失败封印/冻结源码合同保护，无新监控 |
 | 2026-11-05（合法人工实例跨尺度观测B的ARS审查） | 起点708b45c；本次中文审查提交并push（提交号见git log） | 先行协议、源码/原文机制核对、仅合法metadata几何盘点与独立反方；不读取标签/像素 | 第3.80节；paper/diagnostics/human_multiscale_observation_review/{protocol,results}.md；outputs/human_multiscale_observation_review_20261105/ | 6471人工tile长边131–548，首次640下采样0；全图960/tile640目标线性比例.35543–.411；11项绑定/新几何字节一致重放；文档链接与diff检查 | STOP_GENERIC_B_NO_DISTINCT_SIGNAL；人工对应不同于旧可靠性诊断且可增约束，真实新上下文保留，但近邻差异/独立信号未成立，不升级loss/训练；不是性能负结果或跨尺度普遍无效。原P1/失败证据/冻结合同保护，无隐藏计数值提取/模型forward/val/训练/新监控 |
+| 2026-11-05（原P1之后的ARS新机制方向筛选） | 起点aa1d621；本次中文研究提交并push（提交号见git log） | 先行协议，CABB/GFL原文定向核验、合法人工文本哈希/严格等式盘点、合成反例与独立反方三检查点；反方追加计算另存执行前声明 | 第3.81节；paper/diagnostics/next_mechanism_review/{protocol,adversarial_supplement,results}.md；outputs/next_mechanism_review_20261105/ | 公开保留事件给出输入标注框面积上界；同均值/同唯一众数仍可有不同联合相容质量，完整精确DFL分支代数一致；6471文件/105058框、4145严格触边/88横纵触边（非真实cut）；6483+4绑定/两结果字节一致重放；文档检查 | CONDITIONAL_ZERO_TRAINING_AUDIT_ONLY：只推荐有界定位分布约束的来源/工程审查，不认定原创性/性能或放行训练；强同界CABB点/模式/MAP及因子分布收缩解释保留。公开选择事件含模拟生成GT衍生侧信息，未新读隐藏GT/计数或manifest；无模型/训练/val/旧audit/新监控，未改源码/原P1/失败证据/冻结合同；正式仅文档提交 |
 
 ### 10.1 新会话开始流程
 
