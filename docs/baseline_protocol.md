@@ -1,7 +1,7 @@
 # Baseline 执行协议
 
-2026-11-05当前工作：[V4连续密度合同](paper/candidates/bounded_retention/continuous_density_contract.md)已冻结，
-独立实现/零训练验证进行中；未启动学生。全门通过后才冻结并直接执行顺序三臂各30轮，
+2026-11-05当前工作：V4确定性积分容量未过；[V5后验采样合同](paper/candidates/bounded_retention/continuous_sampling_contract.md)
+在新实现前冻结，目标/对象/原E/同界全局点控制不变；未启动学生。全门通过后才冻结并直接执行顺序三臂各30轮，
 仍沿用本文件的原P1训练和548图full-image val960协议，不恢复旧失败实验。
 
 此前方法决定：[原P1编码复核与V3终态](paper/candidates/bounded_retention/p1_encoding_results.md)。

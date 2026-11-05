@@ -1,7 +1,7 @@
 # 论文完成计划与项目交接
 
 > 最后更新：2026-11-05<br>
-> 当前工作：V4连续DFL密度及最强同界连续点DFL控制已先行冻结，进入独立实现/零训练验证，尚未获得训练资格或启动学生。归一化连续集合质量保留区间位置、插值权重和面积耦合；原E/全known仍走P1，不再把整数bin空集当数学否决。测度、真实集合积分、全局点控制及完整集成仍须通过；两臂差异含密度归一化，不能宣称纯sum/min消融或原创性成立。见第3.84节及[新合同](paper/candidates/bounded_retention/continuous_density_contract.md)。<br>
+> 当前工作：V4连续目标保留，但确定性矩形积分在完整3U容量检查中未通过（19999cells/111.35秒，残差界0.4247）。先冻结目标不变的V5后验采样计算合同，再独立实现/验证；原E、对象、插值、面积耦合及最强连续点控制不变。有限K梯度有方差，日志显示值不冒称精确NLL；尚未获得训练资格或启动学生。见第3.84–3.85节及[新合同](paper/candidates/bounded_retention/continuous_sampling_contract.md)。<br>
 > 此前V3终态：E可表示性门是额外合同，V3恢复原P1编码语义后旧E反例通过；第13真实batch的U连续区间约[637.5464,640]无字面DFL原子，因此停止离散质量候选。1316tests/31绑定/28快照通过；V1/V2/V3合同、源码与失败全部保留。见第3.83节及[编码复核报告](paper/candidates/bounded_retention/p1_encoding_results.md)。<br>
 > 既有B审查：ARS合法人工实例跨尺度观测B已完成，停止泛化候选（STOP_GENERIC_B_NO_DISTINCT_SIGNAL）。6471个人工tile长边131–548，载入640均放大，首次640下采样细节缺口不成立；全图960确增上下文，但同目标名义线性尺度仅为tile640的35.54%–41.10%。人工实例对应不同于旧伪框稳定性诊断，亦可能新增训练约束；对照SoCo/PseCo/MixTeacher/密度裁片/MSAD，尚无独立新信号/动作，不实现loss或训练，也不宣称跨尺度学习普遍无效。见第3.80节及[独立审查](paper/diagnostics/human_multiscale_observation_review/results.md)。<br>
 > 上一轮来源决定：已完成ARS“完整人工区域内跨对象排序A”来源审查：6471个人工tile/105058个导出框身份与当前P1清单一致，但裁片过滤丢失足迹/空间完整性证书，增强后证明也未建立；G1通过、G2/G3 NOT_ESTABLISHED，停止A，不做排序统计/loss/训练。实际面积比.09931134–.10027778低于可见门槛.35，纯合成反例排除仅靠固定边缘剔除认证背景；不代表实际可靠负例不存在。6484项绑定/新审查精确重放及1093tests通过，不读隐藏标签或用隐藏计数补齐。原P1/失败封印/冻结合同保护，无新监控；见第3.79节、第10节及[来源报告](paper/diagnostics/reliable_region_ranking_feasibility/results.md)。以下既有记录不替代上方当前方法决定。<br>
@@ -2348,6 +2348,19 @@ V3完整真实AMP比较未执行，显式batch forward尝试0/optimizer0/val inf
 Trainer/增强流/AMP零优化验证及全库pytest，才有资格冻结学生运行。尚无新学生或验证推理，
 无性能/机制结论；公开保留事件的模拟GT衍生侧信息、CABB/GFL边界和隐藏GT禁令全部保留。
 
+### 3.85 连续目标不变的后验采样计算（2026-11-05，先冻结）
+
+V4完整3U例全局point gap=0通过；矩形积分19999cells/111.35秒后仍有0.4246866
+残差，未满足1e−4。receipt为`outputs/bounded_retention_continuous_20261105/curved_3u_capacity_01/`，
+运行只导入先保存的源码快照。体积独立参照28240.81257落在[23437.88571,33391.64082]内。
+这是该积分算法的容量失败，不是连续定义失败。
+
+ARS独立审查认可`grad log I_C=E_C q`：保持原连续目标，以完整C后验拒绝采样
+提供无偏一阶梯度；1U及D仍解析积分。已在新实现前冻结
+[V5合同](paper/candidates/bounded_retention/continuous_sampling_contract.md)，固定K256、
+接受包络下界1/8、随机比特及误差义务、日志区间和独立RNG，不能因只留下inside部分而假通过。
+全部真实工程门和全库测试尚待执行，不构成训练许可；学生0epoch，无验证推理。
+
 ## 4. 固定实验协议
 
 ### 4.1 训练与评估
@@ -2779,3 +2792,4 @@ VisDrone split 或 RegionSSOD 权重。未来若要启动该方向，应另建�
 数据/结果目录。
 
 | 2026-11-05（连续密度合同先行冻结） | 起点92aa1b8；本次中文提交并push | ARS独立反方和来源几何审查选择normalized log-linear连续密度，最强同界全局point-DFL控制，进入新独立实现 | 第3.84节；continuous_review_contract.md；continuous_density_contract.md；continuous_numeric_addendum.md | 定义合理性不等于工程通过；全known原P1保留，U单点密度极限不另作否决；测度/积分/全局控制及真实集成仍需验证 | 学生0epoch、无val推理；通过全门才直接顺序3×30，旧源码/合同/失败不改，不读隐藏GT |
+| 2026-11-05（连续数值容量与采样合同） | 延续93ee7c9 | 独立完整loss与旧E/U反例通过；正式完整3U矩形积分容量检查失败，保持目标另冻结后验采样计算合同 | 第3.85节；continuous_capacity_protocol.md；continuous_sampling_contract.md；curved_3u_capacity_01源码快照/receipt | 全局point gap0；19999cells/111.35秒积分残差0.4247；不把附加确定积分要求写成连续机制否决；有理见证/float几何表示问题单独修正 | V5待独立实现/验证，真实Trainer/增强/AMP及全库检查未过，三臂未启动；无隐藏GT、无验证推理、无新训练监控 |

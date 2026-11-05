@@ -1,8 +1,9 @@
 # YOLO-RegionSSOD
 
-2026-11-05当前工作：已冻结[V4连续DFL密度与全局连续点控制](docs/paper/candidates/bounded_retention/continuous_density_contract.md)，
-进入独立实现/零训练验证；尚未取得训练资格或启动三臂。连续定义保留插值权重和面积耦合，
-不再要求集合包含整数bin；原E与全known路径保留P1。两臂差异包含密度归一化，不能称纯sum/min消融。
+2026-11-05当前工作：V4确定性矩形积分未通过完整3U容量检查（19999cells，残差界0.4247）。
+这不是连续目标无效；已先冻结[目标不变的V5后验采样计算合同](docs/paper/candidates/bounded_retention/continuous_sampling_contract.md)，
+进入独立实现/验证，尚未取得训练资格或启动三臂。原E、全部对象、插值权重、面积耦合与最强连续点控制不变。
+有限样本梯度有方差，报告值与精确NLL分开；不宣称纯sum/min消融、原创性或性能成立。
 
 此前终态：[原P1编码语义复核与V3未知边空集](docs/paper/candidates/bounded_retention/p1_encoding_results.md)。
 上一轮E支撑门是额外合同；原P1保留连续几何，仅DFL编码饱和。V3已显式恢复此语义，坐标/对象不变。
