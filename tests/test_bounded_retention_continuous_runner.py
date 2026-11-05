@@ -22,7 +22,8 @@ def stopped_geometry():
         "status": "STOP_BEFORE_STUDENT_TRAINING", "error": {"message": "nonfinite original P1 loss/gradient"},
         "objective": "V6_native_E_same_continuous_density", "stage": "real_model_amp_forward_backward",
         "optimizer_steps": 0, "training_started": False, "validation_inference_calls": 0,
-        "all_stream_geometry_checked": True, "command": ["checker", "--scan-all-batches"],
+        "geometry_phase": "mosaic_closed", "geometry_batch_index": 1413,
+        "command": ["checker", "--scan-all-batches"],
         "geometry_batch_checks": [{**row, "phase": phase} for phase in ("mosaic_open", "mosaic_closed")
                                   for _ in range(1414)],
         "dataloaders": {"train_images": 11310, "val_images": 548, "workers": 0,
@@ -84,6 +85,21 @@ def test_complete_engineering_fields_pass_without_opening_a_model():
     original = deepcopy(geometry)
     r.verify_engineering(passed_engineering(), geometry)
     assert geometry == original and geometry["status"] == "STOP_BEFORE_STUDENT_TRAINING"
+
+
+@pytest.mark.parametrize("drift", ["order", "position", "flag_only"])
+def test_geometry_requires_actual_complete_stream_not_success_only_summary(drift):
+    evidence = stopped_geometry()
+    assert "all_stream_geometry_checked" not in evidence
+    if drift == "order":
+        evidence["geometry_batch_checks"].reverse()
+    elif drift == "position":
+        evidence["geometry_batch_index"] = 1412
+    else:
+        evidence["all_stream_geometry_checked"] = True
+        evidence["geometry_batch_checks"] = []
+    with pytest.raises(ValueError, match="1414|ordering/final position"):
+        r.verify_geometry_engineering(evidence)
 
 
 @pytest.mark.parametrize("key,value", [

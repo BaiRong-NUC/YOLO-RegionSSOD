@@ -1,6 +1,19 @@
 # YOLO-RegionSSOD
 
-2026-11-05当前工作：V4确定性矩形积分未通过完整3U容量检查（19999cells，残差界0.4247）。
+2026-11-05当前工作：V6连续相容集合监督的来源/完整增强流/真实AMP联合验证通过，
+完整2042 tests通过；[三臂合同](docs/paper/candidates/bounded_retention/three_arm30_contract.md)
+及[启动修订](docs/paper/candidates/bounded_retention/three_arm30_launch_addendum.md)已冻结。
+最终24004输入绑定通过只读核验，将按原P1→候选→最强同界连续点DFL各30轮顺序执行。
+[工程结果](docs/paper/candidates/bounded_retention/continuous_amp_results.md)不是训练性能结果。
+
+```powershell
+& 'C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe' -u scripts/run_bounded_retention_continuous_v2.py --train --spec outputs/bounded_retention_continuous_freeze_20261105_v2/freeze.json
+```
+
+训练输出：`outputs/bounded_retention_continuous_three30_s0/`。目录必须新建；已有运行禁止重跑。
+只读前置核验把`--train`换为`--check`；终态后用同脚本`--audit`。
+
+工程历史：V4确定性矩形积分未通过完整3U容量检查（19999cells，残差界0.4247）。
 这不是连续目标无效；已先冻结[目标不变的V5后验采样计算合同](docs/paper/candidates/bounded_retention/continuous_sampling_contract.md)，
 V5真实检查在第21batch被额外的E-canvas门阻断；独立V6保留E原值，仅限制U积分域，完整1862 tests通过。
 V6真实mosaic开启/关闭各1414batch几何通过；一次真实前向及7项head数值审计（含3U）后，
@@ -9,7 +22,7 @@ V6真实mosaic开启/关闭各1414batch几何通过；一次真实前向及7项h
 有限样本梯度有方差，报告值与精确NLL分开；不宣称纯sum/min消融、原创性或性能成立。
 执行清单见[独立验证合同](docs/paper/candidates/bounded_retention/continuous_sampling_validation.md)，
 [已知边观测语义](docs/paper/candidates/bounded_retention/continuous_observation_semantics.md)明确名义E与latent U的混合表示。
-新独立零优化入口：`python scripts/check_bounded_retention_amp.py`（尚待执行）；
+新独立零优化入口：`python scripts/check_bounded_retention_amp.py`（已通过，不重跑）；
 先冻结[AMP诊断合同](docs/paper/candidates/bounded_retention/amp_audit_revision_contract.md)，
 继承已绑定的完整几何流，重放原固定3U压力batch，区分未缩放loss错误与AMP缩放溢出。
 不修改实际训练的原生动态scaler，不重启旧失败检查。原生E依据见[合同](docs/paper/candidates/bounded_retention/native_e_revision_contract.md)。

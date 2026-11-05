@@ -1,12 +1,25 @@
 # Baseline 执行协议
 
-2026-11-05当前工作：V4确定性积分容量未过；[V5后验采样合同](paper/candidates/bounded_retention/continuous_sampling_contract.md)
+2026-11-05：V6联合工程验证通过，共同AMP scale1024下三臂全部可训练参数梯度有限；
+实际训练仍用原生动态AMP。最终2042 tests/24004输入绑定通过，已冻结
+[三臂科学合同](paper/candidates/bounded_retention/three_arm30_contract.md)和
+[启动修订](paper/candidates/bounded_retention/three_arm30_launch_addendum.md)。当前复现入口：
+
+```powershell
+& 'C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe' -u scripts/run_bounded_retention_continuous_v2.py --train --spec outputs/bounded_retention_continuous_freeze_20261105_v2/freeze.json
+```
+
+新输出`outputs/bounded_retention_continuous_three30_s0/`，原P1→候选→同界全局点DFL各30轮，
+已有目录禁止再次启动。终态只读`python scripts/run_bounded_retention_continuous_v2.py --audit`。
+全548图val960、best.pt和主/次指标定义见合同；尚无新性能结论。
+
+工程历史：V4确定性积分容量未过；[V5后验采样合同](paper/candidates/bounded_retention/continuous_sampling_contract.md)
 在新实现前冻结，目标/对象/原E/同界全局点控制不变；未启动学生。全门通过后才冻结并直接执行顺序三臂各30轮，
 仍沿用本文件的原P1训练和548图full-image val960协议，不恢复旧失败实验。
 V5真实检查第21batch被额外E-canvas门阻断；独立V6与完整1862 tests通过，原E不改。
 V6真实检查已覆盖mosaic开启/关闭各1414batch；一次前向及含3U的7项head数值审计通过后，
 停在scale65536下原P1 loss/gradient合并非有限检查。三臂仍未启动，旧STOP不改写。
-新独立入口为`python scripts/check_bounded_retention_amp.py`（待执行），
+新独立入口为`python scripts/check_bounded_retention_amp.py`（已通过，不重跑），
 按[先冻结的AMP合同](paper/candidates/bounded_retention/amp_audit_revision_contract.md)
 继承完整几何证据、重放原固定压力batch、单独验证loss与共同动态缩放下的三臂反向。
 仅修订诊断门，不改实际训练scaler默认或V6目标；[E修订合同](paper/candidates/bounded_retention/native_e_revision_contract.md)保留。

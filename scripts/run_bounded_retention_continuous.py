@@ -157,11 +157,16 @@ def verify_geometry_engineering(report):
             and report.get("error", {}).get("message") == "nonfinite original P1 loss/gradient",
             "immutable G0 STOP state changed")
     verify_common_engineering(report)
-    require(report.get("all_stream_geometry_checked") is True
-            and "--scan-all-batches" in report.get("command", []), "full geometry scan absent")
+    # G0 writes all_stream_geometry_checked only AFTER its backward checks.
+    # Its immutable STOP therefore lacks that success-only summary; inspect
+    # the complete ordered records and final loop position instead.
+    require("--scan-all-batches" in report.get("command", []), "full geometry scan absent")
     rows = report.get("geometry_batch_checks", [])
     require(Counter(r.get("phase") for r in rows) == {"mosaic_open": 1414, "mosaic_closed": 1414},
             "both complete 1414-batch phases required")
+    require([r.get("phase") for r in rows] == ["mosaic_open"] * 1414 + ["mosaic_closed"] * 1414
+            and report.get("geometry_phase") == "mosaic_closed"
+            and report.get("geometry_batch_index") == 1413, "geometry stream ordering/final position differs")
     for row in rows:
         require(row.get("supported_objects") == row.get("partial_objects_checked")
                 and isinstance(row.get("supported_objects"), int)

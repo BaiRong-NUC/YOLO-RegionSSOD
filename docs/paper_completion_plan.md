@@ -1,7 +1,7 @@
 # 论文完成计划与项目交接
 
 > 最后更新：2026-11-05<br>
-> 当前工作：V6真实mosaic开启/关闭各1414batch几何通过；一次前向及7项head数值审计（含3U）完成后，停在scale65536的原P1 loss/gradient合并非有限检查。已先冻结独立AMP审计合同，区分未缩放loss错误与正常动态缩放溢出；新审计待执行，三臂未启动。V6目标、原E、对象、插值、面积耦合及最强连续点控制不改，旧STOP不改写。见第3.88节及[AMP合同](paper/candidates/bounded_retention/amp_audit_revision_contract.md)。<br>
+> 当前工作：V6来源/完整增强流/实际AMP联合验证通过；同压力batch三臂共同scale1024下全部参数梯度有限、候选/强控制可区分，旧65536 STOP保留。最终2042 tests与24004输入核验通过，三臂科学合同及启动入口已冻结，即将按授权原P1→候选→强控制顺序各30轮；尚无性能结论。见第3.89节及[启动合同](paper/candidates/bounded_retention/three_arm30_launch_addendum.md)。<br>
 > 此前V3终态：E可表示性门是额外合同，V3恢复原P1编码语义后旧E反例通过；第13真实batch的U连续区间约[637.5464,640]无字面DFL原子，因此停止离散质量候选。1316tests/31绑定/28快照通过；V1/V2/V3合同、源码与失败全部保留。见第3.83节及[编码复核报告](paper/candidates/bounded_retention/p1_encoding_results.md)。<br>
 > 既有B审查：ARS合法人工实例跨尺度观测B已完成，停止泛化候选（STOP_GENERIC_B_NO_DISTINCT_SIGNAL）。6471个人工tile长边131–548，载入640均放大，首次640下采样细节缺口不成立；全图960确增上下文，但同目标名义线性尺度仅为tile640的35.54%–41.10%。人工实例对应不同于旧伪框稳定性诊断，亦可能新增训练约束；对照SoCo/PseCo/MixTeacher/密度裁片/MSAD，尚无独立新信号/动作，不实现loss或训练，也不宣称跨尺度学习普遍无效。见第3.80节及[独立审查](paper/diagnostics/human_multiscale_observation_review/results.md)。<br>
 > 上一轮来源决定：已完成ARS“完整人工区域内跨对象排序A”来源审查：6471个人工tile/105058个导出框身份与当前P1清单一致，但裁片过滤丢失足迹/空间完整性证书，增强后证明也未建立；G1通过、G2/G3 NOT_ESTABLISHED，停止A，不做排序统计/loss/训练。实际面积比.09931134–.10027778低于可见门槛.35，纯合成反例排除仅靠固定边缘剔除认证背景；不代表实际可靠负例不存在。6484项绑定/新审查精确重放及1093tests通过，不读隐藏标签或用隐藏计数补齐。原P1/失败封印/冻结合同保护，无新监控；见第3.79节、第10节及[来源报告](paper/diagnostics/reliable_region_ranking_feasibility/results.md)。以下既有记录不替代上方当前方法决定。<br>
@@ -2413,6 +2413,27 @@ val inference=0。原receipt SHA256 `39c03aa3a4243a0f3169abe174c4701d964f905df74
 通过；准备中的三臂启动器将统一禁止OOM减batch重试、NaN回载及包装异常杀worker，
 评估保留三对同FP/精确同K、重复框和定位诊断，尚无真实评估结果。
 
+### 3.89 连续集合三臂放行与最终冻结（2026-11-05）
+
+独立AMP审计PID22280自然结束，727.922秒；旧2828batch重放一致，仍选closed1316/3U。
+三臂未缩放loss有限，共同scale依预定序列首次在1024下head/全部参数梯度均有限；
+完整候选backward通过，参数不变，原P1包装等价，旧7项head审计与三臂只读预览通过。
+候选−控制去缩放head梯度L1=0.23438087879912928；分类/CIoU相同。没有optimizer或val推理。
+证据见`continuous_amp_results.md`；这证明旧压力batch阻塞是缩放诊断问题，不是未缩放loss失败。
+
+修正联合验收器对旧STOP成功专属字段的误要求后，2037 tests通过。首次只读启动核验
+另发现两侧Windows路径规范化不一致；保留原freeze/失败/源码，独立启动V2仅修复路径比较。
+最终完整2042 passed/126.04秒，`suite_launch_03/`；没有新loss版本，也未重跑失败训练。
+最终24004输入核验通过，freeze SHA256为
+`a04ec4f117472fc2e11f988a61534d3de5898c9c9bff5d7f7a592928a6a57901`，
+路径`outputs/bounded_retention_continuous_freeze_20261105_v2/freeze.json`。
+
+三臂合同及启动修订已在训练前冻结：原P1真实Trainer、V6集合质量候选、同界全局连续点DFL；
+原baseline超参数、顺序各30轮、548图val960/best.pt、COCO与Ultralytics分别报告、同FP/同K/
+重复框/定位及收缩/变尖诊断。三臂同禁OOM减batch、NaN回载、重试与自动杀worker；
+正常AMP跳步降scale允许。原P1、旧合同/失败不改；允许有依据的既有方法适配贡献。
+先记录工程放行和最终冻结；实际进程身份/启动状态另记，不把此段写成训练已启动。
+
 ## 4. 固定实验协议
 
 ### 4.1 训练与评估
@@ -2809,6 +2830,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-11-05（V5真实失败与独立V6修订） | 5780870实现；66f3bfc新合同；本次中文实现提交并push | V5实际初始化/loader与20batch通过，第21batch暴露额外E-canvas门；冻结后独立V6修正域/积分，不改E | 第3.87节；native_e_revision_contract.md；posterior_integration_01/；v5_stop_audit.json；suite_v6_01/ | 51输入/48快照一致；反例正测度见证；V6完整1862 tests通过/98.78秒 | 真实V6待执行，学生0epoch，无val推理；旧代码/失败不改；允许已有方法合理适配贡献，全门通过后顺序3×30 |
 
 | 2026-11-05（完整V6增强流及AMP门拆分） | a877b4b实现；1648327先冻结AMP合同 | 开启/关闭mosaic各1414batch通过，实际1次前向/7项head审计后原P1缩放梯度合并门停止；准备独立AMP重放和只读训练/评估工具 | 第3.88节；native_e_integration_01/result.json；amp_audit_revision_contract.md | 2744.809秒；原压力batch=closed1316/3U；未完成全模型有限反向 | 三臂未启动，0optimizer/0val推理；不改V6目标，不把初始AMP溢出直接视为机制失败，独立诊断待执行 |
+
+| 2026-11-05（V6联合工程通过及三臂冻结） | f4a5346；本次中文提交并push | 一次真实AMP前向、固定序列共同scale1024、完整参数反向/原P1等价/同控制区分通过；保留旧STOP及路径核验失败，独立启动V2完成最终绑定 | 第3.89节；continuous_amp_results.md；three_arm30_contract.md；three_arm30_launch_addendum.md；native_amp_audit_01/；suite_launch_03/；freeze_20261105_v2/ | 2042 passed/126.04秒；24004输入只读核验通过；0 optimizer/0 val推理 | 工程放行、合同冻结；即将直接顺序原P1/候选/强控制各30轮，实际启动另记；无性能或机制成立结论 |
 
 ## 11. 风险与退出条件
 
