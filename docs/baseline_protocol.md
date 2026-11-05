@@ -3,6 +3,11 @@
 2026-11-05当前工作：V4确定性积分容量未过；[V5后验采样合同](paper/candidates/bounded_retention/continuous_sampling_contract.md)
 在新实现前冻结，目标/对象/原E/同界全局点控制不变；未启动学生。全门通过后才冻结并直接执行顺序三臂各30轮，
 仍沿用本文件的原P1训练和548图full-image val960协议，不恢复旧失败实验。
+V5独立实现与完整1715 tests通过；真实零优化入口为
+`python scripts/check_bounded_retention_sampling.py --scan-all-batches`，覆盖mosaic开启/关闭两阶段。
+四例容量通过不代替真实来源/增强及AMP门，详见
+[执行清单](paper/candidates/bounded_retention/continuous_sampling_validation.md)与
+[观测语义补充](paper/candidates/bounded_retention/continuous_observation_semantics.md)。
 
 此前方法决定：[原P1编码复核与V3终态](paper/candidates/bounded_retention/p1_encoding_results.md)。
 纠正额外E可表示性合同：原P1的DFL编码会饱和，CIoU仍使用原连续坐标；V3没有丢对象或降级E。
