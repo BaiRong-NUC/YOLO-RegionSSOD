@@ -1,6 +1,7 @@
 # 论文完成计划与项目交接
 
-> 最后更新：2026-11-04<br>
+> 最后更新：2026-11-05<br>
+> 当前决定：正目标几何重排V2三新学生各完整30轮exit0，548图val960及终态audit工程通过，但11线仅4过，停止候选；候选−P1 AP50–95−.3145pp/AP_small−.3453pp/conf.25 small−.9444pp，P90+.5418pp却对控制−.0301pp。同FP仍少160个small/同K少103，去掉任一类别后AP_small差值仍负。ARS复盘/独立反方/近邻文献完成；完整区域内跨对象排序仅值得来源可行性审查，现有对象token不能证明安全背景，无新可训练升级。本轮零训练/零推理，原P1/全部失败封印与合同保护，临时v2已删除。见第3.78节、第10节和[复盘](paper/diagnostics/positive_quality_negative_review/results.md)。下列11月4日准备与旧候选终态均为历史记录，以本条为当前状态。<br>
 > 最新修复准备：新增独立V2 Trainer集成修复，仅改变train/val数据集派发，原科学loss/模型与11门槛不变；原V1失败封印/源码/合同全部保护。三mode真实dataloader合成batch回归、两份旧缓存完整loss重放、完整1088tests及40267项绑定check-only exit0通过；新执行入口`run_positive_quality_transport_v2.py`，详见paper/candidates/positive_quality_transport_v2/。本次未启动训练/新真实batch/检测模型forward/optimizer，未验证完整Trainer setup，学生性能NOT_TESTED、机制NOT_ESTABLISHED；真实启动后再建临时观察。<br>
 > 最新工程终态（10:47:57）：用户手动启动正目标几何重排三臂入口，reference在验证数据集初始化时因Trainer方法复用的零参数super继承不兼容而exit1，0完整epoch、无results.csv/best；candidate/control未启动。父/worker均已停止，独立只读audit exit0且terminal_evidence_verified=true，但accepted=false/performance=NOT_ACCEPTED；不作方法性能失败判定。原封印目录/源码/合同保留，未修复或重试；监控终态清理，详见第10节。<br>
 > 本轮新研究：在b1db01e干净工作区上完成正目标几何排序文献/零训练诊断与独立最小实现，未启动学生训练。实际CUDA AMP人工small多锚点126个中100个逆序、32个大差逆序，small目标搬移8.7506%；框外质量35.3208→38.6970的反证保留。新原P1/候选/匹配扰动控制各30轮及11条保覆盖门槛已冻结；935tests、完整loss/来源/audit及零训练预检通过，学生性能/机制仍未验证。见第3.77节及paper/candidates/positive_quality_transport/，不覆盖下列旧终态。<br>
@@ -2122,6 +2123,50 @@ Ultralytics总体AP仅绑定原validator输出，缓存独立重算范围是COCO
 training/forward/created_files均false，四个新训练输出/run目录不存在。
 完整pytest最终935 passed in17.46s，git diff --check通过；仅本轮23个文件中文提交并push。
 
+### 3.78 正目标几何重排V2三臂负结果与方法投入复盘（2026-11-05）
+
+V2是5966f58的Trainer集成修复，不是新的科学变量。全新原P1参考/候选/匹配扰动控制
+各连续1–30轮、exit0，同10%面积split0/固定教师/COCO初始化/学生seed0/640/batch8/SGD/AMP；
+统一548图full-image val960完成。原V1仍是0epoch初始化失败，两套封印/合同/源码独立保留。
+本聊天终态阶段父与全部worker停止后只读--audit一次exit0，无新推理，随后删除临时v2。
+本轮不重复终态audit、预检或学生循环。
+
+| 同次30轮，单位%（FP为个） | P1参考 | 候选 | 控制 |
+|---|---:|---:|---:|
+| AP50–95 | 23.7883 | 23.4738 | 23.6304 |
+| COCO-style AP_small | 13.6792 | 13.3340 | 13.6527 |
+| conf.25 small recall | 36.3435 | 35.3990 | 35.5872 |
+| IoU.50/P70 small recall | 36.9304 | 36.1628 | 36.3209 |
+| IoU.50/P90 small recall | 16.6610 | 17.2028 | 17.2329 |
+| IoU.75/P90 small recall | 5.6778 | 5.9450 | 5.4483 |
+| conf.25全尺寸FP/错类FP | 7889/3719 | 7573/3434 | 7758/3480 |
+
+候选−P1 AP/AP_small/conf.25/P70/P90/严格P90为−.3145/−.3453/−.9444/−.7676/+.5418/+.2671pp；
+候选−控制AP−.1566pp/AP_small−.3187pp/P90−.0301pp。11线4过、stop，机制NOT_ESTABLISHED；
+工程accepted不等于性能条件通过。P70/P90约束全尺寸micro precision，非small precision；
+不与正式100轮/B2历史拼接，不当VisDrone官方AP或跨split/seed显著性。
+
+用户要求ARS深入分析且不训练。先存独立协议，再用封印后NMS缓存做双IoU匹配/同FP与K/
+GT增失/FP分解/共同几何/全部类别敏感性；64项绑定及新诊断精确重放通过，完整pytest通过。
+
+- 候选同FP7889时small9659→9499（−160），同K27237时→9556（−103）；严格IoU对应−51/−47。
+- conf.25候选small新增774、丢失1025；P90新增650、丢失506，局部正结果保留。
+- 错类FP−285但重复+270；不是只有分数统一降低或只因一个类别。10类全部保留，
+  逐一去掉任一类，AP_small差值对P1仍[−.4266,−.0941]pp、对控制仍[−.4395,−.0645]pp。
+- 同对象目标总量守恒不保证参数梯度/全局排序/覆盖守恒；控制不保熵/目标集合/改变锚点数/独立轨迹累计强度。
+  即时几何与联合可学习性、分类回归支持协调、非特异优化均是替代解释，非唯一根因。
+- 只保留可靠完整区域内跨对象排序的限时可行性问题；当前SourceDataset只传对象来源，
+  可见比例<.35丢框/增强过滤使“未匹配=背景”不成立。来源无法证明就停止，不用隐藏GT补齐。
+  多尺度观测/独立教师仅备选；MixTeacher/PseCo/密度裁片与RS/S³OD限制新颖性，不给新loss或训练命令。
+- 三臂学生累计14.62小时/worker14.67小时，预检评估另计；超过旧6–12小时预估，
+  负载/时段未控制，不能当纯模块开销。未来三臂至少90学生轮，须先完成可识别控制和预算验证。
+
+详见`paper/diagnostics/positive_quality_negative_review/{protocol,results}.md`、
+`outputs/positive_quality_negative_review_20261105/{results,receipt}.json`。
+新入口`python scripts/analyze_positive_quality_negative.py --audit`只读核验本轮诊断，不重跑旧终态audit；
+新训练/推理/真实batch/隐藏训练GT读取均0。全部11类解释谬误与局限逐项披露。
+中文commit并push；原P1主线及失败证据保护，无新监控或自动实验。
+
 ## 4. 固定实验协议
 
 ### 4.1 训练与评估
@@ -2470,6 +2515,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-11-04 10:48（正目标三臂工程失败终态） | 训练源码060dc0f；本次只记状态并push | 用户10:45:44启动父21196，10:47:26完成预检并dispatch reference23212；10:47:57 worker exit1，父/worker均停止；临时监控捕获并执行一次只读audit | outputs/positive_quality_transport_three30_s0/ 原封印证据；外部pqt_failure_audit_20261104_1048.log及pqt_failure_terminal_receipt_20261104_1048.json | reference在val数据集构造调用复用的ReliableCompetitorTrainer.build_dataset，零参数super不接受PositiveQualityTrainer实例，TypeError；0完整epoch/无CSV或best；candidate/control未启动；audit进程exit0且terminal_evidence_verified=true，但accepted=false、performance=NOT_ACCEPTED | 这是Trainer集成工程失败，不是30轮性能失败或11门槛判定；先前缓存/935tests/预检未覆盖该真实Trainer验证路径。保持原源码/合同/失败目录，未自动修复/重试/恢复；需独立修复与新目录方案后再决定手动执行；临时观察终态删除，无源码修改故不重复pytest |
 
 | 2026-11-04（V2独立Trainer集成修复与零训练复验） | 基点d6b95d1；本次中文提交并push | 在新模块中修正train/val派发，继承冻结loss/model，不改科学变量与11门槛；先保存工程协议，再用实际安装包三mode合成train/val及两份既有完整head缓存验证 | paper/candidates/positive_quality_transport_v2/；scripts/{validate,run}_positive_quality_transport_v2.py；outputs/positive_quality_transport_v2_engineering/ | 原TypeError反例复现，六合成batch正常、mode绑定正确，训练构造体AST等价；初始化/训练后缓存AMP完整loss/局部head梯度检查通过；完整1088tests通过；新真实batch/检测模型forward/optimizer/学生循环/真实val推理均0 | 仅集成修复；未验证完整Trainer setup/权重加载/AMP bootstrap/优化/性能/机制；旧失败封印、源码、合同保护，新预检加入旧失败绑定与合成派发证据；check-only exit0后由用户手动新三臂各30轮，不重跑旧入口/恢复/自动重试/扩100轮，不创建空监控 |
+
+| 2026-11-05（正目标几何重排V2三臂负结果与ARS方法投入复盘） | 学生源码5966f58；本次中文复盘提交并push（提交号见git log） | 确认三新学生各完整30轮exit0/548图val960；原终态audit仅一次已通过；ARS先独立协议再重放封印预测，独立反方/源码机制/近邻文献核对 | 第3.78节；paper/diagnostics/positive_quality_negative_review/{protocol,results}.md；scripts/analyze_positive_quality_negative.py --audit；outputs/positive_quality_negative_review_20261105/ | 候选−P1 AP−.3145pp/AP_small−.3453pp/conf.25 small−.9444pp/P90+.5418pp；对控制AP−.1566pp/P90−.0301pp；同FP少160 small/同K少103；错类FP−285但重复+270；任去一类AP_small仍负；64项绑定/新统计精确重放/完整pytest通过 | 11线4过，停止原重排，不混V1零epoch工程失败；原P1/失败封印/冻结源码合同全部保护。跨对象可靠排序仅值得来源可行性审查：对象token不能证明安全背景，无法证明则停；多尺度/独立教师不优先，不调系数/筛类别/重试/恢复/100轮。新训练/forward/val推理/隐藏训练GT读取均0，无新监控；原临时v2已删除 |
 
 ### 10.1 新会话开始流程
 

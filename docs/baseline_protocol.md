@@ -1,21 +1,23 @@
 # Baseline 执行协议
 
-2026-11-04最新执行路径：[正目标重排V2独立Trainer修复](paper/candidates/positive_quality_transport_v2/README.md)。
-V1用户手动reference在val数据集初始化发生super继承错误，0完整epoch，candidate/control未启动；
-失败封印与源码保留。V2只修集成派发，原loss/模型/三臂与11门槛不变，采用全新目录。
-学生性能NOT_TESTED，机制NOT_ESTABLISHED；完整检查见[V2工程记录](paper/candidates/positive_quality_transport_v2/validation.md)。
+2026-11-05最新状态：[正目标重排V2三臂终态与负结果复盘](paper/diagnostics/positive_quality_negative_review/results.md)。
+三臂各连续完整30轮、exit0，548图val960与终态audit工程通过；候选−P1
+AP50–95−0.3145pp/AP_small−0.3453pp/conf.25 small−0.9444pp，P90+.5418pp。
+候选对控制AP−.1566pp/AP_small−.3187pp/P90−.0301pp；11线4过，停止，机制未建立。
+同FP/同K覆盖仍下降，不能以调阈值/筛类别改判。当前没有新的训练命令或自动任务。
 
 ```powershell
 Set-Location D:/Python/YOLO-RegionSSOD
-& C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe -B scripts/run_positive_quality_transport_v2.py --check-only
+# 本地ignored封印缓存及本轮复盘输出存在时，只读核验新增诊断
+& C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe -B scripts/analyze_positive_quality_negative.py --audit
 ```
 
-准确未来手动训练/自动统一评估/只读终态audit命令、三臂各完整30轮、11条保覆盖门槛、
-成本及不重试/恢复/100轮规则见[V2执行协议](paper/candidates/positive_quality_transport_v2/student_protocol.md)。
-本次修复没有运行--train、新真实batch、检测模型forward/optimizer或真实val推理；
-合成图像走真实dataloader，既有完整head缓存重放。旧研究那一次训练后forward不重复。
-真实启动后才创建临时监控；原V1已失败终态，勿重跑/覆盖旧目录。
-下述旧候选的失败终态/合同独立保留，不能当本次学生结果。
+先行[诊断协议](paper/diagnostics/positive_quality_negative_review/protocol.md)、完整正负结果/全部类别、
+三方向取舍和来源缺口见复盘。新诊断不重新运行终态audit/推理，64项绑定与数值重放通过。
+原P1与冻结代码/合同/封印全部保护；本轮仅新增缓存分析及文档，未训练，临时v2已删除。
+V1仍是0epoch验证初始化失败，V2是完整30轮性能负结果，两者不可混用。
+[V2执行协议](paper/candidates/positive_quality_transport_v2/student_protocol.md)及下文旧命令为历史记录，
+不要对已有目录再次check-only/train、重试/恢复/扩100轮，亦不重复终态audit。
 
 2026-11-04新终态：人工GT可信竞争负监督全新参考／候选／控制三臂各完整30轮、exit0，
 548图val960及独立只读audit通过；原P1与旧V2失败独立保留。

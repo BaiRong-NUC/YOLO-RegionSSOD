@@ -1,22 +1,22 @@
 # YOLO-RegionSSOD
 
-2026-11-04执行修复：[正目标重排V2独立Trainer修复](docs/paper/candidates/positive_quality_transport_v2/README.md)。
-V1用户手动执行在reference验证数据集构造时报super继承错误，0完整epoch；
-candidate/control未启动，旧源码/输出已封印保留，不算方法性能失败。
-V2只修Trainer派发，原loss/模型、三臂各30轮与11门槛不变；新输出独立。
-本次不启动训练，学生性能与机制仍未验证；实际启动后再建临时观察。
+2026-11-05最新终态：[正目标几何重排V2三臂负结果与方法投入复盘](docs/paper/diagnostics/positive_quality_negative_review/results.md)。
+全新P1参考/候选/匹配扰动控制各完整30轮、exit0，统一548图val960与终态audit工程通过；
+候选−P1 AP50–95−0.3145pp、AP_small−0.3453pp、conf.25 small recall−0.9444pp；
+IoU.50/P90+0.5418pp，但对控制−0.0301pp，11项线仅4过，按合同停止。
+同FP7889仍少160个small，同预测数仍少103；负结果不能仅用固定conf解释。
+原P1及所有失败封印/源码/合同保留。当前不训练、不重试/恢复/扩训；临时v2观察已删除。
 
 ```powershell
 Set-Location D:/Python/YOLO-RegionSSOD
-& C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe -B scripts/run_positive_quality_transport_v2.py --check-only
+# 仅本地已有封印缓存与新复盘输出存在时：只读重放新增诊断，无模型推理
+& C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe -B scripts/analyze_positive_quality_negative.py --audit
 ```
 
-新参考/候选/匹配扰动控制各完整30轮、11条保覆盖条件及准确手动启动/终态audit命令见
-[V2执行协议](docs/paper/candidates/positive_quality_transport_v2/student_protocol.md)。
-预检无模型前向/训练输出，旧实际三臂约8小时仅作成本参照，新排序开销未测。
-诊断支持和反证见[完整报告](docs/paper/diagnostics/positive_quality_transport/results.md)。
-原V1入口已终态，勿重跑或删除旧目录；原935测试曾遗漏实际Trainer验证路径，
-V2增加三mode真实dataloader/合成batch回归，工程结果见[V2检查记录](docs/paper/candidates/positive_quality_transport_v2/validation.md)。
+仍可论证完整标注区域内跨对象排序，但当前对象来源不等于可靠背景证明，尚无可开训新方法。
+最近文献/历史反证/下一步证伪前提见复盘；本轮零训练/零新增推理。
+以下及[V2冻结执行协议](docs/paper/candidates/positive_quality_transport_v2/student_protocol.md)为历史记录，
+已有目录不要再启动check-only/train或重复终态audit。V1仍是0epoch初始化失败，勿与V2负结果混淆。
 
 2026-11-04当前终态：[人工GT可信竞争负监督三臂结果](docs/paper/candidates/reliable_competitor_negative/results30.md)。
 全新P1参考／候选／等强度控制各完整30轮、exit0，统一548图val960及独立只读audit通过。
