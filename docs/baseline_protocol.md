@@ -1,12 +1,11 @@
 # Baseline 执行协议
 
-2026-11-05最新方法决定：[公开保留事件约束的有界定位分布监督审查](paper/diagnostics/next_mechanism_review/results.md)。
-状态CONDITIONAL_ZERO_TRAINING_AUDIT_ONLY；只推荐下一步来源/工程验证，尚无新loss/训练入口。
-公开保留规则提供输入框面积上界，研究同界集合上的联合质量；CABB集合与GFL分布并非新思想，
-必须公平比较同界点/模式/MAP控制，并检验仅收缩/变尖的反解释。真实事件/舍入/增强/消费者一致性未过。
-本轮只读取合法人工标签，不访问隐藏GT数值；公开事件含模拟生成GT衍生侧信息，非自然标注通用保证。
-严格触边数量不是截断率或有效训练数；新结果只作代数/来源代理证据。原P1及失败证据/冻结合同保留，
-不修改既有命令、不启动训练/模型forward/val推理/旧终态audit或新监控。
+2026-11-05最新方法决定：[有界保留事件监督工程终态](paper/candidates/bounded_retention/results.md)。
+独立loss/同界MAP/观测运输/Trainer已实现，真实零训练检查在精确边的非负DFL支撑门停止。
+实际框top636.8081高于全部网格锚点最大y636；所有7个native候选为空，不改变精确标签或丢对象救活。
+三臂各30轮未启动，最终学生合同/配置未冻结；原P1协议和历史指标/失败证据保留。
+重放入口：`python scripts/audit_bounded_retention_terminal.py --audit`。仅终态几何/哈希复核，不启动模型或训练。
+公开保留事件含模拟生成GT衍生侧信息，来源为保守物理外集；不访问隐藏训练GT、不宣称原创性或性能成立。
 
 既有B决定：[合法人工实例跨尺度观测B审查](paper/diagnostics/human_multiscale_observation_review/results.md)。
 6471个人工tile长边131–548，均小于640，不能把原生ROI称为补回首次640下采样细节；

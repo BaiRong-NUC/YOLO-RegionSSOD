@@ -1,7 +1,7 @@
 # 论文完成计划与项目交接
 
 > 最后更新：2026-11-05<br>
-> 当前方法审查：ARS从原P1与失败证据筛出一项条件性假设：利用已保留人工正框的公开选择事件（可见比例≥.35）推导输入标注框面积上界，研究同一有界观测集合上的联合定位分布质量约束。CABB已有裁剪相容集合、GFL已有DFL；新约束/非等价合成反例不等于原创性或收益通过，最强同界点/模式控制与收缩反命题保留。6471合法人工标签哈希复核，105058框仅4145严格文本触边、88横纵均触边，非真实cut率/有效训练数。只推荐零训练来源/工程审查，真实事件运输/舍入/消费者一致性未过，不实现loss/训练、不访问隐藏GT数值；公开保留事件含模拟生成GT衍生侧信息，不能泛化为自然人工采集保证。见第3.81节、第10节及[机制审查](paper/diagnostics/next_mechanism_review/results.md)。<br>
+> 当前方法工程终态：ARS有界保留事件监督已实现独立来源外集、真实增强观测运输、同界loss/MAP与Trainer，但在零训练实际增强检查中停止。部分未知对象的精确top=636.8081，640画布全部8400锚点最大y=636，原非负DFL支撑无法满足固定E；不clamp、丢对象或改标签开训。三臂未启动，性能/机制未测，最终学生配置未冻结。原P1、失败证据与本轮版本1/2合同快照保留；公开保留事件含模拟生成GT衍生侧信息，来源仅认证保守外集，未读隐藏训练GT，不宣称原创性。见第3.82节、第10节及[工程报告](paper/candidates/bounded_retention/results.md)。<br>
 > 既有B审查：ARS合法人工实例跨尺度观测B已完成，停止泛化候选（STOP_GENERIC_B_NO_DISTINCT_SIGNAL）。6471个人工tile长边131–548，载入640均放大，首次640下采样细节缺口不成立；全图960确增上下文，但同目标名义线性尺度仅为tile640的35.54%–41.10%。人工实例对应不同于旧伪框稳定性诊断，亦可能新增训练约束；对照SoCo/PseCo/MixTeacher/密度裁片/MSAD，尚无独立新信号/动作，不实现loss或训练，也不宣称跨尺度学习普遍无效。见第3.80节及[独立审查](paper/diagnostics/human_multiscale_observation_review/results.md)。<br>
 > 上一轮来源决定：已完成ARS“完整人工区域内跨对象排序A”来源审查：6471个人工tile/105058个导出框身份与当前P1清单一致，但裁片过滤丢失足迹/空间完整性证书，增强后证明也未建立；G1通过、G2/G3 NOT_ESTABLISHED，停止A，不做排序统计/loss/训练。实际面积比.09931134–.10027778低于可见门槛.35，纯合成反例排除仅靠固定边缘剔除认证背景；不代表实际可靠负例不存在。6484项绑定/新审查精确重放及1093tests通过，不读隐藏标签或用隐藏计数补齐。原P1/失败封印/冻结合同保护，无新监控；见第3.79节、第10节及[来源报告](paper/diagnostics/reliable_region_ranking_feasibility/results.md)。以下既有记录不替代上方当前方法决定。<br>
 > 已有三臂终态：正目标几何重排V2三新学生各完整30轮exit0，548图val960及终态audit工程通过，但11线仅4过，停止候选；候选−P1 AP50–95−.3145pp/AP_small−.3453pp/conf.25 small−.9444pp，IoU.50/P90+.5418pp却对控制−.0301pp。同FP少160个small/同K少103，去掉任一类别后AP_small差值仍负。该轮提出的A仅获来源审查资格，已按上一条完成并停止；原三臂正负结果不改。见第3.78节与[复盘](paper/diagnostics/positive_quality_negative_review/results.md)。<br>
@@ -2273,6 +2273,36 @@ CABB去重新增NF7VIMS2，GFL复用2WWVF6XL并补齐元数据，部分机器阅
 详见`paper/diagnostics/next_mechanism_review/{protocol,adversarial_supplement,results}.md`与
 新ignored `outputs/next_mechanism_review_20261105/`。第10节记录、中文commit并push；无新训练命令。
 
+### 3.82 有界保留事件监督实现与精确边支撑阻塞（2026-11-05）
+
+从干净2dcece9开始，用户授权独立实现、零训练检查及通过后自动顺序三臂各30轮。
+ARS先保存工程合同及来源/舍入、消费者、运输、覆盖补充，再实现独立模块；原P1及旧失败不改。
+来源绑定6471合法标签、105058原行；1条完全相同token重复按native规则合并并保留alias，105057对象。
+来源为有条件SOURCE_OUTER，不声称精确反演历史完整框；GT衍生公开保留侧信息明确披露。
+
+实现包含二进制误差/联合物理见证、原对象/增强实例身份、累计裁剪域和区间运输、
+同支撑TAL/CIoU/DFL、同界MAP控制、原P1全known数值/梯度严格恢复及正确Trainer lexical继承。
+不主动制造未知边；支持外/负距/空集合fail closed，不为启动学生削弱合同。
+
+真实检查01发现native重复行并停止；独立修复后02通过真实11310train/548val loader和首批AMP forward/backward。
+02只属版本1组件证明，零optimizer。扩大的03在第二batch的U-only名义负距停止，证据保持原判。
+两份独立复核后先保存原生TAL事件修订，另立v2 objective/Trainer/checker，仅恢复原native池并让U原子自行认证。
+真实03反例在v2仅bin0合法，bin1受实际累计clip排除；没有把理想合成视为真实证明。
+
+v2真实`native_event_integration_01`，PID2456，UTC04:57:56至05:01:19自然结束，202.3255秒。
+第二batch object142895/occurrence51的框为[341.26489,636.80811,377.25269,640]，仅right未知。
+7个native候选的精确top距离均负，全部原子为空；全部8400网格最大y636仍低于固定top0.80811像素。
+因此不是U舍入或候选池过窄；按先行合同停止，不再通过改E、丢对象、clamp或新head绕过。
+
+终态只读audit核对25输入/24快照和合法来源行，重新构造原native池与联合支撑，全网格反证及JSON字节重放一致。
+当前报告仅声明必要工程门FAIL；v2显式增强batch forward0/optimizer0/val inference0，模型构造stride probe另行披露。
+首epoch几何流未扫完、三个学生完整轮数均0；没有AP/召回/同FP/K/重复框/定位结果，也没有训练进程或监控需保留。
+合成MAP与mass损失梯度可区分不等于最强控制已冻结、机制成立或原创性通过。完整测试数量见工程报告。
+
+详见`paper/candidates/bounded_retention/results.md`，独立输出`outputs/bounded_retention_engineering_20261105/`。
+可重放入口`python scripts/audit_bounded_retention_terminal.py --audit`；仅本轮终态复核，不重新运行旧实验audit。
+README/baseline入口同步；中文commit并push。后续若改变固定E或定位表示，须明确是新科学合同，不能续跑本停止版本。
+
 ## 4. 固定实验协议
 
 ### 4.1 训练与评估
@@ -2653,6 +2683,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 - 任何外部确认集的结论都必须先完成版本审计、类别映射和固定评估命令。
 
 | 2026-11-02（现有成果保护与第一篇整理） | 本次中文提交并push；原基点`c1ecf6c` | 使用ARS结构/写作合同、paper-search与Zotero MCP整理现有证据；增加独立成果快照、代码分轨、100轮正文与讨论/结论；候选按原P1叠加单一分类变量设计 | 第3.63节；paper/{README,paper1_writeup_plan,research_tracks,preservation,literature_map}.md；scripts/preserve_paper1.py；outputs/paper1_preservation/20261102_baseline | 58,707产物文件约4.20 GiB，归档及原件逐项哈希一致；核心文献已在BMQTT9Y7集合；新候选未实现/训练，未创造新效果数字 | 保留旧P1为独立主线；先教师全类别分数诊断再决定候选训练；当前无训练命令，Gate3/4不变；验证记录随本次提交保存 |
+
+| 2026-11-05（有界保留事件监督独立实现与零训练终态） | 起点2dcece9；本次中文实现/证据提交并push（提交号见git log） | ARS先工程/科学合同，合法来源外集、增强实例/累计clip运输、同集合TAL/CIoU/DFL/MAP、正确Trainer集成；扩大真实增强流及独立反方复核 | 第3.82节；paper/candidates/bounded_retention/results.md；outputs/bounded_retention_engineering_20261105/；audit_bounded_retention_terminal.py --audit | 105058原行→105057native对象/1重复alias；02真实首批AMP有限；03的U名义负距另立native-event协议修订；v2第二batch精确top636.8081高于8400网格最大y636，7候选全空；25绑定/24快照/终态字节重放通过，完整1285tests通过 | STOP_BEFORE_STUDENT_TRAINING：工程覆盖门失败，三臂0epoch/无性能评估，最终学生配置未冻结；不改E/丢对象/clamp/新head绕过，不读取隐藏训练GT，不自动重试；原P1/失败/两版本合同源码快照保护；README/baseline同步，无训练监控需清理 |
 
 ## 11. 风险与退出条件
 

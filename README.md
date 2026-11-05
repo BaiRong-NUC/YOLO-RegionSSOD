@@ -1,11 +1,11 @@
 # YOLO-RegionSSOD
 
-2026-11-05最新机制审查：[公开保留事件约束的有界定位分布监督](docs/paper/diagnostics/next_mechanism_review/results.md)。
-只保留一项值得零训练来源/工程审查的假设：从已保留人工框及公开.35规则推导输入框面积上界，
-约束同一有界相容集合的联合概率质量。CABB已有集合监督，GFL已有DFL；合成差异不是原创性/收益通过。
-同界点/模式强对照、因子分布可能只收缩的反解释和真实运输缺口均保留；尚不实现loss或训练。
-本轮只读合法人工标签，不访问隐藏GT数值；保留事件包含模拟生成GT衍生侧信息，不能当自然人工采集保证。
-4145严格文本触边/88横纵触边只是记录盘点，非真实截断/有效样本数；原P1/失败证据/合同保护，无新训练命令。
+2026-11-05最新终态：[有界保留事件监督实现及精确边支撑阻塞](docs/paper/candidates/bounded_retention/results.md)。
+已实现独立来源外集、增强身份/观测运输、同界loss/control与真实Trainer；零训练检查未通过，三臂未启动。
+实际增强框的精确top=636.8081，而640画布全部锚点最大y=636，原非负DFL支撑无法表示；按合同停止。
+原P1、历史失败及本轮两版合同/停止快照保留；不clamp、丢对象或改E来开训。
+只读复核：`python scripts/audit_bounded_retention_terminal.py --audit`；完整证据/已执行命令见报告。
+公开保留事件含模拟生成GT衍生侧信息，未读取隐藏训练GT；CABB/GFL边界、收缩反解释均保留，无性能或原创性结论。
 
 既有B审查：[合法人工实例跨尺度观测B：停止泛化候选](docs/paper/diagnostics/human_multiscale_observation_review/results.md)。
 6471个人工tile原生长边131–548，载入640均放大，不存在“首次缩到640后补回细节”的前提；
