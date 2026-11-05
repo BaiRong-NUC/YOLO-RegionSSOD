@@ -1,7 +1,8 @@
 # 论文完成计划与项目交接
 
 > 最后更新：2026-11-05<br>
-> 当前方法审查终态：此前E必须可由非负原子精确表示是额外合同；原P1保留连续CIoU目标，仅DFL编码饱和。V3已在不改E/不丢对象条件下解除该门并复现旧反例通过，但第13真实batch的未知bottom连续区间约[637.5464,640]没有字面DFL原子，32候选全空。当前离散质量候选停止；不否定保留事件信息或连续定位。编码union丢失区间/插值信息，不能借非空支撑和较弱MAP直接开训。三臂0epoch，1316tests/31绑定/28快照重放通过，原P1与V1/V2/V3证据保留，无隐藏训练GT读取或新颖性/性能结论。见第3.83节、第10节及[编码复核报告](paper/candidates/bounded_retention/p1_encoding_results.md)。<br>
+> 当前工作：V4连续DFL密度及最强同界连续点DFL控制已先行冻结，进入独立实现/零训练验证，尚未获得训练资格或启动学生。归一化连续集合质量保留区间位置、插值权重和面积耦合；原E/全known仍走P1，不再把整数bin空集当数学否决。测度、真实集合积分、全局点控制及完整集成仍须通过；两臂差异含密度归一化，不能宣称纯sum/min消融或原创性成立。见第3.84节及[新合同](paper/candidates/bounded_retention/continuous_density_contract.md)。<br>
+> 此前V3终态：E可表示性门是额外合同，V3恢复原P1编码语义后旧E反例通过；第13真实batch的U连续区间约[637.5464,640]无字面DFL原子，因此停止离散质量候选。1316tests/31绑定/28快照通过；V1/V2/V3合同、源码与失败全部保留。见第3.83节及[编码复核报告](paper/candidates/bounded_retention/p1_encoding_results.md)。<br>
 > 既有B审查：ARS合法人工实例跨尺度观测B已完成，停止泛化候选（STOP_GENERIC_B_NO_DISTINCT_SIGNAL）。6471个人工tile长边131–548，载入640均放大，首次640下采样细节缺口不成立；全图960确增上下文，但同目标名义线性尺度仅为tile640的35.54%–41.10%。人工实例对应不同于旧伪框稳定性诊断，亦可能新增训练约束；对照SoCo/PseCo/MixTeacher/密度裁片/MSAD，尚无独立新信号/动作，不实现loss或训练，也不宣称跨尺度学习普遍无效。见第3.80节及[独立审查](paper/diagnostics/human_multiscale_observation_review/results.md)。<br>
 > 上一轮来源决定：已完成ARS“完整人工区域内跨对象排序A”来源审查：6471个人工tile/105058个导出框身份与当前P1清单一致，但裁片过滤丢失足迹/空间完整性证书，增强后证明也未建立；G1通过、G2/G3 NOT_ESTABLISHED，停止A，不做排序统计/loss/训练。实际面积比.09931134–.10027778低于可见门槛.35，纯合成反例排除仅靠固定边缘剔除认证背景；不代表实际可靠负例不存在。6484项绑定/新审查精确重放及1093tests通过，不读隐藏标签或用隐藏计数补齐。原P1/失败封印/冻结合同保护，无新监控；见第3.79节、第10节及[来源报告](paper/diagnostics/reliable_region_ranking_feasibility/results.md)。以下既有记录不替代上方当前方法决定。<br>
 > 已有三臂终态：正目标几何重排V2三新学生各完整30轮exit0，548图val960及终态audit工程通过，但11线仅4过，停止候选；候选−P1 AP50–95−.3145pp/AP_small−.3453pp/conf.25 small−.9444pp，IoU.50/P90+.5418pp却对控制−.0301pp。同FP少160个small/同K少103，去掉任一类别后AP_small差值仍负。该轮提出的A仅获来源审查资格，已按上一条完成并停止；原三臂正负结果不改。见第3.78节与[复盘](paper/diagnostics/positive_quality_negative_review/results.md)。<br>
@@ -2331,6 +2332,22 @@ V3完整真实AMP比较未执行，显式batch forward尝试0/optimizer0/val inf
 独立输出`outputs/bounded_retention_p1_encoding_review_20261105/`，详见`paper/candidates/bounded_retention/p1_encoding_results.md`。
 入口和第10节同步，中文commit并push；未启动学生，未创建训练监控，不自动重试或扩训。
 
+### 3.84 连续相容集合上的归一化DFL密度（2026-11-05，实施中）
+
+起点92aa1b8，academic-research-suite。用户明确要求审查连续集合而非整数原子，保留
+区间位置、DFL插值权重和面积耦合，并以最强同界连续point-DFL控制；通过独立验证后
+直接顺序三臂各完整30轮。先冻结continuous_review_contract.md、continuous_density_contract.md
+及continuous_numeric_addendum.md，未修改任何旧合同或失败。
+
+选择`(原E DFL + log integral_D exp(-ell) - log integral_C exp(-ell))/4`，D为canvas内与
+固定E组成正面积框的完整未知坐标域，C为原SOURCE_OUTER联合见证及声明运输外集。
+强控制为同C上的全局`inf ell`。不要求U单点密度极限等于原DFL；全known仍严格恢复原P1。
+此为新连续密度lift，不声称校准/均值等价/任意联合相关性；比较还含log Z归一化的作用。
+
+当前仅定义与独立实现阶段。必须完成真实连续域、数值误差、全局点最优、完整loss和
+Trainer/增强流/AMP零优化验证及全库pytest，才有资格冻结学生运行。尚无新学生或验证推理，
+无性能/机制结论；公开保留事件的模拟GT衍生侧信息、CABB/GFL边界和隐藏GT禁令全部保留。
+
 ## 4. 固定实验协议
 
 ### 4.1 训练与评估
@@ -2760,3 +2777,5 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 局部可靠性融合方案。它目前不是本论文的实验部分，也不应该在本仓库中复用
 VisDrone split 或 RegionSSOD 权重。未来若要启动该方向，应另建独立仓库和独立
 数据/结果目录。
+
+| 2026-11-05（连续密度合同先行冻结） | 起点92aa1b8；本次中文提交并push | ARS独立反方和来源几何审查选择normalized log-linear连续密度，最强同界全局point-DFL控制，进入新独立实现 | 第3.84节；continuous_review_contract.md；continuous_density_contract.md；continuous_numeric_addendum.md | 定义合理性不等于工程通过；全known原P1保留，U单点密度极限不另作否决；测度/积分/全局控制及真实集成仍需验证 | 学生0epoch、无val推理；通过全门才直接顺序3×30，旧源码/合同/失败不改，不读隐藏GT |

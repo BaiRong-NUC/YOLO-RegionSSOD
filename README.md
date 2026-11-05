@@ -1,6 +1,10 @@
 # YOLO-RegionSSOD
 
-2026-11-05最新终态：[原P1编码语义复核与V3未知边空集](docs/paper/candidates/bounded_retention/p1_encoding_results.md)。
+2026-11-05当前工作：已冻结[V4连续DFL密度与全局连续点控制](docs/paper/candidates/bounded_retention/continuous_density_contract.md)，
+进入独立实现/零训练验证；尚未取得训练资格或启动三臂。连续定义保留插值权重和面积耦合，
+不再要求集合包含整数bin；原E与全known路径保留P1。两臂差异包含密度归一化，不能称纯sum/min消融。
+
+此前终态：[原P1编码语义复核与V3未知边空集](docs/paper/candidates/bounded_retention/p1_encoding_results.md)。
 上一轮E支撑门是额外合同；原P1保留连续几何，仅DFL编码饱和。V3已显式恢复此语义，坐标/对象不变。
 真实检查前12batch通过，第13batch未知bottom连续可行约[637.5464,640]却无字面DFL原子；当前离散质量候选停止。
 编码union会丢掉区间位置/插值权重，不能当无损修复或以较弱MAP控制直接开训。三臂未启动，1316tests通过。

@@ -1,6 +1,10 @@
 # Baseline 执行协议
 
-2026-11-05最新方法决定：[原P1编码复核与V3终态](paper/candidates/bounded_retention/p1_encoding_results.md)。
+2026-11-05当前工作：[V4连续密度合同](paper/candidates/bounded_retention/continuous_density_contract.md)已冻结，
+独立实现/零训练验证进行中；未启动学生。全门通过后才冻结并直接执行顺序三臂各30轮，
+仍沿用本文件的原P1训练和548图full-image val960协议，不恢复旧失败实验。
+
+此前方法决定：[原P1编码复核与V3终态](paper/candidates/bounded_retention/p1_encoding_results.md)。
 纠正额外E可表示性合同：原P1的DFL编码会饱和，CIoU仍使用原连续坐标；V3没有丢对象或降级E。
 前12真实batch通过，第13batch的U连续区间非空但32native候选无字面原子；停止当前离散质量方向。
 不把编码union非空当物理机制通过；它丢掉插值权重，需另行认证连续点强控制，不能直接启动三臂。
