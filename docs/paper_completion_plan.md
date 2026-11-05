@@ -1,7 +1,7 @@
 # 论文完成计划与项目交接
 
 > 最后更新：2026-11-05<br>
-> 当前工作：V5真实第21batch暴露额外E-canvas实现门，旧失败保留；独立V6只纠正U积分域/原E语义，完整1862 tests通过，真实双阶段增强/AMP检查尚待执行。三臂未启动。原E、对象、插值、面积耦合及最强连续点控制不变；有限K梯度有方差，显示值不冒称精确NLL。见第3.84–3.87节及[修订合同](paper/candidates/bounded_retention/native_e_revision_contract.md)。<br>
+> 当前工作：V6真实mosaic开启/关闭各1414batch几何通过；一次前向及7项head数值审计（含3U）完成后，停在scale65536的原P1 loss/gradient合并非有限检查。已先冻结独立AMP审计合同，区分未缩放loss错误与正常动态缩放溢出；新审计待执行，三臂未启动。V6目标、原E、对象、插值、面积耦合及最强连续点控制不改，旧STOP不改写。见第3.88节及[AMP合同](paper/candidates/bounded_retention/amp_audit_revision_contract.md)。<br>
 > 此前V3终态：E可表示性门是额外合同，V3恢复原P1编码语义后旧E反例通过；第13真实batch的U连续区间约[637.5464,640]无字面DFL原子，因此停止离散质量候选。1316tests/31绑定/28快照通过；V1/V2/V3合同、源码与失败全部保留。见第3.83节及[编码复核报告](paper/candidates/bounded_retention/p1_encoding_results.md)。<br>
 > 既有B审查：ARS合法人工实例跨尺度观测B已完成，停止泛化候选（STOP_GENERIC_B_NO_DISTINCT_SIGNAL）。6471个人工tile长边131–548，载入640均放大，首次640下采样细节缺口不成立；全图960确增上下文，但同目标名义线性尺度仅为tile640的35.54%–41.10%。人工实例对应不同于旧伪框稳定性诊断，亦可能新增训练约束；对照SoCo/PseCo/MixTeacher/密度裁片/MSAD，尚无独立新信号/动作，不实现loss或训练，也不宣称跨尺度学习普遍无效。见第3.80节及[独立审查](paper/diagnostics/human_multiscale_observation_review/results.md)。<br>
 > 上一轮来源决定：已完成ARS“完整人工区域内跨对象排序A”来源审查：6471个人工tile/105058个导出框身份与当前P1清单一致，但裁片过滤丢失足迹/空间完整性证书，增强后证明也未建立；G1通过、G2/G3 NOT_ESTABLISHED，停止A，不做排序统计/loss/训练。实际面积比.09931134–.10027778低于可见门槛.35，纯合成反例排除仅靠固定边缘剔除认证背景；不代表实际可靠负例不存在。6484项绑定/新审查精确重放及1093tests通过，不读隐藏标签或用隐藏计数补齐。原P1/失败封印/冻结合同保护，无新监控；见第3.79节、第10节及[来源报告](paper/diagnostics/reliable_region_ranking_feasibility/results.md)。以下既有记录不替代上方当前方法决定。<br>
@@ -2392,6 +2392,27 @@ source181722/occurrence662因left E=-1/65536被额外canvas门拒绝，实际未
 `suite_v6_01/`保留日志；真实V6检查尚未执行。贡献可为有依据的已有方法适配，
 不把全新基础理论证明设为门；来源/实现/公平比较仍须通过，再直接顺序三臂各30轮。
 
+### 3.88 完整增强流与原生AMP语义的独立审计（2026-11-05）
+
+V6 `native_e_integration_01`于UTC08:24:58–09:10:43运行2744.809秒，PID52840自然结束。
+两阶段各1414batch的几何全部通过；载入11310 train/548 val，105058原人工行对应
+105057原生对象及1个完全相同文本duplicate alias。原预定首次最大3U压力batch在
+mosaic_closed index1316；显式前向1次，7项实际head数值审计含3U通过。
+随后在`nonfinite original P1 loss/gradient`停止，未完成全模型有限反向；optimizer=0、
+val inference=0。原receipt SHA256 `39c03aa3a4243a0f3169abe174c4701d964f905df749c208148fc0bccee7d259`。
+
+旧检查把原生AMP初值65536下的梯度溢出与未缩放loss非有限合并。安装版PyTorch明确
+允许初期缩放溢出后跳步并降低scale，故初值必须有限是额外诊断条件，不能直接否定机制。
+先以1648327冻结`amp_audit_revision_contract.md`：保留V6及全部失败，独立重放同压力batch，
+不重复平坦数值扫描，以同一forward的预定共同缩放序列审计真正原P1/候选/控制反向。
+未缩放loss非有限仍直接失败；实际训练的默认AMP不改。新审计尚待执行，三臂仍0epoch。
+独立checker、AMP helper、只读诊断、顺序启动器及548图评估器已实现；完整
+`python -m pytest`为2034 passed/144.49秒，输入未变，日志与hash回执在`suite_amp_01/`。
+
+用户明确允许已有方法的有依据适配作为贡献；不要求新基础理论。最终工程和公平比较仍须
+通过；准备中的三臂启动器将统一禁止OOM减batch重试、NaN回载及包装异常杀worker，
+评估保留三对同FP/精确同K、重复框和定位诊断，尚无真实评估结果。
+
 ## 4. 固定实验协议
 
 ### 4.1 训练与评估
@@ -2786,6 +2807,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-11-05（V5连续候选独立实现） | 延续77f228f；本次中文提交并push | 连续域/解析归一化/完整曲面后验采样/最强连续点DFL/独立Trainer实现；冻结E观测语义及双阶段真实检查清单 | 第3.86节；continuous_sampling_validation.md；continuous_observation_semantics.md；posterior_capacity_01/；suite_01/ | 4例3U容量通过/9.80秒；全库1715 passed/133.38秒；旧E/U反例不改坐标通过；独立审查缺口已修正 | 真实集成待执行，学生0epoch，无val推理；全门通过后直接顺序3×30；允许有依据的既有方法适配贡献，不把全新理论证明设为训练门槛 |
 
 | 2026-11-05（V5真实失败与独立V6修订） | 5780870实现；66f3bfc新合同；本次中文实现提交并push | V5实际初始化/loader与20batch通过，第21batch暴露额外E-canvas门；冻结后独立V6修正域/积分，不改E | 第3.87节；native_e_revision_contract.md；posterior_integration_01/；v5_stop_audit.json；suite_v6_01/ | 51输入/48快照一致；反例正测度见证；V6完整1862 tests通过/98.78秒 | 真实V6待执行，学生0epoch，无val推理；旧代码/失败不改；允许已有方法合理适配贡献，全门通过后顺序3×30 |
+
+| 2026-11-05（完整V6增强流及AMP门拆分） | a877b4b实现；1648327先冻结AMP合同 | 开启/关闭mosaic各1414batch通过，实际1次前向/7项head审计后原P1缩放梯度合并门停止；准备独立AMP重放和只读训练/评估工具 | 第3.88节；native_e_integration_01/result.json；amp_audit_revision_contract.md | 2744.809秒；原压力batch=closed1316/3U；未完成全模型有限反向 | 三臂未启动，0optimizer/0val推理；不改V6目标，不把初始AMP溢出直接视为机制失败，独立诊断待执行 |
 
 ## 11. 风险与退出条件
 
