@@ -1,6 +1,10 @@
 # YOLO-RegionSSOD
 
-2026-11-05最新终态：[正目标几何重排V2三臂负结果与方法投入复盘](docs/paper/diagnostics/positive_quality_negative_review/results.md)。
+2026-11-05最新来源审查：[跨对象排序的可靠背景未建立，停止A](docs/paper/diagnostics/reliable_region_ranking_feasibility/results.md)。
+6471个人工tile/105058个导出框的身份通过；裁片过滤足迹/完整性证书与增强后空间证明不足，
+G2/G3未建立。不用隐藏GT补齐，不实现新loss或训练；这不是新学生性能负结果。
+
+既有三臂终态：[正目标几何重排V2负结果与方法投入复盘](docs/paper/diagnostics/positive_quality_negative_review/results.md)。
 全新P1参考/候选/匹配扰动控制各完整30轮、exit0，统一548图val960与终态audit工程通过；
 候选−P1 AP50–95−0.3145pp、AP_small−0.3453pp、conf.25 small recall−0.9444pp；
 IoU.50/P90+0.5418pp，但对控制−0.0301pp，11项线仅4过，按合同停止。
@@ -9,12 +13,12 @@ IoU.50/P90+0.5418pp，但对控制−0.0301pp，11项线仅4过，按合同停�
 
 ```powershell
 Set-Location D:/Python/YOLO-RegionSSOD
-# 仅本地已有封印缓存与新复盘输出存在时：只读重放新增诊断，无模型推理
-& C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe -B scripts/analyze_positive_quality_negative.py --audit
+# 本地合法人工导出与本轮审查结果存在时，只读核验来源/合成反例，无模型或数据集构造
+& C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe -B scripts/audit_reliable_region_ranking_feasibility.py --audit
 ```
 
-仍可论证完整标注区域内跨对象排序，但当前对象来源不等于可靠背景证明，尚无可开训新方法。
-最近文献/历史反证/下一步证伪前提见复盘；本轮零训练/零新增推理。
+此前提出的完整区域跨对象排序现已完成来源审查并停止；不是宣称实际可靠负例不存在。
+先行协议、几何反例和证明边界见最新报告；原三臂正负结果与所有冻结证据保留。
 以下及[V2冻结执行协议](docs/paper/candidates/positive_quality_transport_v2/student_protocol.md)为历史记录，
 已有目录不要再启动check-only/train或重复终态audit。V1仍是0epoch初始化失败，勿与V2负结果混淆。
 

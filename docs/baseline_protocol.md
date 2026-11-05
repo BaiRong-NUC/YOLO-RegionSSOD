@@ -1,6 +1,12 @@
 # Baseline 执行协议
 
-2026-11-05最新状态：[正目标重排V2三臂终态与负结果复盘](paper/diagnostics/positive_quality_negative_review/results.md)。
+2026-11-05最新来源决定：[完整区域跨对象排序A停止](paper/diagnostics/reliable_region_ranking_feasibility/results.md)。
+6471个人工tile/105058个导出框身份一致，但不足以认证背景完整性；实际面积比均低于.35可见门槛，
+合成反例说明边缘侵蚀不能补足被过滤足迹，现有P1路径亦未运输空间证书。
+6484项来源绑定/新审查精确重放通过，1093tests通过；不读隐藏标签/使用隐藏计数补齐，不训练。
+当前只读来源核验命令见下，不启动新候选。停止依据是G2/G3未建立，不是实际背景不存在。
+
+既有三臂状态：[正目标重排V2终态与负结果复盘](paper/diagnostics/positive_quality_negative_review/results.md)。
 三臂各连续完整30轮、exit0，548图val960与终态audit工程通过；候选−P1
 AP50–95−0.3145pp/AP_small−0.3453pp/conf.25 small−0.9444pp，P90+.5418pp。
 候选对控制AP−.1566pp/AP_small−.3187pp/P90−.0301pp；11线4过，停止，机制未建立。
@@ -8,8 +14,8 @@ AP50–95−0.3145pp/AP_small−0.3453pp/conf.25 small−0.9444pp，P90+.5418pp�
 
 ```powershell
 Set-Location D:/Python/YOLO-RegionSSOD
-# 本地ignored封印缓存及本轮复盘输出存在时，只读核验新增诊断
-& C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe -B scripts/analyze_positive_quality_negative.py --audit
+# 本地合法人工导出与本轮ignored审查结果存在时，只读核验来源/合成反例
+& C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe -B scripts/audit_reliable_region_ranking_feasibility.py --audit
 ```
 
 先行[诊断协议](paper/diagnostics/positive_quality_negative_review/protocol.md)、完整正负结果/全部类别、

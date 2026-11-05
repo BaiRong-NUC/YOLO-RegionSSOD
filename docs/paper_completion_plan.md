@@ -1,7 +1,8 @@
 # 论文完成计划与项目交接
 
 > 最后更新：2026-11-05<br>
-> 当前决定：正目标几何重排V2三新学生各完整30轮exit0，548图val960及终态audit工程通过，但11线仅4过，停止候选；候选−P1 AP50–95−.3145pp/AP_small−.3453pp/conf.25 small−.9444pp，P90+.5418pp却对控制−.0301pp。同FP仍少160个small/同K少103，去掉任一类别后AP_small差值仍负。ARS复盘/独立反方/近邻文献完成；完整区域内跨对象排序仅值得来源可行性审查，现有对象token不能证明安全背景，无新可训练升级。本轮零训练/零推理，原P1/全部失败封印与合同保护，临时v2已删除。见第3.78节、第10节和[复盘](paper/diagnostics/positive_quality_negative_review/results.md)。下列11月4日准备与旧候选终态均为历史记录，以本条为当前状态。<br>
+> 当前来源决定：已完成ARS“完整人工区域内跨对象排序A”来源审查：6471个人工tile/105058个导出框身份与当前P1清单一致，但裁片过滤丢失足迹/空间完整性证书，增强后证明也未建立；G1通过、G2/G3 NOT_ESTABLISHED，停止A，不做排序统计/loss/训练。实际面积比.09931134–.10027778低于可见门槛.35，纯合成反例排除仅靠固定边缘剔除认证背景；不代表实际可靠负例不存在。6484项绑定/新审查精确重放及1093tests通过，不读隐藏标签或用隐藏计数补齐。原P1/失败封印/冻结合同保护，无新监控；见第3.79节、第10节及[来源报告](paper/diagnostics/reliable_region_ranking_feasibility/results.md)。下列均为历史记录，以本条为当前状态。<br>
+> 已有三臂终态：正目标几何重排V2三新学生各完整30轮exit0，548图val960及终态audit工程通过，但11线仅4过，停止候选；候选−P1 AP50–95−.3145pp/AP_small−.3453pp/conf.25 small−.9444pp，IoU.50/P90+.5418pp却对控制−.0301pp。同FP少160个small/同K少103，去掉任一类别后AP_small差值仍负。该轮提出的A仅获来源审查资格，已按上一条完成并停止；原三臂正负结果不改。见第3.78节与[复盘](paper/diagnostics/positive_quality_negative_review/results.md)。<br>
 > 最新修复准备：新增独立V2 Trainer集成修复，仅改变train/val数据集派发，原科学loss/模型与11门槛不变；原V1失败封印/源码/合同全部保护。三mode真实dataloader合成batch回归、两份旧缓存完整loss重放、完整1088tests及40267项绑定check-only exit0通过；新执行入口`run_positive_quality_transport_v2.py`，详见paper/candidates/positive_quality_transport_v2/。本次未启动训练/新真实batch/检测模型forward/optimizer，未验证完整Trainer setup，学生性能NOT_TESTED、机制NOT_ESTABLISHED；真实启动后再建临时观察。<br>
 > 最新工程终态（10:47:57）：用户手动启动正目标几何重排三臂入口，reference在验证数据集初始化时因Trainer方法复用的零参数super继承不兼容而exit1，0完整epoch、无results.csv/best；candidate/control未启动。父/worker均已停止，独立只读audit exit0且terminal_evidence_verified=true，但accepted=false/performance=NOT_ACCEPTED；不作方法性能失败判定。原封印目录/源码/合同保留，未修复或重试；监控终态清理，详见第10节。<br>
 > 本轮新研究：在b1db01e干净工作区上完成正目标几何排序文献/零训练诊断与独立最小实现，未启动学生训练。实际CUDA AMP人工small多锚点126个中100个逆序、32个大差逆序，small目标搬移8.7506%；框外质量35.3208→38.6970的反证保留。新原P1/候选/匹配扰动控制各30轮及11条保覆盖门槛已冻结；935tests、完整loss/来源/audit及零训练预检通过，学生性能/机制仍未验证。见第3.77节及paper/candidates/positive_quality_transport/，不覆盖下列旧终态。<br>
@@ -2167,6 +2168,34 @@ GT增失/FP分解/共同几何/全部类别敏感性；64项绑定及新诊断�
 新训练/推理/真实batch/隐藏训练GT读取均0。全部11类解释谬误与局限逐项披露。
 中文commit并push；原P1主线及失败证据保护，无新监控或自动实验。
 
+### 3.79 完整人工区域内跨对象排序来源审查：未建立，停止A（2026-11-05）
+
+承接56e242f，用户要求继续ARS可行性审查，不能证明就停止，不用隐藏GT补齐，不训练。
+先保存`paper/diagnostics/reliable_region_ranking_feasibility/protocol.md`，再白名单核对当前P1
+合法人工标签、清单、manifest/summary投影字段和已绑定源码；不读原始全图/未标注tile标签、
+val/预测/真实batch/权重，manifest/summary既有隐藏计数不提取或用于判断。
+
+- G1通过：6471个人工tile/标签文件、105058个保留框、实际P1 11310个唯一输入身份一致；
+  area_ratio=.10/seed0/可见门槛.35/抖动.20，实际tile面积比.0993113426–.1002777778。
+- G2未建立：裁片会过滤有正面积交集但可见比例<.35的框，导出只留幸存标签，
+  没有保存被过滤框交集足迹/穷尽标注证书；保留人工对象可信不等于未匹配空间是背景。
+- 纯合成反例：1000²来源、316² tile，全来源框可见比.099856而被过滤，却覆盖整个tile；
+  两组来源框数同为2/类别数同/导出同为1，也不能确定背景位置。每个实际tile几何均容许
+  全来源框被过滤的反例，固定边缘侵蚀不能补证；不是实际漏标观测或完整选区seed重放。
+- 独立反方提出几何安全内部区的充分条件dx·dy/(W·H)≥阈值，但本次其最大值仅约.02507；
+  保留条件性反驳，不泛化成所有未来子区都不可能。未匹配TAL锚点也可能位于已知前景内。
+- G3未建立：SourceDataset只传对象token，人工ignore初始为空，增强会继续筛框；
+  库已有semantic_mask接口不等于当前P1已建立完整性证明，MixUp语义掩码规则也不能直接当可靠性掩码交集。
+- 决定STOP_BEFORE_RANKING_DIAGNOSTICS：不统计排序错误、不做梯度诊断/新loss/模型forward/训练，
+  不切换新教师/其他候选。停止是来源可识别性判断，不是新学生性能失败；实际可靠负例不存在未被证明。
+
+新`outputs/reliable_region_ranking_feasibility_20261105/{results,receipt}.json`保存6484项绑定和决定；
+新入口`python scripts/audit_reliable_region_ranking_feasibility.py --audit`精确重放通过，
+首次16.469秒/审查重放17.593秒；这不是重跑旧终态audit。5项新增访问/合成反例测试，
+完整pytest为1093 passed in21.75s；11类解释检查、独立反方及全部边界见独立results.md。
+原P1/全部失败封印/旧源码合同不变；README/baseline仅更新当前状态和只读入口，
+第10节追加本次停止记录，中文commit并push；无新训练监控或论文/Zotero改动。
+
 ## 4. 固定实验协议
 
 ### 4.1 训练与评估
@@ -2517,6 +2546,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-11-04（V2独立Trainer集成修复与零训练复验） | 基点d6b95d1；本次中文提交并push | 在新模块中修正train/val派发，继承冻结loss/model，不改科学变量与11门槛；先保存工程协议，再用实际安装包三mode合成train/val及两份既有完整head缓存验证 | paper/candidates/positive_quality_transport_v2/；scripts/{validate,run}_positive_quality_transport_v2.py；outputs/positive_quality_transport_v2_engineering/ | 原TypeError反例复现，六合成batch正常、mode绑定正确，训练构造体AST等价；初始化/训练后缓存AMP完整loss/局部head梯度检查通过；完整1088tests通过；新真实batch/检测模型forward/optimizer/学生循环/真实val推理均0 | 仅集成修复；未验证完整Trainer setup/权重加载/AMP bootstrap/优化/性能/机制；旧失败封印、源码、合同保护，新预检加入旧失败绑定与合成派发证据；check-only exit0后由用户手动新三臂各30轮，不重跑旧入口/恢复/自动重试/扩100轮，不创建空监控 |
 
 | 2026-11-05（正目标几何重排V2三臂负结果与ARS方法投入复盘） | 学生源码5966f58；本次中文复盘提交并push（提交号见git log） | 确认三新学生各完整30轮exit0/548图val960；原终态audit仅一次已通过；ARS先独立协议再重放封印预测，独立反方/源码机制/近邻文献核对 | 第3.78节；paper/diagnostics/positive_quality_negative_review/{protocol,results}.md；scripts/analyze_positive_quality_negative.py --audit；outputs/positive_quality_negative_review_20261105/ | 候选−P1 AP−.3145pp/AP_small−.3453pp/conf.25 small−.9444pp/P90+.5418pp；对控制AP−.1566pp/P90−.0301pp；同FP少160 small/同K少103；错类FP−285但重复+270；任去一类AP_small仍负；64项绑定/新统计精确重放/完整pytest通过 | 11线4过，停止原重排，不混V1零epoch工程失败；原P1/失败封印/冻结源码合同全部保护。跨对象可靠排序仅值得来源可行性审查：对象token不能证明安全背景，无法证明则停；多尺度/独立教师不优先，不调系数/筛类别/重试/恢复/100轮。新训练/forward/val推理/隐藏训练GT读取均0，无新监控；原临时v2已删除 |
+
+| 2026-11-05（完整人工区域内跨对象排序A来源可行性审查） | 起点56e242f；本次中文审查提交并push（提交号见git log） | ARS先行协议；只投影合法人工清单/标签/manifest与构造参数，源码与安装增强审读、纯合成不可识别反例及独立反方核查 | 第3.79节；paper/diagnostics/reliable_region_ranking_feasibility/{protocol,results}.md；scripts/audit_reliable_region_ranking_feasibility.py --audit；outputs/reliable_region_ranking_feasibility_20261105/ | 6471人工tile/105058保留框与11310训练清单身份一致；面积比.09931134–.10027778、可见门槛.35；保留标签无法恢复被过滤足迹，固定侵蚀无背景保证；6484绑定/新审查精确重放、完整1093tests通过 | G1 PASS、G2/G3 NOT_ESTABLISHED，STOP_BEFORE_RANKING_DIAGNOSTICS，停止A；不代表实际负例不存在或新学生性能失败。不读隐藏标签/用隐藏计数补齐、不做排序统计/梯度/loss/forward/训练，不切换其他方向；原P1/失败封印/冻结源码合同保护，无新监控 |
 
 ### 10.1 新会话开始流程
 
