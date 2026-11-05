@@ -1,6 +1,13 @@
 # Baseline 执行协议
 
-2026-11-05最新来源决定：[完整区域跨对象排序A停止](paper/diagnostics/reliable_region_ranking_feasibility/results.md)。
+2026-11-05最新方法决定：[合法人工实例跨尺度观测B审查](paper/diagnostics/human_multiscale_observation_review/results.md)。
+6471个人工tile长边131–548，均小于640，不能把原生ROI称为补回首次640下采样细节；
+全图960增上下文而同对象更小（名义线性比例.35542797–.411）。人工对应关系可构造，
+但部分框不能补全全图GT，现有P1全图loss也不会自动只监督正例。
+近邻与当前P1差异审查未建立独立信号/动作，停止泛化B；这不是新学生性能失败。
+本轮无训练/模型forward/val推理、标签文件读取或新候选命令；11项绑定的新几何重放见报告。
+
+既有来源决定：[完整区域跨对象排序A停止](paper/diagnostics/reliable_region_ranking_feasibility/results.md)。
 6471个人工tile/105058个导出框身份一致，但不足以认证背景完整性；实际面积比均低于.35可见门槛，
 合成反例说明边缘侵蚀不能补足被过滤足迹，现有P1路径亦未运输空间证书。
 6484项来源绑定/新审查精确重放通过，1093tests通过；不读隐藏标签/使用隐藏计数补齐，不训练。

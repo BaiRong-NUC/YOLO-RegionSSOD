@@ -1,7 +1,8 @@
 # 论文完成计划与项目交接
 
 > 最后更新：2026-11-05<br>
-> 当前来源决定：已完成ARS“完整人工区域内跨对象排序A”来源审查：6471个人工tile/105058个导出框身份与当前P1清单一致，但裁片过滤丢失足迹/空间完整性证书，增强后证明也未建立；G1通过、G2/G3 NOT_ESTABLISHED，停止A，不做排序统计/loss/训练。实际面积比.09931134–.10027778低于可见门槛.35，纯合成反例排除仅靠固定边缘剔除认证背景；不代表实际可靠负例不存在。6484项绑定/新审查精确重放及1093tests通过，不读隐藏标签或用隐藏计数补齐。原P1/失败封印/冻结合同保护，无新监控；见第3.79节、第10节及[来源报告](paper/diagnostics/reliable_region_ranking_feasibility/results.md)。下列均为历史记录，以本条为当前状态。<br>
+> 当前方法审查：ARS合法人工实例跨尺度观测B已完成，停止泛化候选（STOP_GENERIC_B_NO_DISTINCT_SIGNAL）。6471个人工tile长边131–548，载入640均放大，首次640下采样细节缺口不成立；全图960确增上下文，但同目标名义线性尺度仅为tile640的35.54%–41.10%。人工实例对应不同于旧伪框稳定性诊断，亦可能新增训练约束；对照SoCo/PseCo/MixTeacher/密度裁片/MSAD，尚无独立新信号/动作，不实现loss或训练，也不宣称跨尺度学习普遍无效。见第3.80节及[独立审查](paper/diagnostics/human_multiscale_observation_review/results.md)。<br>
+> 上一轮来源决定：已完成ARS“完整人工区域内跨对象排序A”来源审查：6471个人工tile/105058个导出框身份与当前P1清单一致，但裁片过滤丢失足迹/空间完整性证书，增强后证明也未建立；G1通过、G2/G3 NOT_ESTABLISHED，停止A，不做排序统计/loss/训练。实际面积比.09931134–.10027778低于可见门槛.35，纯合成反例排除仅靠固定边缘剔除认证背景；不代表实际可靠负例不存在。6484项绑定/新审查精确重放及1093tests通过，不读隐藏标签或用隐藏计数补齐。原P1/失败封印/冻结合同保护，无新监控；见第3.79节、第10节及[来源报告](paper/diagnostics/reliable_region_ranking_feasibility/results.md)。以下既有记录不替代上方当前方法决定。<br>
 > 已有三臂终态：正目标几何重排V2三新学生各完整30轮exit0，548图val960及终态audit工程通过，但11线仅4过，停止候选；候选−P1 AP50–95−.3145pp/AP_small−.3453pp/conf.25 small−.9444pp，IoU.50/P90+.5418pp却对控制−.0301pp。同FP少160个small/同K少103，去掉任一类别后AP_small差值仍负。该轮提出的A仅获来源审查资格，已按上一条完成并停止；原三臂正负结果不改。见第3.78节与[复盘](paper/diagnostics/positive_quality_negative_review/results.md)。<br>
 > 最新修复准备：新增独立V2 Trainer集成修复，仅改变train/val数据集派发，原科学loss/模型与11门槛不变；原V1失败封印/源码/合同全部保护。三mode真实dataloader合成batch回归、两份旧缓存完整loss重放、完整1088tests及40267项绑定check-only exit0通过；新执行入口`run_positive_quality_transport_v2.py`，详见paper/candidates/positive_quality_transport_v2/。本次未启动训练/新真实batch/检测模型forward/optimizer，未验证完整Trainer setup，学生性能NOT_TESTED、机制NOT_ESTABLISHED；真实启动后再建临时观察。<br>
 > 最新工程终态（10:47:57）：用户手动启动正目标几何重排三臂入口，reference在验证数据集初始化时因Trainer方法复用的零参数super继承不兼容而exit1，0完整epoch、无results.csv/best；candidate/control未启动。父/worker均已停止，独立只读audit exit0且terminal_evidence_verified=true，但accepted=false/performance=NOT_ACCEPTED；不作方法性能失败判定。原封印目录/源码/合同保留，未修复或重试；监控终态清理，详见第10节。<br>
@@ -2196,6 +2197,42 @@ val/预测/真实batch/权重，manifest/summary既有隐藏计数不提取或�
 原P1/全部失败封印/旧源码合同不变；README/baseline仅更新当前状态和只读入口，
 第10节追加本次停止记录，中文commit并push；无新训练监控或论文/Zotero改动。
 
+### 3.80 合法人工实例跨尺度观测B：输入事实与近邻差异审查（2026-11-05）
+
+承接708b45c，用户要求继续ARS审查与旧失败/现有文献的实质区别，没有新增信息就停止；
+本轮不训练、不用隐藏GT，保护原P1及失败证据。先保存独立协议，再做源码/原文核对、
+纯几何来源盘点和独立反方审查；没有把A的背景证明失败直接推广到positive-only实例配对。
+
+旧同教师跨尺度支持/正伪框定位稳定性/上下文纠类均检验预测可靠性或修标签，
+人工GT身份配对则可固定类别、对应可见部分与变换关系，目标是训练约束；
+旧停止没有反证此命题，也不是新命题的正证据。现有P1增强有resize/Mosaic/RandomPerspective，
+但没有显式同实例双视图耦合；确定性视图可以改变归纳偏置，不能据此一票否决。
+
+新事实：只投影人工manifest尺寸/坐标/身份，SHA与前轮合法来源回执一致。
+6471个人工tile均为正方形，原生长边131–548，S>640为0；640/S为1.16788321–4.88549618。
+因此原生ROI不能主张补回这些人工tile在首次640载入时下采样丢失的细节。
+全图960相对tile640同对象名义线性比例.3554279749–.411，确可增加上下文而非更高目标分辨率。
+这些是输入前名义几何，不是像素频率、增强后实际对象尺度/有效实例或性能统计；
+后续增强仍可缩小，ROI放大/更多网格曝光仍可能有用，不做普遍无效推断。
+
+直接原文核对：SoCo已有同proposal三视图对象尺度/位置一致性，PseCo已有shifted FPN与
+同伪框监督两视图及额外视图控制，MixTeacher明确也扩展有标注部分到多尺度；
+密度裁片已有原图/zoom裁片SSOD，MSAD已有高多分辨率教师—低分辨率学生对齐蒸馏。
+人工来源/区域部分标注作用域有差别，但没有建立区别这些近邻的新增信号—动作—反证解释。
+全图上下文与配对约束的真实增量保留，停止的是泛化B的新候选升级，不是声称没有任何新输入。
+合法局部框不能凭身份补完整全图GT；直接沿用现P1全图loss还会对未知位置产生背景项。
+
+决定REVIEW_COMPLETE / STOP_GENERIC_B_NO_DISTINCT_SIGNAL：不写新loss，不做尺度/系数重试，
+不启新教师、forward、val或学生，不自动转向其他方法。新几何11项输入绑定，精确重放字节一致；
+SHA b8bc076aa73f6a1d19a932e8a908f6bcace7d4bebbed92fe0e52d1dfc38e45cd。
+标签文件打开/像素解码/隐藏计数值提取/模型forward/训练/val推理均0。
+正式仓库只变更文档与入口；ignored分析脚本/JSON置于独立新目录，不冒充公开发布或完整学生验证。
+SoCo去重归档为Q6Z5S2AM，复用MSAD Q5P6YRER并加项目集合；部分机器阅读范围/笔记与检索索引限制在报告披露。
+原P1/历史正负结果/全部封印/冻结源码配置合同不变，第10节追加本次记录，中文commit并push。
+
+详见`paper/diagnostics/human_multiscale_observation_review/{protocol,results}.md`与
+`outputs/human_multiscale_observation_review_20261105/{geometry.py,geometry.json,geometry_receipt.json}`。
+
 ## 4. 固定实验协议
 
 ### 4.1 训练与评估
@@ -2548,6 +2585,7 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-11-05（正目标几何重排V2三臂负结果与ARS方法投入复盘） | 学生源码5966f58；本次中文复盘提交并push（提交号见git log） | 确认三新学生各完整30轮exit0/548图val960；原终态audit仅一次已通过；ARS先独立协议再重放封印预测，独立反方/源码机制/近邻文献核对 | 第3.78节；paper/diagnostics/positive_quality_negative_review/{protocol,results}.md；scripts/analyze_positive_quality_negative.py --audit；outputs/positive_quality_negative_review_20261105/ | 候选−P1 AP−.3145pp/AP_small−.3453pp/conf.25 small−.9444pp/P90+.5418pp；对控制AP−.1566pp/P90−.0301pp；同FP少160 small/同K少103；错类FP−285但重复+270；任去一类AP_small仍负；64项绑定/新统计精确重放/完整pytest通过 | 11线4过，停止原重排，不混V1零epoch工程失败；原P1/失败封印/冻结源码合同全部保护。跨对象可靠排序仅值得来源可行性审查：对象token不能证明安全背景，无法证明则停；多尺度/独立教师不优先，不调系数/筛类别/重试/恢复/100轮。新训练/forward/val推理/隐藏训练GT读取均0，无新监控；原临时v2已删除 |
 
 | 2026-11-05（完整人工区域内跨对象排序A来源可行性审查） | 起点56e242f；本次中文审查提交并push（提交号见git log） | ARS先行协议；只投影合法人工清单/标签/manifest与构造参数，源码与安装增强审读、纯合成不可识别反例及独立反方核查 | 第3.79节；paper/diagnostics/reliable_region_ranking_feasibility/{protocol,results}.md；scripts/audit_reliable_region_ranking_feasibility.py --audit；outputs/reliable_region_ranking_feasibility_20261105/ | 6471人工tile/105058保留框与11310训练清单身份一致；面积比.09931134–.10027778、可见门槛.35；保留标签无法恢复被过滤足迹，固定侵蚀无背景保证；6484绑定/新审查精确重放、完整1093tests通过 | G1 PASS、G2/G3 NOT_ESTABLISHED，STOP_BEFORE_RANKING_DIAGNOSTICS，停止A；不代表实际负例不存在或新学生性能失败。不读隐藏标签/用隐藏计数补齐、不做排序统计/梯度/loss/forward/训练，不切换其他方向；原P1/失败封印/冻结源码合同保护，无新监控 |
+| 2026-11-05（合法人工实例跨尺度观测B的ARS审查） | 起点708b45c；本次中文审查提交并push（提交号见git log） | 先行协议、源码/原文机制核对、仅合法metadata几何盘点与独立反方；不读取标签/像素 | 第3.80节；paper/diagnostics/human_multiscale_observation_review/{protocol,results}.md；outputs/human_multiscale_observation_review_20261105/ | 6471人工tile长边131–548，首次640下采样0；全图960/tile640目标线性比例.35543–.411；11项绑定/新几何字节一致重放；文档链接与diff检查 | STOP_GENERIC_B_NO_DISTINCT_SIGNAL；人工对应不同于旧可靠性诊断且可增约束，真实新上下文保留，但近邻差异/独立信号未成立，不升级loss/训练；不是性能负结果或跨尺度普遍无效。原P1/失败证据/冻结合同保护，无隐藏计数值提取/模型forward/val/训练/新监控 |
 
 ### 10.1 新会话开始流程
 

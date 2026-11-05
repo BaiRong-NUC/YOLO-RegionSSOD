@@ -1,6 +1,12 @@
 # YOLO-RegionSSOD
 
-2026-11-05最新来源审查：[跨对象排序的可靠背景未建立，停止A](docs/paper/diagnostics/reliable_region_ranking_feasibility/results.md)。
+2026-11-05最新方法审查：[合法人工实例跨尺度观测B：停止泛化候选](docs/paper/diagnostics/human_multiscale_observation_review/results.md)。
+6471个人工tile原生长边131–548，载入640均放大，不存在“首次缩到640后补回细节”的前提；
+全图960可增加上下文，但同目标名义线性尺度仅为tile640的35.54%–41.10%。
+人工实例对应不同于旧伪框质量诊断，也可增加训练约束；对照SoCo/PseCo/MixTeacher等，
+当前未建立独立新信号/动作，故不实现loss或训练；不把此决定说成所有跨尺度学习无效。
+
+既有来源审查：[跨对象排序的可靠背景未建立，停止A](docs/paper/diagnostics/reliable_region_ranking_feasibility/results.md)。
 6471个人工tile/105058个导出框的身份通过；裁片过滤足迹/完整性证书与增强后空间证明不足，
 G2/G3未建立。不用隐藏GT补齐，不实现新loss或训练；这不是新学生性能负结果。
 
