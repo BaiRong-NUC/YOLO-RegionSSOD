@@ -1,6 +1,7 @@
 # 论文完成计划与项目交接
 
 > 最后更新：2026-11-06<br>
+> 最新定位：固定保存预测中，候选/最强控制2590点请求及已记录证书字段完全一致；同一3U对象2233锚点的CPU精确几何求解约101–104秒。控制完整loss108.391秒，候选120秒截断于刚开始的第7次后验采样；积分约0.42秒，不支持点容量或CUDA等待主导的解释。120秒源自额外工程合同，整批口径很紧但未放宽，候选完成时间未知；2147tests通过。没有训练资格/开训，详见3.94及[定位报告](paper/candidates/bounded_retention/loss_timeout_diagnostic_results.md)。<br>
 > 最新压力门：真实3U/第9轮EMA零训练审查停止。恢复原生回调注册后两条1414批流及固定closed1316身份/张量SHA通过；原P1同批loss/反向通过，初始权重候选loss超过冻结120秒，父仅终止自有诊断worker。第9轮及32批未执行，独立资格复核STOP；不把timeout写成已确认点容量故障/机制无效。未接入新入口/冻结新三臂/启动训练，失败保留；见3.93及[压力报告](paper/candidates/bounded_retention/point_pressure_results.md)。<br>
 > 容量审查终态：独立v2通过8例压力检查、固定真实32批及2087tests；完整loss旧/新0.9465（新耗时+5.65%），未达2倍门槛。局部容量反例已修复，但真实窗口无3U/后期覆盖，不能保证原故障消除。停止本轮扩展，不接入生产、不提高上限、不恢复或新开训练。见第3.92节及[容量审查](paper/candidates/bounded_retention/point_capacity_review_results.md)。<br>
 > 当前终态：V6候选第10轮触发全局点求解容量故障`global point resource cap`；原P1连续30轮exit0、候选连续9轮后exit1、控制未启动。三臂未完成，无最终548图val960或性能/机制判断。只读audit exit0且terminal_evidence_verified=true，但accepted=false；24004输入/61封印产物通过。父/worker/监控均结束，临时脚本已清理，不重试/恢复/提高限额。见第3.91节及[失败与成本报告](paper/candidates/bounded_retention/three_arm30_terminal_failure.md)。旧合同、工程通过记录及全部失败保留。<br>
@@ -2543,6 +2544,33 @@ terminal_review_01核对374项绑定0变化并封存已有产物摘要。完整p
 也不是性能或显卡结论。**压力门未通过，不接入训练Model/Trainer/launcher，不冻结新三臂，
 不给执行训练许可，不训练/重试/提高限额。** 详见`point_pressure_results.md`。
 
+### 3.94 120秒期限来源与共享点求解成本定位（2026-11-06）
+
+用户只授权独立零训练定位和期限审查，不直接提高上限/开训。使用ARS validate，
+先冻7e9686c主合同；仅保存预测的完整loss重放，原P1逐位校准，不构造模型或Trainer/新前向/反向。
+候选/控制各独立进程冷缓存、同point_search_v2、同随机状态，120秒绝对deadline不被内部日志续期。
+
+所有诊断故障公开保留：trace_01因观测器pickle缓存方法失败，冻结8612dd1纯数据修订；
+suite_02新增测试误读缓存属性失败时主会话误启动trace_02，发现后核验并停止自有worker，
+ccf2134记录并排除其全部数值/耗时，不读取轨迹调参。修正测试后suite_03通过；
+trace_03在首次faulthandler转储截断后原生退出0xC0000005，根因未确证，控制未启动。
+b45f95e冻结普通Python栈快照修订。最终suite_04为2147 passed/156.19秒。
+
+trace_04父45356/P1 worker46232/候选22816/控制47724顺序执行。P1逐位loss/assignment通过；
+候选2590个点请求全部完成，含357个1U与同一合法实例(89155,55771)的2233个3U锚点。
+3U累计104.217秒，单请求max0.328秒/max15cells；CPU时间与五次栈定位在精确几何收缩/
+顶点/联合score上界的Fraction运算。normalizer47次0.341秒、区间40次0.078秒，
+posterior完成6次7.486秒，第7次在119.703秒刚开始即碰120秒deadline。无单请求容量失败证据。
+控制全部2590请求输入/点/gap/cells与候选相同，完整loss108.391秒；共享3U点求解100.904秒。
+候选未完成，不能声称完整TAL/梯度/正权重资格通过。三臂没有新训练，所有诊断进程已结束。
+
+120秒首次来自c24603d对单请求与整批同时采用的工程保护，非机制/原P1数学要求。
+本次证据支持整批门很紧且不能用来否定机制；不证明提高到某个新值就能完成或稳定。
+主要瓶颈是共享多锚点CPU精确几何，不是积分或显式CUDA同步；到期时所在后验采样不等于采样卡死。
+建议后续只审查两臂共享的纯几何缓存/等价重复查询，保留全部锚点及强控制证书；本轮未实现。
+不改旧TIMEOUT、不放宽期限/cell/proposal/bits/误差，不开训/给训练许可。
+证据位于outputs/bounded_retention_timeout_20261106/{trace_04,analysis_01,source_archive_04,suite_04}/。
+
 ## 4. 固定实验协议
 
 ### 4.1 训练与评估
@@ -2949,6 +2977,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-11-06（容量修复零训练与成本审查终态） | c24603d/f47d205等先冻结合同；本次中文实现与结果提交并push | 新独立同轴联合上界/必要源投影/分支提示；保留全部失败和未知源码回退；修复诊断监控后完成固定32批 | 第3.92节；paper/candidates/bounded_retention/point_capacity_review_results.md；outputs/bounded_retention_point_review_20261106/{synthetic_03,suite_04,real_03}/ | 8例最终压力通过；2087 tests；32批五臂全loss/全参数反向与状态恢复通过；完整loss旧/新0.9465，新耗时+5.65%；描述性三臂外推64.63h | 局部同类容量反例修复，整体2倍提速门失败；真实窗口无3U/后期覆盖，不能保证原故障消除；停止本轮扩展，不接入生产、不提高限额、不启动训练；临时诊断父/子进程均退出，无计划任务 |
 
 | 2026-11-06（真实3U与第9轮EMA零训练压力门停止） | 943c9e9/65426a5/257052a先冻结合同及复核/重放补充；本次中文实现与结果提交push | 独立压力入口/只读资格checker；修复回调导入RNG造成的历史重放偏差，原失败保留 | 第3.93节；paper/candidates/bounded_retention/point_pressure_results.md；outputs/bounded_retention_pressure_20261106/ | 完整2828批及固定压力批身份/张量SHA一致；P1同批loss0.2904s/反向4.7054s，梯度有限；候选loss阶段120s超时；2137tests通过；374绑定0变化 | STOP_INITIAL_3U_LOSS_DEADLINE；第9轮case/32批未执行，0完整case，独立qualification STOP；不能区分point/积分/采样/CUDA等待，不能认定机制无效；未接入新入口/冻结三臂/训练，父子诊断进程已退出，无计划任务，旧证据保护 |
+
+| 2026-11-06（120秒超时定位与合同审查） | 7e9686c/8612dd1/ccf2134/b45f95e先记录合同/包装修订/执行错误；本次中文实现与结果提交push | 保存预测、原P1逐位校准、同界候选/控制顺序trace；所有包装失败及误启动保留 | 第3.94节；paper/candidates/bounded_retention/loss_timeout_diagnostic_results.md；outputs/bounded_retention_timeout_20261106/ | 2147tests；两臂2590点输入/证书相同；3U2233锚点约101–104s/max15cells，控制loss108.391s；候选120s截断于第7次采样 | DIAGNOSTIC_ONLY：共享CPU精确几何为主成本，非点cap/显式CUDA主导；120s额外整批门很紧但不放宽，候选完成时间未知，无训练资格/开训，无新模型前向/反向/optimizer；旧源码和全部失败保留 |
 
 ## 11. 风险与退出条件
 

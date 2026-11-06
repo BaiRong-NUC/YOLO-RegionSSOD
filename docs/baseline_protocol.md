@@ -1,6 +1,12 @@
 # Baseline 执行协议
 
-当前[真实3U/第9轮EMA压力审查](paper/candidates/bounded_retention/point_pressure_results.md)
+最新[120秒零训练定位](paper/candidates/bounded_retention/loss_timeout_diagnostic_results.md)显示，
+固定保存预测的两臂2590个点请求及已记录证书字段完全一致；2233个3U锚点共享CPU求解约101–104秒。
+控制完整loss108.391秒；候选在120秒进入第7次后验采样后被截断，不是点cell上限故障证据。
+120秒为额外整批保护，尚未修订；原机制/最强同界控制/数值上限不变，未训练。
+2147tests通过；实际诊断命令/进程/输出及所有失败见报告，不将诊断当作压力门或训练许可。
+
+此前[真实3U/第9轮EMA压力审查](paper/candidates/bounded_retention/point_pressure_results.md)
 因初始权重真实3U批候选完整loss超过冻结120秒期限停止；第9轮压力case/32批均未执行。
 完整增强重放与固定批身份/张量SHA通过；同批原P1 loss/全参数反向通过，候选/控制资格未建立。
 这不证明机制无效，也没有内部证据将超时归为点容量故障。独立资格复核STOP，未创建新训练入口、

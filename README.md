@@ -1,6 +1,12 @@
 # YOLO-RegionSSOD
 
-当前[真实3U/第9轮EMA压力审查](docs/paper/candidates/bounded_retention/point_pressure_results.md)
+最新[120秒超时定位](docs/paper/candidates/bounded_retention/loss_timeout_diagnostic_results.md)：
+固定保存预测的候选/强控制均完成相同2590个点请求，其中同一3U对象的2233个锚点CPU求解约101–104秒。
+控制完整loss108.391秒；候选120秒截断于第7次后验采样，积分约0.42秒，未见显式CUDA等待主导。
+120秒是额外整批工程保护，不能作为机制否定；本轮不提高期限/数值上限、不改机制、不训练。
+2147tests通过；诊断入口`diagnose_bounded_retention_loss_timeout.py`，完整失败与修订记录见报告。
+
+此前[真实3U/第9轮EMA压力审查](docs/paper/candidates/bounded_retention/point_pressure_results.md)
 停止于初始权重真实3U批的候选完整loss超过冻结120秒期限；第9轮case及32批未执行。
 两条完整1414批增强流/固定压力张量哈希通过，原P1同批loss/反向通过，但候选/控制未获资格。
 这是诊断超时，不能写成已确认的点容量故障或机制无效；**未接入新训练入口、未冻结新三臂、未开训**。
