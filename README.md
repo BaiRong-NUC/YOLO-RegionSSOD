@@ -1,19 +1,22 @@
 # YOLO-RegionSSOD
 
-2026-11-05当前工作：V6连续相容集合监督的来源/完整增强流/真实AMP联合验证通过，
-完整2042 tests通过；[三臂合同](docs/paper/candidates/bounded_retention/three_arm30_contract.md)
-及[启动修订](docs/paper/candidates/bounded_retention/three_arm30_launch_addendum.md)已冻结。
-最终24004输入绑定通过只读核验，已于2026-11-05 18:21（北京时间）启动顺序任务：
-原P1→候选→最强同界连续点DFL各30轮。调度PID30104、当前P1 PID45600、监控PID18428。
-已观察到P1实际第1轮batch执行；候选/控制尚待顺序派发，未完成三臂，不作性能判断。
-[工程结果](docs/paper/candidates/bounded_retention/continuous_amp_results.md)不是训练性能结果。
+2026-11-06当前终态：V6连续集合候选在第10轮触发`global point resource cap`，
+**原P1完成30轮、候选完成9轮、强控制未启动**。这是同界全局点求解器的容量故障，
+不是CUDA OOM；三臂未完成，未执行最终548图val960，不作性能或机制成立判断。
+[完整失败报告与成本复盘](docs/paper/candidates/bounded_retention/three_arm30_terminal_failure.md)：
+只读终态审计exit0，`accepted=false/terminal_evidence_verified=true`；61封印产物、
+24004冻结输入通过，进程均结束，临时监控脚本已清理，无自动重试或恢复。
+[三臂合同](docs/paper/candidates/bounded_retention/three_arm30_contract.md)、
+[启动修订](docs/paper/candidates/bounded_retention/three_arm30_launch_addendum.md)及
+[2042 tests/零优化工程证据](docs/paper/candidates/bounded_retention/continuous_amp_results.md)保留。
+以下为已执行的历史启动命令，禁止再次执行：
 
 ```powershell
 & 'C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe' -u scripts/run_bounded_retention_continuous_v2.py --train --spec outputs/bounded_retention_continuous_freeze_20261105_v2/freeze.json
 ```
 
-训练输出：`outputs/bounded_retention_continuous_three30_s0/`。目录必须新建；已有运行禁止重跑。
-只读前置核验把`--train`换为`--check`；终态后用同脚本`--audit`。
+封印输出：`outputs/bounded_retention_continuous_three30_s0/`，禁止重跑或写入。
+只读终态复核使用同脚本`--audit`；收尾证据位于`outputs/bounded_retention_continuous_terminal_20261106/`。
 
 工程历史：V4确定性矩形积分未通过完整3U容量检查（19999cells，残差界0.4247）。
 这不是连续目标无效；已先冻结[目标不变的V5后验采样计算合同](docs/paper/candidates/bounded_retention/continuous_sampling_contract.md)，

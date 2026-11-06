@@ -1,7 +1,7 @@
 # 论文完成计划与项目交接
 
-> 最后更新：2026-11-05<br>
-> 当前工作：V6来源/完整增强流/实际AMP联合验证、2042 tests及24004输入核验通过，三臂合同已冻结。2026-11-05 UTC10:21:51已启动原P1→候选→强控制顺序各30轮：调度PID30104、P1 worker45600已执行第1轮、监控PID18428；后两臂未派发，三臂未完成，无性能判断。旧失败均保留。见第3.89–3.90节及[启动合同](paper/candidates/bounded_retention/three_arm30_launch_addendum.md)。<br>
+> 最后更新：2026-11-06<br>
+> 当前终态：V6候选第10轮触发全局点求解容量故障`global point resource cap`；原P1连续30轮exit0、候选连续9轮后exit1、控制未启动。三臂未完成，无最终548图val960或性能/机制判断。只读audit exit0且terminal_evidence_verified=true，但accepted=false；24004输入/61封印产物通过。父/worker/监控均结束，临时脚本已清理，不重试/恢复/提高限额。见第3.91节及[失败与成本报告](paper/candidates/bounded_retention/three_arm30_terminal_failure.md)。旧合同、工程通过记录及全部失败保留。<br>
 > 此前V3终态：E可表示性门是额外合同，V3恢复原P1编码语义后旧E反例通过；第13真实batch的U连续区间约[637.5464,640]无字面DFL原子，因此停止离散质量候选。1316tests/31绑定/28快照通过；V1/V2/V3合同、源码与失败全部保留。见第3.83节及[编码复核报告](paper/candidates/bounded_retention/p1_encoding_results.md)。<br>
 > 既有B审查：ARS合法人工实例跨尺度观测B已完成，停止泛化候选（STOP_GENERIC_B_NO_DISTINCT_SIGNAL）。6471个人工tile长边131–548，载入640均放大，首次640下采样细节缺口不成立；全图960确增上下文，但同目标名义线性尺度仅为tile640的35.54%–41.10%。人工实例对应不同于旧伪框稳定性诊断，亦可能新增训练约束；对照SoCo/PseCo/MixTeacher/密度裁片/MSAD，尚无独立新信号/动作，不实现loss或训练，也不宣称跨尺度学习普遍无效。见第3.80节及[独立审查](paper/diagnostics/human_multiscale_observation_review/results.md)。<br>
 > 上一轮来源决定：已完成ARS“完整人工区域内跨对象排序A”来源审查：6471个人工tile/105058个导出框身份与当前P1清单一致，但裁片过滤丢失足迹/空间完整性证书，增强后证明也未建立；G1通过、G2/G3 NOT_ESTABLISHED，停止A，不做排序统计/loss/训练。实际面积比.09931134–.10027778低于可见门槛.35，纯合成反例排除仅靠固定边缘剔除认证背景；不代表实际可靠负例不存在。6484项绑定/新审查精确重放及1093tests通过，不读隐藏标签或用隐藏计数补齐。原P1/失败封印/冻结合同保护，无新监控；见第3.79节、第10节及[来源报告](paper/diagnostics/reliable_region_ranking_feasibility/results.md)。以下既有记录不替代上方当前方法决定。<br>
@@ -2452,6 +2452,34 @@ UTC10:21:51.7107639（北京时间18:21:51）启动调度PID30104，命令为：
 监控不杀进程、不重试、不启动实验，正常进展静默；终态处理后移除临时脚本。
 此记录仅认证实际启动，没有性能或机制判断。
 
+### 3.91 连续集合候选全局点容量故障终态（2026-11-06）
+
+本轮真实训练已结束，状态`STOP_ENGINEERING_POINT_RESOURCE_LIMIT`。
+参考PID45600完整1–30轮exit0，耗时1.922小时；候选PID51256完整1–9轮，
+第10轮日志89/1414附近抛出`NumericalCertificationError: global point resource cap`，
+exit1，耗时20.706小时；强控制未启动。约北京时间17:00退出，约30分钟复查时发现。
+不恢复、不自动重试或继续控制臂；此前无已记录的中断/重启。
+
+异常位于TAL使用的共享连续点求解器`optimize_point`，在20000单元限额内未取得
+1e-5误差证书，不能说相容集为空或连续机制无效。不是OOM/未用GPU；换4090
+不直接改变这个上限。日志未保存失败对象/实际cells/gap/logits，不推断具体U维数。
+候选前9轮平均2.273小时/轮，对原P1同前9轮累计耗时比35.534；未做成本剖析，
+不能把比例全归给一个函数。开训前工程正确性覆盖并不替代训练成本/长尾评估，
+本次缺少充分预算说明；改进希望是机制假设而非已证实性能收益。
+
+原`--audit`只读重放exit0，`accepted=false, terminal_evidence_verified=true`；
+24004冻结输入及61产物封印通过，原P1独立单臂审计通过，两臂实际args与冻结一致，
+已记录CSV均有限。候选9份诊断共12726batch/63008后验事件，仅证明计算发生，
+不等于正权重机制效应。没有最终548图val960，不给AP/同K/同FP/定位比较，
+不把候选9轮与参考30轮配对或追改历史门槛。
+
+详见[终态报告](paper/candidates/bounded_retention/three_arm30_terminal_failure.md)。
+原输出`outputs/bounded_retention_continuous_three30_s0/`保持封印；独立收尾证据
+在`outputs/bounded_retention_continuous_terminal_20261106/`。父30104、参考45600、
+候选51256、监控18428均自然结束；保存监控源码副本/hash后删除临时monitor.py，
+保留health/checks/logs，没有创建应用自动化任务。仅报告/入口文档变更，
+不重跑已通过的2042项源码测试；本次终态验证为只读文件/配置/封印审计。
+
 ## 4. 固定实验协议
 
 ### 4.1 训练与评估
@@ -2852,6 +2880,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-11-05（V6联合工程通过及三臂冻结） | f4a5346；本次中文提交并push | 一次真实AMP前向、固定序列共同scale1024、完整参数反向/原P1等价/同控制区分通过；保留旧STOP及路径核验失败，独立启动V2完成最终绑定 | 第3.89节；continuous_amp_results.md；three_arm30_contract.md；three_arm30_launch_addendum.md；native_amp_audit_01/；suite_launch_03/；freeze_20261105_v2/ | 2042 passed/126.04秒；24004输入只读核验通过；0 optimizer/0 val推理 | 工程放行、合同冻结；即将直接顺序原P1/候选/强控制各30轮，实际启动另记；无性能或机制成立结论 |
 
 | 2026-11-05（实际顺序三臂启动） | 5f96181已push | 冻结输入后直接启动原P1→V6候选→同界最强连续点控制，各30轮；设临时只读进程监控 | 第3.90节；freeze_20261105_v2/launch_identity.json；continuous_three30_s0/reference_process.json；monitors/continuous_three30_s0/health.json（完整路径见正文） | 调度PID30104/P1 PID45600/监控PID18428；实际观察到P1第1轮batch | 运行中；后两臂未派发，三臂未完成，不作性能判断；禁止重跑/恢复/并行/自动杀worker |
+
+| 2026-11-06（连续集合三臂工程失败收尾） | 起点122174e；本次中文报告提交并push | 候选第10轮共享全局点求解触发固定容量上限；只读终态/参考单臂审计、成本复盘与监控清理 | 第3.91节；paper/candidates/bounded_retention/three_arm30_terminal_failure.md；outputs/bounded_retention_continuous_terminal_20261106/ | 原P1 30轮exit0/1.922h，候选9轮后exit1/20.706h，控制未启动；24004输入/61封印产物通过，audit accepted=false/terminal_evidence_verified=true；两臂args一致 | STOP_ENGINEERING_POINT_RESOURCE_LIMIT；无最终548图val960，无性能/机制结论；不重试/恢复/提高限额，旧源码/合同/证据保护，进程自然结束，临时监控脚本已删除 |
 
 ## 11. 风险与退出条件
 

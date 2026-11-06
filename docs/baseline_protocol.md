@@ -1,20 +1,25 @@
 # Baseline 执行协议
 
-2026-11-05：V6联合工程验证通过，共同AMP scale1024下三臂全部可训练参数梯度有限；
-实际训练仍用原生动态AMP。最终2042 tests/24004输入绑定通过，已冻结
+2026-11-06终态：V6候选第10轮触发全局点求解`global point resource cap`。
+原P1连续30轮exit0；候选连续9轮后exit1；控制未启动。未进行最终548图val960，
+不作性能/机制结论，不重试/恢复/提高限额。只读audit exit0，但`accepted=false`；
+24004输入与61封印产物通过。详情及耗时见[终态报告](paper/candidates/bounded_retention/three_arm30_terminal_failure.md)。
+
+历史启动依据：V6联合工程验证通过，共同AMP scale1024下三臂全部可训练参数梯度有限；
+实际训练仍用原生动态AMP。2042 tests通过，冻结
 [三臂科学合同](paper/candidates/bounded_retention/three_arm30_contract.md)和
-[启动修订](paper/candidates/bounded_retention/three_arm30_launch_addendum.md)。当前复现入口：
+[启动修订](paper/candidates/bounded_retention/three_arm30_launch_addendum.md)。历史命令（禁止再次执行）：
 
 ```powershell
 & 'C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe' -u scripts/run_bounded_retention_continuous_v2.py --train --spec outputs/bounded_retention_continuous_freeze_20261105_v2/freeze.json
 ```
 
-新输出`outputs/bounded_retention_continuous_three30_s0/`，原P1→候选→同界全局点DFL各30轮，
-已有目录禁止再次启动。终态只读`python scripts/run_bounded_retention_continuous_v2.py --audit`。
-全548图val960、best.pt和主/次指标定义见合同；尚无新性能结论。
-2026-11-05 UTC10:21:51已启动调度PID30104，原P1 worker45600已执行第1轮；
-只读监控PID18428，状态在`outputs/monitors/bounded_retention_continuous_three30_s0/health.json`。
-这不是三臂完成记录；候选/控制尚未派发，禁止重复执行上述启动命令。
+封印输出`outputs/bounded_retention_continuous_three30_s0/`不可重跑/写入。
+终态只读`python scripts/run_bounded_retention_continuous_v2.py --audit`。
+原计划全548图val960、best.pt和主/次指标定义见合同；本次无最终比较。
+调度30104、参考45600、候选51256与监控18428均自然结束；临时监控脚本已删除，
+状态/检查日志保留于`outputs/monitors/bounded_retention_continuous_three30_s0/`。
+收尾审计在`outputs/bounded_retention_continuous_terminal_20261106/`，不改旧封印。
 
 工程历史：V4确定性积分容量未过；[V5后验采样合同](paper/candidates/bounded_retention/continuous_sampling_contract.md)
 在新实现前冻结，目标/对象/原E/同界全局点控制不变；未启动学生。全门通过后才冻结并直接执行顺序三臂各30轮，
