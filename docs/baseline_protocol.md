@@ -1,6 +1,31 @@
 # Baseline 执行协议
 
-最新[120秒零训练定位](paper/candidates/bounded_retention/loss_timeout_diagnostic_results.md)显示，
+最新共享精确几何缓存版：**最终工程资格及冻结预检通过，未启动训练。**
+继承原P1协议及[三臂科学合同](paper/candidates/bounded_retention/three_arm30_contract.md)，
+独立[cached生产合同](paper/candidates/bounded_retention/cached_training_contract.md)于9dedeb7先冻，
+实现739c130，全库2310 tests、34压力case/102完整loss反向、6真实生产接线case通过。
+[完整验证/成本/限制](paper/candidates/bounded_retention/point_geometry_cache_results.md)记录全部失败和独立复核。
+没有改变机制或强控制、丢对象/降级精确坐标、放宽120秒或数值限额。
+
+本机冻结`outputs/bounded_retention_cached_freeze_20261106/freeze.json`，24986项输入，
+SHA256：`5c15221d671cbcaa12270744b039b510a5edf0000478329dbf285c471282983e`；真实入口`--check`已exit0。
+只读预检与用户启动命令如下（本会话仅执行过第一条）：
+
+```powershell
+Set-Location 'D:\Python\YOLO-RegionSSOD'
+& 'C:\Users\BaiRong-NUC\.conda\envs\yolo\python.exe' -B -u scripts/run_bounded_retention_cached.py --check --spec outputs/bounded_retention_cached_freeze_20261106/freeze.json
+& 'C:\Users\BaiRong-NUC\.conda\envs\yolo\python.exe' -B -u scripts/run_bounded_retention_cached.py --train --spec outputs/bounded_retention_cached_freeze_20261106/freeze.json
+```
+
+全新COCO初始化reference→candidate→control，各完整30轮，640/batch8/SGD/seed0/workers0/原生AMP，
+CUDA设备0，close_mosaic10；第9轮EMA只用于零训练诊断。输出
+`outputs/bounded_retention_cached_three30_s0/`当前不存在，禁止复用旧参考/恢复候选/覆盖目录。
+不并行、自动重试或杀用户worker；30分钟内置临时监控只记录进展、终态退出。
+全部完成后统一548图full-image val960，保留原合同AP/AP_small/召回/同预测数/同FP/
+重复框/定位指标，完整30轮前不判断效果。约75小时仅固定窗口纯计算外推，非训练ETA。
+不能据工程通过声称原创性、联合相关性或性能改善；公开保留事件的模拟GT衍生侧信息须披露。
+
+此前[120秒零训练定位](paper/candidates/bounded_retention/loss_timeout_diagnostic_results.md)显示，
 固定保存预测的两臂2590个点请求及已记录证书字段完全一致；2233个3U锚点共享CPU求解约101–104秒。
 控制完整loss108.391秒；候选在120秒进入第7次后验采样后被截断，不是点cell上限故障证据。
 120秒为额外整批保护，尚未修订；原机制/最强同界控制/数值上限不变，未训练。

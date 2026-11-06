@@ -1,6 +1,25 @@
 # YOLO-RegionSSOD
 
-最新[120秒超时定位](docs/paper/candidates/bounded_retention/loss_timeout_diagnostic_results.md)：
+最新：**共享几何缓存版已通过零训练压力、真实生产接线和最终冻结预检；未启动训练。**
+使用academic-research-suite完成独立实现，保持连续目标、最强同界连续点DFL、全部锚点和数值上限；
+2310 tests通过，34压力case/102完整loss反向、6生产接线case及独立只读复核通过。
+真实3U候选初始/第9轮完整loss为80.71/81.52秒，均低于原120秒；不是性能改善证明。
+[验证与成本报告](docs/paper/candidates/bounded_retention/point_geometry_cache_results.md)、
+[生产合同](docs/paper/candidates/bounded_retention/cached_training_contract.md)。用户启动命令：
+
+```powershell
+Set-Location 'D:\Python\YOLO-RegionSSOD'
+& 'C:\Users\BaiRong-NUC\.conda\envs\yolo\python.exe' -B -u scripts/run_bounded_retention_cached.py --train --spec outputs/bounded_retention_cached_freeze_20261106/freeze.json
+```
+
+按原P1→候选→强控制顺序，各全新完整30轮，CUDA设备0；完成后统一548图full-image val960及全部比较指标。
+输出`outputs/bounded_retention_cached_three30_s0/`，当前不存在；入口拒绝覆盖/重试/恢复。
+内置每30分钟临时监控随进程终态结束，无需另建计划任务。只读预检将`--train`改为`--check`。
+固定窗口机械外推约75小时纯计算，仅成本提示、非ETA，未含加载/优化器/评估且不覆盖权重漂移。
+本机freeze SHA为`5c15221d671cbcaa12270744b039b510a5edf0000478329dbf285c471282983e`；
+旧失败和历史门槛保留，以下各段为历史记录，不复用旧启动命令。
+
+此前[120秒超时定位](docs/paper/candidates/bounded_retention/loss_timeout_diagnostic_results.md)：
 固定保存预测的候选/强控制均完成相同2590个点请求，其中同一3U对象的2233个锚点CPU求解约101–104秒。
 控制完整loss108.391秒；候选120秒截断于第7次后验采样，积分约0.42秒，未见显式CUDA等待主导。
 120秒是额外整批工程保护，不能作为机制否定；本轮不提高期限/数值上限、不改机制、不训练。

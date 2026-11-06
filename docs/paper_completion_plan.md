@@ -1,6 +1,7 @@
 # 论文完成计划与项目交接
 
 > 最后更新：2026-11-06<br>
+> 最新交付：共享精确几何缓存保持同界求解及连续监督不变，原120秒/数值上限不变；2310 tests、真实3U/第9轮34压力case/102完整loss反向、6实际生产接线case及独立只读复核通过。最终24986项freeze及真实入口--check通过；原P1→候选→强控制各30轮命令已准备，按用户最新指令**只交付、未启动训练**。真实候选loss80.71/81.52秒，不是性能或原创性证明；数天成本仍可能存在。见3.95及[完整报告/命令](paper/candidates/bounded_retention/point_geometry_cache_results.md)。以下定位/压力/旧训练终态均为保留历史。<br>
 > 最新定位：固定保存预测中，候选/最强控制2590点请求及已记录证书字段完全一致；同一3U对象2233锚点的CPU精确几何求解约101–104秒。控制完整loss108.391秒，候选120秒截断于刚开始的第7次后验采样；积分约0.42秒，不支持点容量或CUDA等待主导的解释。120秒源自额外工程合同，整批口径很紧但未放宽，候选完成时间未知；2147tests通过。没有训练资格/开训，详见3.94及[定位报告](paper/candidates/bounded_retention/loss_timeout_diagnostic_results.md)。<br>
 > 最新压力门：真实3U/第9轮EMA零训练审查停止。恢复原生回调注册后两条1414批流及固定closed1316身份/张量SHA通过；原P1同批loss/反向通过，初始权重候选loss超过冻结120秒，父仅终止自有诊断worker。第9轮及32批未执行，独立资格复核STOP；不把timeout写成已确认点容量故障/机制无效。未接入新入口/冻结新三臂/启动训练，失败保留；见3.93及[压力报告](paper/candidates/bounded_retention/point_pressure_results.md)。<br>
 > 容量审查终态：独立v2通过8例压力检查、固定真实32批及2087tests；完整loss旧/新0.9465（新耗时+5.65%），未达2倍门槛。局部容量反例已修复，但真实窗口无3U/后期覆盖，不能保证原故障消除。停止本轮扩展，不接入生产、不提高上限、不恢复或新开训练。见第3.92节及[容量审查](paper/candidates/bounded_retention/point_capacity_review_results.md)。<br>
@@ -2571,6 +2572,48 @@ posterior完成6次7.486秒，第7次在119.703秒刚开始即碰120秒deadline�
 不改旧TIMEOUT、不放宽期限/cell/proposal/bits/误差，不开训/给训练许可。
 证据位于outputs/bounded_retention_timeout_20261106/{trace_04,analysis_01,source_archive_04,suite_04}/。
 
+### 3.95 共享精确几何缓存、真实压力及生产接线资格（2026-11-06）
+
+用户要求自主完成、最终仅交付训练指令，不再询问、不代为开训。沿用academic-research-suite
+experiment-agent/validate；合同79fc3aa、守卫补充2cbb638先冻结，独立缓存实现57c091b/41f5126。
+同NativeEDomain精确Fraction cell最多1024项LRU，只缓存contract_bounds几何；保留v2同一
+code object/私有globals、所有锚点、point/gap/tie/遍历/证书，候选和最强控制共用。
+不缓存score/RNG/梯度，不改DFL/后验/面积耦合/归一化；不丢对象或降级精确边。
+
+trace_01三臂通过，2590点及7域与旧trace_04逐位相同，候选完整loss58.047秒、控制48.438秒；
+共享点求解约43秒（旧101–104秒）。仅单批描述性提速，旧32批2倍速度门失败仍保留。
+audit_01父61424/worker9604正常exit0，完成两条1414批流、固定closed1316、初始/第9轮压力
+及固定32批，共34次显式前向/102完整loss与全参数反向。每权重同一真实3U实例有10个正TAL锚点，
+非10对象；255可训练参数张量均覆盖。无optimizer/验证推理/训练，状态恢复、来源未变。
+
+qualification_01因63个原样NaN占位被np.array_equal误判停止，证据保留。
+先冻结4c256ca逐字节metadata修订、a83c1f4合法对象数组补充，再以独立v2 checker验证已保存证据；
+不重做数值/换输入。suite_03为2235 passed；qualification_02接受34/102/255覆盖及两个正3U权重状态。
+9dedeb7先冻结cached_training_contract，再新增独立objective/Trainer/launcher/配置。
+suite_04两项合成缓存hits断言前提错误（flat-score可在收缩前认证最大点），保留全源码快照；
+仅改为验证实例缓存闭包及EMA隔离，真实hits硬门不变。相关75测试及suite_05全库2310 passed，
+274项源码前后未变。739c130提交push后执行真实接线。
+
+wiring_01父56680/worker25468于15:09:14Z启动，15:21:37Z done，terminal PASSED/exit0。
+原P1/候选/控制×初始/第9轮共6case，通过实际factory→初始化→dataloader→model.loss；
+预测、loss、TAL、几何证书与已认证压力路径逐位相同，257项梯度统计/SHA逐项相同且有限。
+候选loss80.706/81.518秒，控制68.106/67.428秒；hits初始3889、第9轮4088，两臂一致。
+验证loss恢复P1、EMA实际内存序列化不含criterion/缓存闭包、参数/BN全部恢复；
+optimizer_steps=validation_inference_calls=0。两权重候选/控制各214项梯度SHA不同，仅说明信号不同。
+独立同模型只读复核1043项非原始数据绑定/307快照通过，非跨模型/盲审；未重算数值。
+
+所有门通过后冻结outputs/bounded_retention_cached_freeze_20261106/freeze.json，共24986项，
+SHA256为5c15221d671cbcaa12270744b039b510a5edf0000478329dbf285c471282983e；
+实际新入口--check exit0，未执行--train，当前无训练PID/输出/监控任务。
+命令与完整证据见point_geometry_cache_results.md、README及baseline_protocol。
+未来顺序新COCO原P1→候选→控制各完整30轮，输出outputs/bounded_retention_cached_three30_s0，
+640/batch8/SGD/seed0/workers0/原生AMP不变，三臂完毕后统一548图full-image val960及原合同全部指标。
+30分钟内置临时监控仅记录进展、终态退出；不恢复旧失败、不并行/自动重试/杀用户worker。
+
+第9轮固定16open/16closed批机械外推约75小时纯计算，非随机总体或ETA；未含加载/优化器/评估/
+I/O、不能覆盖权重漂移。完整30轮前不判性能；缓存工程通过不证明检测改善、原创性或联合相关性。
+公开保留事件为模拟GT衍生侧信息，CABB/GFL已有思想须明示；所有旧失败/合同/源码/封印保护。
+
 ## 4. 固定实验协议
 
 ### 4.1 训练与评估
@@ -2979,6 +3022,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-11-06（真实3U与第9轮EMA零训练压力门停止） | 943c9e9/65426a5/257052a先冻结合同及复核/重放补充；本次中文实现与结果提交push | 独立压力入口/只读资格checker；修复回调导入RNG造成的历史重放偏差，原失败保留 | 第3.93节；paper/candidates/bounded_retention/point_pressure_results.md；outputs/bounded_retention_pressure_20261106/ | 完整2828批及固定压力批身份/张量SHA一致；P1同批loss0.2904s/反向4.7054s，梯度有限；候选loss阶段120s超时；2137tests通过；374绑定0变化 | STOP_INITIAL_3U_LOSS_DEADLINE；第9轮case/32批未执行，0完整case，独立qualification STOP；不能区分point/积分/采样/CUDA等待，不能认定机制无效；未接入新入口/冻结三臂/训练，父子诊断进程已退出，无计划任务，旧证据保护 |
 
 | 2026-11-06（120秒超时定位与合同审查） | 7e9686c/8612dd1/ccf2134/b45f95e先记录合同/包装修订/执行错误；本次中文实现与结果提交push | 保存预测、原P1逐位校准、同界候选/控制顺序trace；所有包装失败及误启动保留 | 第3.94节；paper/candidates/bounded_retention/loss_timeout_diagnostic_results.md；outputs/bounded_retention_timeout_20261106/ | 2147tests；两臂2590点输入/证书相同；3U2233锚点约101–104s/max15cells，控制loss108.391s；候选120s截断于第7次采样 | DIAGNOSTIC_ONLY：共享CPU精确几何为主成本，非点cap/显式CUDA主导；120s额外整批门很紧但不放宽，候选完成时间未知，无训练资格/开训，无新模型前向/反向/optimizer；旧源码和全部失败保留 |
+
+| 2026-11-06（共享精确几何缓存资格与训练指令交付） | 79fc3aa/2cbb638先冻；4c256ca/a83c1f4审计补充；9dedeb7生产合同；739c130实现已push；本次结果提交push | 完成同域精确缓存、保存预测等价、真实3U/第9轮压力、独立checker、真实生产接线及最终冻结预检 | 第3.95节；paper/candidates/bounded_retention/point_geometry_cache_results.md；outputs/bounded_retention_cache_20261106/；outputs/bounded_retention_cached_freeze_20261106/ | 2310tests；34压力case/102完整loss反向/255参数；6接线case逐位对齐/EMA隔离通过；候选loss80.71/81.52秒；24986项freeze与--check通过 | FINAL_THREE_ARM_30_FROZEN_NOT_STARTED；按最新指令只交付命令，未开训；旧失败/限额/强控制不变，数天成本仅外推，无性能/机制成立结论；用户执行后顺序各30轮，统一548图val960 |
 
 ## 11. 风险与退出条件
 
