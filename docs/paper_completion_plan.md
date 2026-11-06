@@ -1,6 +1,7 @@
 # 论文完成计划与项目交接
 
 > 最后更新：2026-11-06<br>
+> 最新压力门：真实3U/第9轮EMA零训练审查停止。恢复原生回调注册后两条1414批流及固定closed1316身份/张量SHA通过；原P1同批loss/反向通过，初始权重候选loss超过冻结120秒，父仅终止自有诊断worker。第9轮及32批未执行，独立资格复核STOP；不把timeout写成已确认点容量故障/机制无效。未接入新入口/冻结新三臂/启动训练，失败保留；见3.93及[压力报告](paper/candidates/bounded_retention/point_pressure_results.md)。<br>
 > 容量审查终态：独立v2通过8例压力检查、固定真实32批及2087tests；完整loss旧/新0.9465（新耗时+5.65%），未达2倍门槛。局部容量反例已修复，但真实窗口无3U/后期覆盖，不能保证原故障消除。停止本轮扩展，不接入生产、不提高上限、不恢复或新开训练。见第3.92节及[容量审查](paper/candidates/bounded_retention/point_capacity_review_results.md)。<br>
 > 当前终态：V6候选第10轮触发全局点求解容量故障`global point resource cap`；原P1连续30轮exit0、候选连续9轮后exit1、控制未启动。三臂未完成，无最终548图val960或性能/机制判断。只读audit exit0且terminal_evidence_verified=true，但accepted=false；24004输入/61封印产物通过。父/worker/监控均结束，临时脚本已清理，不重试/恢复/提高限额。见第3.91节及[失败与成本报告](paper/candidates/bounded_retention/three_arm30_terminal_failure.md)。旧合同、工程通过记录及全部失败保留。<br>
 > 此前V3终态：E可表示性门是额外合同，V3恢复原P1编码语义后旧E反例通过；第13真实batch的U连续区间约[637.5464,640]无字面DFL原子，因此停止离散质量候选。1316tests/31绑定/28快照通过；V1/V2/V3合同、源码与失败全部保留。见第3.83节及[编码复核报告](paper/candidates/bounded_retention/p1_encoding_results.md)。<br>
@@ -2514,6 +2515,34 @@ exit1，耗时20.706小时；强控制未启动。约北京时间17:00退出，�
 `paper/candidates/bounded_retention/point_capacity_review_results.md`。
 产物仅在`outputs/bounded_retention_point_review_20261106/`；原P1/冻结生产入口/旧训练证据不改。
 
+### 3.93 真实3U与第9轮EMA压力门停止（2026-11-06）
+
+用户接受时间成本，要求先补真实3U及第9轮权重零训练，**通过后**才准备独立入口/三臂命令，
+本轮明确不训练。采用ARS experiment-agent validate及独立只读代码复核；先冻结
+`point_pressure_protocol.md`（943c9e9）和正TAL权重/完整梯度审核补充（65426a5）。
+固定两条1414批流、closed1316压力批、两份权重及第9轮固定32批，共34case/102臂；
+原20000cell/1e-5/256sample/16384proposal/256bit/诊断scale1024与120秒期限均不放宽。
+
+audit_01在open第0批重放不一致、未进入显式模型前向/loss即停止，失败保留。
+独立无模型/无数据探针证明：新包装层屏蔽回调注册，少了events.py构造session_id的一次
+random.random，改变增强RNG。修订合同257052a先冻结，恢复历史原生注册/val配置，
+不手动丢随机数或搜索seed；audit_02完成两条流和原固定批身份/张量SHA一致检查。
+
+audit_02父54428/worker2320于20:30:21启动，初始压力批原P1 loss0.2904秒/反向4.7054秒，
+全部参数梯度有限，无unused。候选loss阶段于20:43:03.830进入，120秒未完成，父仅终止自有
+诊断子进程，TIMEOUT/exit1，均已退出。1次显式前向、1对P1 loss/反向、0完整case；
+第9轮EMA只载入并保存状态，未运行；固定32批也未执行。无候选内部栈/point_failure，
+不能把超时归因为再次点容量故障；该阶段含criterion前后CUDA同步，也不能独立证明
+criterion本身未返回。未获真实3U正权重消费/同界控制/候选梯度资格。
+硬终止未走case恢复finally，不声称全部state restored；所有磁盘权重未写。
+
+独立qualification_01在读tensor前拒绝失败terminal，STOP/accepted=false；
+terminal_review_01核对374项绑定0变化并封存已有产物摘要。完整pytest 2137 passed/115.81秒。
+新检查/资格checker独立文件，旧源码/P1/冻结训练合同/全部失败保留；输出仅在
+`outputs/bounded_retention_pressure_20261106/`。120秒是预冻工程约束，不是数学机制否定，
+也不是性能或显卡结论。**压力门未通过，不接入训练Model/Trainer/launcher，不冻结新三臂，
+不给执行训练许可，不训练/重试/提高限额。** 详见`point_pressure_results.md`。
+
 ## 4. 固定实验协议
 
 ### 4.1 训练与评估
@@ -2918,6 +2947,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-11-06（连续集合三臂工程失败收尾） | 起点122174e；本次中文报告提交并push | 候选第10轮共享全局点求解触发固定容量上限；只读终态/参考单臂审计、成本复盘与监控清理 | 第3.91节；paper/candidates/bounded_retention/three_arm30_terminal_failure.md；outputs/bounded_retention_continuous_terminal_20261106/ | 原P1 30轮exit0/1.922h，候选9轮后exit1/20.706h，控制未启动；24004输入/61封印产物通过，audit accepted=false/terminal_evidence_verified=true；两臂args一致 | STOP_ENGINEERING_POINT_RESOURCE_LIMIT；无最终548图val960，无性能/机制结论；不重试/恢复/提高限额，旧源码/合同/证据保护，进程自然结束，临时监控脚本已删除 |
 
 | 2026-11-06（容量修复零训练与成本审查终态） | c24603d/f47d205等先冻结合同；本次中文实现与结果提交并push | 新独立同轴联合上界/必要源投影/分支提示；保留全部失败和未知源码回退；修复诊断监控后完成固定32批 | 第3.92节；paper/candidates/bounded_retention/point_capacity_review_results.md；outputs/bounded_retention_point_review_20261106/{synthetic_03,suite_04,real_03}/ | 8例最终压力通过；2087 tests；32批五臂全loss/全参数反向与状态恢复通过；完整loss旧/新0.9465，新耗时+5.65%；描述性三臂外推64.63h | 局部同类容量反例修复，整体2倍提速门失败；真实窗口无3U/后期覆盖，不能保证原故障消除；停止本轮扩展，不接入生产、不提高限额、不启动训练；临时诊断父/子进程均退出，无计划任务 |
+
+| 2026-11-06（真实3U与第9轮EMA零训练压力门停止） | 943c9e9/65426a5/257052a先冻结合同及复核/重放补充；本次中文实现与结果提交push | 独立压力入口/只读资格checker；修复回调导入RNG造成的历史重放偏差，原失败保留 | 第3.93节；paper/candidates/bounded_retention/point_pressure_results.md；outputs/bounded_retention_pressure_20261106/ | 完整2828批及固定压力批身份/张量SHA一致；P1同批loss0.2904s/反向4.7054s，梯度有限；候选loss阶段120s超时；2137tests通过；374绑定0变化 | STOP_INITIAL_3U_LOSS_DEADLINE；第9轮case/32批未执行，0完整case，独立qualification STOP；不能区分point/积分/采样/CUDA等待，不能认定机制无效；未接入新入口/冻结三臂/训练，父子诊断进程已退出，无计划任务，旧证据保护 |
 
 ## 11. 风险与退出条件
 

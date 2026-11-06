@@ -1,6 +1,14 @@
 # YOLO-RegionSSOD
 
-当前独立工作为[容量修复零训练审查](docs/paper/candidates/bounded_retention/point_capacity_review_results.md)：
+当前[真实3U/第9轮EMA压力审查](docs/paper/candidates/bounded_retention/point_pressure_results.md)
+停止于初始权重真实3U批的候选完整loss超过冻结120秒期限；第9轮case及32批未执行。
+两条完整1414批增强流/固定压力张量哈希通过，原P1同批loss/反向通过，但候选/控制未获资格。
+这是诊断超时，不能写成已确认的点容量故障或机制无效；**未接入新训练入口、未冻结新三臂、未开训**。
+压力入口为`scripts/check_bounded_retention_point_pressure.py`，已执行audit_01/02并保留失败；
+只读复核入口为`scripts/audit_bounded_retention_point_pressure.py`，qualification_01为STOP。
+本轮停止，不复制命令重试，不提高上限。合同及实际命令见上述报告。
+
+此前[容量修复零训练审查](docs/paper/candidates/bounded_retention/point_capacity_review_results.md)：
 最终合成8例、真实固定32批及2087tests通过；完整loss旧/新比0.9465，新耗时增加5.65%，未达2倍门槛。
 本版仅为独立原型，未接入生产。**停止本轮扩展，不恢复/新开训练，不提高容量上限。**
 零训练入口`python scripts/check_bounded_retention_point_real.py --output outputs/bounded_retention_point_review_20261106/real_NN`；

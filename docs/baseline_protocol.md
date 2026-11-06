@@ -1,6 +1,14 @@
 # Baseline 执行协议
 
-当前[容量审查](paper/candidates/bounded_retention/point_capacity_review_results.md)只允许独立零训练验证和成本评估。
+当前[真实3U/第9轮EMA压力审查](paper/candidates/bounded_retention/point_pressure_results.md)
+因初始权重真实3U批候选完整loss超过冻结120秒期限停止；第9轮压力case/32批均未执行。
+完整增强重放与固定批身份/张量SHA通过；同批原P1 loss/全参数反向通过，候选/控制资格未建立。
+这不证明机制无效，也没有内部证据将超时归为点容量故障。独立资格复核STOP，未创建新训练入口、
+三臂配置或训练许可，**未开训**。已执行零训练入口`check_bounded_retention_point_pressure.py`
+的audit_01/02，以及`audit_bounded_retention_point_pressure.py`的qualification_01，失败证据保留。
+实际命令/冻结合同见报告；不直接重试或放宽限额，旧启动命令仍不得复用。
+
+此前[容量审查](paper/candidates/bounded_retention/point_capacity_review_results.md)只允许独立零训练验证和成本评估。
 新v2通过8例压力检查、真实固定32批及2087tests；完整loss旧/新0.9465，未达2倍门槛。
 停止本轮扩展，独立原型不接入生产，不恢复/重新开训或提高上限。
 真实零训练入口`python scripts/check_bounded_retention_point_real.py --output outputs/bounded_retention_point_review_20261106/real_NN`；
