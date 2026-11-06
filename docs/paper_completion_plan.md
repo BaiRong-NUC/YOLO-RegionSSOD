@@ -1,6 +1,7 @@
 # 论文完成计划与项目交接
 
 > 最后更新：2026-11-06<br>
+> 容量审查终态：独立v2通过8例压力检查、固定真实32批及2087tests；完整loss旧/新0.9465（新耗时+5.65%），未达2倍门槛。局部容量反例已修复，但真实窗口无3U/后期覆盖，不能保证原故障消除。停止本轮扩展，不接入生产、不提高上限、不恢复或新开训练。见第3.92节及[容量审查](paper/candidates/bounded_retention/point_capacity_review_results.md)。<br>
 > 当前终态：V6候选第10轮触发全局点求解容量故障`global point resource cap`；原P1连续30轮exit0、候选连续9轮后exit1、控制未启动。三臂未完成，无最终548图val960或性能/机制判断。只读audit exit0且terminal_evidence_verified=true，但accepted=false；24004输入/61封印产物通过。父/worker/监控均结束，临时脚本已清理，不重试/恢复/提高限额。见第3.91节及[失败与成本报告](paper/candidates/bounded_retention/three_arm30_terminal_failure.md)。旧合同、工程通过记录及全部失败保留。<br>
 > 此前V3终态：E可表示性门是额外合同，V3恢复原P1编码语义后旧E反例通过；第13真实batch的U连续区间约[637.5464,640]无字面DFL原子，因此停止离散质量候选。1316tests/31绑定/28快照通过；V1/V2/V3合同、源码与失败全部保留。见第3.83节及[编码复核报告](paper/candidates/bounded_retention/p1_encoding_results.md)。<br>
 > 既有B审查：ARS合法人工实例跨尺度观测B已完成，停止泛化候选（STOP_GENERIC_B_NO_DISTINCT_SIGNAL）。6471个人工tile长边131–548，载入640均放大，首次640下采样细节缺口不成立；全图960确增上下文，但同目标名义线性尺度仅为tile640的35.54%–41.10%。人工实例对应不同于旧伪框稳定性诊断，亦可能新增训练约束；对照SoCo/PseCo/MixTeacher/密度裁片/MSAD，尚无独立新信号/动作，不实现loss或训练，也不宣称跨尺度学习普遍无效。见第3.80节及[独立审查](paper/diagnostics/human_multiscale_observation_review/results.md)。<br>
@@ -2480,6 +2481,39 @@ exit1，耗时20.706小时；强控制未启动。约北京时间17:00退出，�
 保留health/checks/logs，没有创建应用自动化任务。仅报告/入口文档变更，
 不重跑已通过的2042项源码测试；本次终态验证为只读文件/配置/封印审计。
 
+### 3.92 同目标连续点容量修复审查（2026-11-06）
+
+先冻结`point_capacity_review_protocol.md`（c24603d），使用ARS实验验证流程和独立静态反方审查。
+只做新文件实现、零训练与成本评估；用户最新授权不包含恢复或启动训练。
+原失败现场未保存完整请求，无法精确重现；不以新合成例冒充原第10轮现场。
+
+独立`bounded_retention_point_search_v2.py`及`bounded_retention_point_bound.py`实现
+必要源投影收缩、同轴联合DFL仿射上包、认证候选点和细分方向提示。
+源集合/原E/插值/面积耦合/两臂目标均不改，20000 cells及1e-5 gap不变；
+1U沿用旧解析求解，全known保留原P1。两臂共用新求解器，但新旧同分几何不保证逐位相同。
+
+最后`synthetic_03`新8/8通过，旧7/8通过/1容量错误，证书无冲突，前后源码SHA一致。
+3U ridge从旧19999cells容量失败变为新41cells、0.63070秒、gap=1/131072；
+3U sharp为旧19.4934秒→新6.8677秒。普通例仍有退化，不能用kernel结果推断整个训练。
+此前失败、超时以及`synthetic_02`源码运行中变回首版的未知来源事件全部保留，
+该轮整体不认证；用户确认未主动修改，最终修订另用v2独立路径。
+三版本共24次多U压力请求，没有增大预算。最终`suite_04`完整2087tests通过/165.56秒。
+
+真实入口前两次分别因初始化进展监控、Windows心跳替换失败结束，全部保留，
+先冻结2cc19a6/f47d205补充再修监控；不计作机制失败，不拼接结果。
+`real_03`父46776/worker59204于19:07:48启动，553.690秒exit0，进程已退出。
+固定mosaic开/关首16+16批、五臂160次完整loss及全模型反向通过；
+参数/BN/source SHA不变，全部梯度有限。候选/控制共享几何/TAL/CIoU通过；
+本窗口新旧loss/几何/分配/梯度逐位相同，候选/控制30批梯度不同（其余2批无supported objects）。
+每臂20548个1U、390个2U请求，无3U；未检查第9轮权重，原失败现场仍无法精确复现。
+完整loss旧102.2471秒、新108.0245秒，旧/新0.9465；含数据/前后向比0.9512。
+原2倍门槛未通过，不挑较快的closed子组。初始窗口30轮外推新P1/候选/控制为
+5.1212/43.8247/15.6851小时，合计64.6311小时，未含验证/保存等，非训练时长承诺。
+原P1历史实测1.922小时不能被这个含首次冷开销、workers0的诊断外推替代。
+局部容量修复不等于整体提速或后期可靠；**停止本轮扩展，不接入生产、不重新开训**。详见
+`paper/candidates/bounded_retention/point_capacity_review_results.md`。
+产物仅在`outputs/bounded_retention_point_review_20261106/`；原P1/冻结生产入口/旧训练证据不改。
+
 ## 4. 固定实验协议
 
 ### 4.1 训练与评估
@@ -2882,6 +2916,8 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-11-05（实际顺序三臂启动） | 5f96181已push | 冻结输入后直接启动原P1→V6候选→同界最强连续点控制，各30轮；设临时只读进程监控 | 第3.90节；freeze_20261105_v2/launch_identity.json；continuous_three30_s0/reference_process.json；monitors/continuous_three30_s0/health.json（完整路径见正文） | 调度PID30104/P1 PID45600/监控PID18428；实际观察到P1第1轮batch | 运行中；后两臂未派发，三臂未完成，不作性能判断；禁止重跑/恢复/并行/自动杀worker |
 
 | 2026-11-06（连续集合三臂工程失败收尾） | 起点122174e；本次中文报告提交并push | 候选第10轮共享全局点求解触发固定容量上限；只读终态/参考单臂审计、成本复盘与监控清理 | 第3.91节；paper/candidates/bounded_retention/three_arm30_terminal_failure.md；outputs/bounded_retention_continuous_terminal_20261106/ | 原P1 30轮exit0/1.922h，候选9轮后exit1/20.706h，控制未启动；24004输入/61封印产物通过，audit accepted=false/terminal_evidence_verified=true；两臂args一致 | STOP_ENGINEERING_POINT_RESOURCE_LIMIT；无最终548图val960，无性能/机制结论；不重试/恢复/提高限额，旧源码/合同/证据保护，进程自然结束，临时监控脚本已删除 |
+
+| 2026-11-06（容量修复零训练与成本审查终态） | c24603d/f47d205等先冻结合同；本次中文实现与结果提交并push | 新独立同轴联合上界/必要源投影/分支提示；保留全部失败和未知源码回退；修复诊断监控后完成固定32批 | 第3.92节；paper/candidates/bounded_retention/point_capacity_review_results.md；outputs/bounded_retention_point_review_20261106/{synthetic_03,suite_04,real_03}/ | 8例最终压力通过；2087 tests；32批五臂全loss/全参数反向与状态恢复通过；完整loss旧/新0.9465，新耗时+5.65%；描述性三臂外推64.63h | 局部同类容量反例修复，整体2倍提速门失败；真实窗口无3U/后期覆盖，不能保证原故障消除；停止本轮扩展，不接入生产、不提高限额、不启动训练；临时诊断父/子进程均退出，无计划任务 |
 
 ## 11. 风险与退出条件
 

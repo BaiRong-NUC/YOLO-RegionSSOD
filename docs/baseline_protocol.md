@@ -1,5 +1,12 @@
 # Baseline 执行协议
 
+当前[容量审查](paper/candidates/bounded_retention/point_capacity_review_results.md)只允许独立零训练验证和成本评估。
+新v2通过8例压力检查、真实固定32批及2087tests；完整loss旧/新0.9465，未达2倍门槛。
+停止本轮扩展，独立原型不接入生产，不恢复/重新开训或提高上限。
+真实零训练入口`python scripts/check_bounded_retention_point_real.py --output outputs/bounded_retention_point_review_20261106/real_NN`；
+已完成real_03，必须全新目录，不能覆盖。合成入口为`check_bounded_retention_point_search.py`；
+24次固定压力预算及32批检查已完成，不重复采样挑结果。三臂30轮成本外推64.63小时仅限初始窗口，非训练承诺。
+
 2026-11-06终态：V6候选第10轮触发全局点求解`global point resource cap`。
 原P1连续30轮exit0；候选连续9轮后exit1；控制未启动。未进行最终548图val960，
 不作性能/机制结论，不重试/恢复/提高限额。只读audit exit0，但`accepted=false`；
@@ -15,7 +22,9 @@
 ```
 
 封印输出`outputs/bounded_retention_continuous_three30_s0/`不可重跑/写入。
-终态只读`python scripts/run_bounded_retention_continuous_v2.py --audit`。
+已完成的历史终态只读命令为`python scripts/run_bounded_retention_continuous_v2.py --audit`。
+旧auditor会枚举当前全部源码；本轮新增独立审查文件后，不在当前工作树重跑旧冻结门。
+旧回执与源码快照仍是终态证据，不修改旧auditor或旧清单以接纳新文件。
 原计划全548图val960、best.pt和主/次指标定义见合同；本次无最终比较。
 调度30104、参考45600、候选51256与监控18428均自然结束；临时监控脚本已删除，
 状态/检查日志保留于`outputs/monitors/bounded_retention_continuous_three30_s0/`。

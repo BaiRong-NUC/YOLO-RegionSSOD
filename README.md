@@ -1,5 +1,12 @@
 # YOLO-RegionSSOD
 
+当前独立工作为[容量修复零训练审查](docs/paper/candidates/bounded_retention/point_capacity_review_results.md)：
+最终合成8例、真实固定32批及2087tests通过；完整loss旧/新比0.9465，新耗时增加5.65%，未达2倍门槛。
+本版仅为独立原型，未接入生产。**停止本轮扩展，不恢复/新开训练，不提高容量上限。**
+零训练入口`python scripts/check_bounded_retention_point_real.py --output outputs/bounded_retention_point_review_20261106/real_NN`；
+已执行real_03，要求全新目录，不覆盖旧证据。合成入口为`check_bounded_retention_point_search.py`；
+本轮24次压力预算及固定32批已经完成，不为改善统计重复运行。三臂成本外推64.63小时仅描述初始窗口，非训练承诺。
+
 2026-11-06当前终态：V6连续集合候选在第10轮触发`global point resource cap`，
 **原P1完成30轮、候选完成9轮、强控制未启动**。这是同界全局点求解器的容量故障，
 不是CUDA OOM；三臂未完成，未执行最终548图val960，不作性能或机制成立判断。
@@ -16,7 +23,9 @@
 ```
 
 封印输出：`outputs/bounded_retention_continuous_three30_s0/`，禁止重跑或写入。
-只读终态复核使用同脚本`--audit`；收尾证据位于`outputs/bounded_retention_continuous_terminal_20261106/`。
+已完成的历史只读终态复核使用同脚本`--audit`；收尾证据位于`outputs/bounded_retention_continuous_terminal_20261106/`。
+旧auditor会枚举当前全部源码；新增审查文件后不要在当前工作树直接重跑该历史冻结门，
+否则会因新增文件不在旧清单而拒绝。历史终态回执与冻结源码快照保留，不改auditor放宽检查。
 
 工程历史：V4确定性矩形积分未通过完整3U容量检查（19999cells，残差界0.4247）。
 这不是连续目标无效；已先冻结[目标不变的V5后验采样计算合同](docs/paper/candidates/bounded_retention/continuous_sampling_contract.md)，
