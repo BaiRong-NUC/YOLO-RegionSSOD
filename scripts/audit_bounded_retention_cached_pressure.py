@@ -39,11 +39,13 @@ LEGACY_AUDITOR = ROOT / 'scripts/audit_bounded_retention_point_pressure.py'
 LEGACY_PROTOCOL = ROOT / 'docs/paper/candidates/bounded_retention/point_pressure_protocol.md'
 REPLAY_ADDENDUM = ROOT / 'docs/paper/candidates/bounded_retention/point_pressure_replay_addendum.md'
 ACCEPTANCE_ADDENDUM = ROOT / 'docs/paper/candidates/bounded_retention/point_pressure_acceptance_addendum.md'
+CACHE_AUDIT_ADDENDUM = ROOT / 'docs/paper/candidates/bounded_retention/point_geometry_cache_audit_addendum.md'
 CACHE_SOLVER = ROOT / 'src/regionssod/training/bounded_retention_point_geometry_cache.py'
 CACHED_PRESSURE = ROOT / 'scripts/check_bounded_retention_cached_pressure.py'
 CACHED_AUDITOR = ROOT / 'scripts/audit_bounded_retention_cached_pressure.py'
 BINDING_SOURCES = (CACHED_PRESSURE, CACHED_AUDITOR, LEGACY_PRESSURE, LEGACY_AUDITOR,
-                   LEGACY_PROTOCOL, REPLAY_ADDENDUM, ACCEPTANCE_ADDENDUM, PROTOCOL, CACHE_SOLVER)
+                   LEGACY_PROTOCOL, REPLAY_ADDENDUM, ACCEPTANCE_ADDENDUM, PROTOCOL, CACHE_SOLVER,
+                   CACHE_AUDIT_ADDENDUM)
 ARMS = ("p1", "new_candidate", "new_control")
 DFL_PARAMETER = "model.23.dfl.conv.weight"
 LEGACY_PARAMETERS = "ef8b44bff4cfb9cb5dc7cb0e575a9d6f37f58ed9d8719f0609e0bd90e8481f39"
@@ -65,6 +67,7 @@ PINS = {
     REPLAY_ADDENDUM: "d58fa7c92ff6ee0c1665b0c0362a7eb6f35dbe48d61990686d7cc99680f188d9",
     ACCEPTANCE_ADDENDUM: "83c71c4e1e348d0a9397de0b9162dc3043ac07e7737bdfd1c977aa6a1db3f7b2",
     PROTOCOL: "8a79f75d154a9d1eee286370cebaa6b1555209e6f156c7d0e5fba1d35d323c46",
+    CACHE_AUDIT_ADDENDUM: "4740eec402586a1660b9bd0a40e5f3379c9ed59e35469503e5d9c976db866833",
 }
 
 

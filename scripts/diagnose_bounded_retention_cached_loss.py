@@ -11,6 +11,7 @@ import argparse
 from contextlib import ExitStack
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import random
@@ -36,6 +37,8 @@ ARMS = ('p1', 'candidate', 'control')
 LIMIT = 120
 require, sha, write = base.require, base.sha, base.write_json
 REFERENCE = ROOT / 'outputs/bounded_retention_timeout_20261106/trace_04'
+REFERENCE_MANIFEST_SHA = '7fa49c8edf3be2116303c5b9b31a51715a0c31d7887b6d67b649610261d76025'
+ADDENDUM = ROOT / 'docs/paper/candidates/bounded_retention/point_geometry_cache_audit_addendum.md'
 TRACE_PINS = {
     'candidate': 'df0866fdbddc3de9a98e1f5a0e0f9c33387d41ba8f8a9644c494fef8f86b79c1',
     'control': '8158be3ad787649b20798b7f984d8faa9629f24d028e52b99989ea54dc901266',
@@ -47,20 +50,27 @@ def read(path):
 
 
 def point_records(path):
-    active, records = {}, []
+    active, records, seen = {}, [], set()
     with Path(path).open(encoding='utf-8') as stream:
         for line in stream:
             row = json.loads(line)
-            if row['name'] != 'point':
-                continue
             if row['kind'] == 'enter':
-                require(row['id'] not in active, 'duplicate point enter')
-                active[row['id']] = row['metadata']
+                require(row['id'] not in seen, 'duplicate event ID')
+                seen.add(row['id'])
+                if row['name'] == 'point':
+                    parent = active.get(row.get('parent'))
+                    require(parent and parent['name'] == 'support', 'point has no active support parent')
+                    row['support_identity'] = parent['metadata']['identity']
+                active[row['id']] = row
             else:
-                require(row['kind'] == 'exit' and row['id'] in active, 'incomplete or failed point')
-                records.append((active.pop(row['id']), {k: row['result'][k]
-                                for k in ('point', 'gap', 'cells')}))
-    require(not active, 'unclosed point calls')
+                require(row['id'] in active, 'exit without enter')
+                entry = active.pop(row['id'])
+                require(entry['name'] == row['name'], 'event name mismatch')
+                if row['name'] == 'point':
+                    require(row['kind'] == 'exit', 'failed point')
+                    records.append((entry['support_identity'], entry['metadata'],
+                                    {k: row['result'][k] for k in ('point', 'gap', 'cells')}))
+    require(not any(row['name'] == 'point' for row in active.values()), 'unclosed point calls')
     return records
 
 
@@ -69,6 +79,22 @@ def compare_points(original, current):
     require(len(a) == len(b) == 2590, 'fixed point population changed')
     require(a == b, 'point input or recorded certificate differs from uncached v2')
     return dict(count=2590, equal=True, scope='all metadata and recorded point/gap/cells')
+
+
+def validate_loss_window(directory):
+    start = read(Path(directory) / 'loss_boundary.json')['started']
+    end = read(Path(directory) / 'loss_done.json')['finished']
+    require(all(isinstance(t, (int, float)) and not isinstance(t, bool) and math.isfinite(t)
+                for t in (start, end)) and 0 <= end-start <= LIMIT,
+            'saved loss window missing, invalid or beyond frozen 120s deadline')
+    return end-start
+
+
+def tensor_bytes_equal(a, b):
+    import torch
+    return (a.dtype == b.dtype and a.shape == b.shape and
+            torch.equal(a.detach().cpu().contiguous().reshape(-1).view(torch.uint8),
+                        b.detach().cpu().contiguous().reshape(-1).view(torch.uint8)))
 
 
 def deadline(started, loss_started, now):
@@ -262,14 +288,16 @@ def worker(directory, arm):
                 loss, items = trace.call('criterion', criterion, preds, batch)
             trace.call('cuda_post', torch.cuda.synchronize)
             write(directory / 'loss_done.json', {'finished': time.monotonic()})
+            validate_loss_window(directory)
         payload = dict(full_loss=base.cpu_tree(loss), assignment=base.cpu_tree(assigned),
                        geometry=base.geometry_snapshot(criterion)[0],
                        diagnostics=base.cpu_tree(getattr(criterion, 'diagnostics', {})))
         base.save_tensor_file(directory / 'loss.pt', payload)
         if arm == 'p1':
             old = torch.load(OLD / '01_initial_pressure/p1.loss.pt', map_location='cpu', weights_only=False)
-            require(torch.equal(payload['full_loss'], old['full_loss']) and
-                    base.mapping_difference(payload['assignment'], old['assignment'])['equal'],
+            require(tensor_bytes_equal(payload['full_loss'], old['full_loss']) and
+                    payload['assignment'].keys() == old['assignment'].keys() and
+                    all(tensor_bytes_equal(v, old['assignment'][k]) for k,v in payload['assignment'].items()),
                     'P1 saved-logit calibration differs from original full-model loss/assignment')
             result['exact_historical_p1'] = True
         require(bool(torch.isfinite(loss).all()), 'nonfinite loss')
@@ -290,6 +318,8 @@ def parent(output):
     require(output.parent == OUT and re.fullmatch(r'trace_\d{2}', output.name), 'fresh trace_NN required')
     require(sha(OLD / 'terminal.json') == 'bff7ae8ffb968a682c57e077bc1e4dfb074acfcaebe0437cc2243fb1217012aa',
             'old terminal changed')
+    require(sha(REFERENCE / 'manifest.json') == REFERENCE_MANIFEST_SHA, 'reference manifest changed')
+    base.verify_sources(read(REFERENCE / 'manifest.json'))
     historical = read(OLD / 'manifest.json')
     base.verify_sources(historical)
     review = read(REVIEW)
@@ -298,7 +328,7 @@ def parent(output):
     output.mkdir(parents=True, exist_ok=False)
     sources = dict(historical['source_sha256'])
     sources.update({str(OLD / rel): digest for rel,digest in review['artifacts'].items()})
-    for p in (Path(__file__).resolve(), PROTOCOL, REVIEW, OLD / 'trainer/args.yaml',
+    for p in (Path(__file__).resolve(), PROTOCOL, ADDENDUM, REVIEW, REFERENCE / 'manifest.json', OLD / 'trainer/args.yaml',
               ROOT / 'scripts/diagnose_bounded_retention_loss_timeout.py',
               ROOT / 'src/regionssod/training/bounded_retention_point_geometry_cache.py'):
         sources[str(p)] = sha(p)
@@ -339,6 +369,11 @@ def parent(output):
             terminal = dict(status='TIMEOUT' if killed else 'COMPLETED' if proc.returncode==0 else 'ERROR',
                 returncode=proc.returncode, worker_pid=proc.pid, training_started=False,
                 elapsed_seconds=time.monotonic()-start, loss_started=loss_start)
+            if terminal['status'] == 'COMPLETED':
+                try:
+                    terminal['verified_loss_seconds'] = validate_loss_window(directory)
+                except Exception as exc:
+                    terminal.update(status='ERROR', error=repr(exc))
             write(directory / 'terminal.json', terminal)
             terminals[arm] = terminal
             if terminal['status']=='ERROR' or (arm=='p1' and terminal['status']!='COMPLETED'):

@@ -1,7 +1,8 @@
 """Independent cached pressure entry; NEVER train or resume.
 
-Copied from the protected point-pressure runner. Only the solver import, output root,
-protocol and explicit source bindings differ; numerical guards are inherited.
+Copied from the protected point-pressure runner. Solver/output/protocol bindings
+are adapted; the frozen audit addendum also checks measured elapsed time on return.
+All original numerical guards are inherited.
 Uses immutable historical batch receipts, not hidden training GT. Every loss and
 backward has a 120s deadline. The parent only owns its diagnostic child process.
 """
@@ -14,6 +15,7 @@ from fractions import Fraction
 import argparse
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import random
@@ -41,11 +43,13 @@ LEGACY_AUDITOR = ROOT / 'scripts/audit_bounded_retention_point_pressure.py'
 LEGACY_PROTOCOL = ROOT / 'docs/paper/candidates/bounded_retention/point_pressure_protocol.md'
 REPLAY_ADDENDUM = ROOT / 'docs/paper/candidates/bounded_retention/point_pressure_replay_addendum.md'
 ACCEPTANCE_ADDENDUM = ROOT / 'docs/paper/candidates/bounded_retention/point_pressure_acceptance_addendum.md'
+CACHE_AUDIT_ADDENDUM = ROOT / 'docs/paper/candidates/bounded_retention/point_geometry_cache_audit_addendum.md'
 CACHE_SOLVER = ROOT / 'src/regionssod/training/bounded_retention_point_geometry_cache.py'
 CACHED_PRESSURE = ROOT / 'scripts/check_bounded_retention_cached_pressure.py'
 CACHED_AUDITOR = ROOT / 'scripts/audit_bounded_retention_cached_pressure.py'
 BINDING_SOURCES = (CACHED_PRESSURE, CACHED_AUDITOR, LEGACY_PRESSURE, LEGACY_AUDITOR,
-                   LEGACY_PROTOCOL, REPLAY_ADDENDUM, ACCEPTANCE_ADDENDUM, PROTOCOL, CACHE_SOLVER)
+                   LEGACY_PROTOCOL, REPLAY_ADDENDUM, ACCEPTANCE_ADDENDUM, PROTOCOL, CACHE_SOLVER,
+                   CACHE_AUDIT_ADDENDUM)
 GEOMETRY = ROOT / 'outputs/bounded_retention_continuous_20261105/native_e_integration_01/result.json'
 AMP = ROOT / 'outputs/bounded_retention_continuous_20261105/native_amp_audit_01/result.json'
 PREFIX = ROOT / 'outputs/bounded_retention_point_review_20261106/real_03'
@@ -412,6 +416,11 @@ def parent(output):
 # It is defined below before CLI dispatch; the original helper stays unchanged.
 
 
+def validate_elapsed(seconds, stage):
+    require(math.isfinite(seconds) and 0 <= seconds <= TIMEOUT,
+            f"invalid or exceeded {TIMEOUT}s deadline: {stage} elapsed={seconds!r}")
+
+
 def run_arm(arm, model, preds, batch, ordinal, directory, beat, manifest):
     from regionssod.training import bounded_retention_objective_v6 as objective
     from regionssod.training.bounded_retention_continuous_numerics import optimize_point as old
@@ -493,6 +502,7 @@ def run_arm(arm, model, preds, batch, ordinal, directory, beat, manifest):
                           loss_cpu_seconds=time.process_time() - cpu_start,
                           loss_cuda_peak_allocated=torch.cuda.max_memory_allocated(),
                           loss_cuda_peak_reserved=torch.cuda.max_memory_reserved())
+        validate_elapsed(arm_report["loss_seconds"], "loss")
     beat("save_loss", arm=arm)
     require(assigned, "assigner hook did not observe the full assignment")
     assignment = cpu_tree(assigned)
@@ -521,6 +531,7 @@ def run_arm(arm, model, preds, batch, ordinal, directory, beat, manifest):
                       backward_cpu_seconds=time.process_time() - cpu_start,
                       backward_cuda_peak_allocated=torch.cuda.max_memory_allocated(),
                       backward_cuda_peak_reserved=torch.cuda.max_memory_reserved())
+    validate_elapsed(arm_report["backward_seconds"], "backward")
     beat("save_gradients", arm=arm)
     names = ["head/boxes", "head/scores", *(f"parameter/{name}" for name, _ in named)]
     grads = dict(zip(names, [None if g is None else g.detach().cpu().double() / SCALE

@@ -9,6 +9,7 @@ from copy import deepcopy
 import hashlib
 import importlib.util
 import json
+import math
 from pathlib import Path
 
 import pytest
@@ -25,7 +26,7 @@ OLD_IMPORT = "regionssod.training.bounded_retention_point_search_v2"
 EXTRA_NAMES = {
     "LEGACY_PRESSURE", "LEGACY_AUDITOR", "LEGACY_PROTOCOL", "REPLAY_ADDENDUM",
     "ACCEPTANCE_ADDENDUM", "CACHE_SOLVER", "CACHED_PRESSURE", "CACHED_AUDITOR",
-    "BINDING_SOURCES",
+    "BINDING_SOURCES", "CACHE_AUDIT_ADDENDUM",
 }
 
 
@@ -99,6 +100,44 @@ def normalized_copy(path, original, *, runner):
     copied.body.pop(0)
     frozen.body.pop(0)
     copied.body = [n for n in copied.body if assignment_name(n) not in EXTRA_NAMES]
+    if runner:
+        math_import = ast.parse("import math").body[0]
+        assert sum(dump(n) == dump(math_import) for n in copied.body) == 1
+        copied.body = [n for n in copied.body if dump(n) != dump(math_import)]
+        expected_validator = ast.parse(
+            'def validate_elapsed(seconds, stage):\n'
+            '    require(math.isfinite(seconds) and 0 <= seconds <= TIMEOUT,\n'
+            '            f"invalid or exceeded {TIMEOUT}s deadline: {stage} elapsed={seconds!r}")\n'
+        ).body[0]
+        validators = [n for n in copied.body if isinstance(n, ast.FunctionDef) and n.name == "validate_elapsed"]
+        assert len(validators) == 1 and dump(validators[0]) == dump(expected_validator)
+        copied.body.remove(validators[0])
+        run_arm = next(n for n in copied.body if isinstance(n, ast.FunctionDef) and n.name == "run_arm")
+        guards = []
+        for node in ast.walk(run_arm):
+            for _, statements in ast.iter_fields(node):
+                if not isinstance(statements, list):
+                    continue
+                for index, statement in list(enumerate(statements)):
+                    if not (isinstance(statement, ast.Expr) and isinstance(statement.value, ast.Call)
+                            and isinstance(statement.value.func, ast.Name)
+                            and statement.value.func.id == "validate_elapsed"):
+                        continue
+                    call = statement.value
+                    assert len(call.args) == 2 and isinstance(call.args[1], ast.Constant)
+                    stage = call.args[1].value
+                    assert stage in ("loss", "backward")
+                    expected_call = ast.parse(f'validate_elapsed(arm_report["{stage}_seconds"], "{stage}")').body[0]
+                    assert dump(statement) == dump(expected_call)
+                    assert index > 0 and isinstance(statements[index - 1], ast.Expr)
+                    update = statements[index - 1].value
+                    assert isinstance(update, ast.Call)
+                    assert dump(update.func) == dump(ast.parse("arm_report.update", mode="eval").body)
+                    elapsed = next(k.value for k in update.keywords if k.arg == f"{stage}_seconds")
+                    assert dump(elapsed) == dump(ast.parse("time.perf_counter() - start", mode="eval").body)
+                    guards.append(stage)
+                    statements.remove(statement)
+        assert sorted(guards) == ["backward", "loss"], "both measured deadlines must be checked immediately"
     if not runner:
         # Test pins separately so the new bindings cannot replace historical pins.
         original_pins = next(n for n in frozen.body if assignment_name(n) == "PINS")
@@ -143,9 +182,10 @@ def test_new_bindings_match_in_runner_and_checker_and_are_explicit(auditor):
         ROOT / "src/regionssod/training/bounded_retention_point_geometry_cache.py",
         *(ROOT / "docs/paper/candidates/bounded_retention" / name for name in (
             "point_pressure_protocol.md", "point_pressure_replay_addendum.md",
-            "point_pressure_acceptance_addendum.md", "point_geometry_cache_protocol.md")),
+            "point_pressure_acceptance_addendum.md", "point_geometry_cache_protocol.md",
+            "point_geometry_cache_audit_addendum.md")),
     }
-    assert len(auditor.BINDING_SOURCES) == 9
+    assert len(auditor.BINDING_SOURCES) == 10
     assert auditor.PRESSURE == NEW_RUNNER
     assert auditor.OUT_ROOT == ROOT / "outputs/bounded_retention_cache_20261106"
     assert auditor.PROTOCOL == ROOT / "docs/paper/candidates/bounded_retention/point_geometry_cache_protocol.md"
@@ -155,7 +195,7 @@ def test_original_evidence_pins_survive_and_new_protocol_is_independently_pinned
     original = load_auditor(OLD_AUDITOR)
     assert original.PINS.items() <= auditor.PINS.items()
     additions = {OLD_RUNNER, OLD_AUDITOR, auditor.REPLAY_ADDENDUM,
-                 auditor.ACCEPTANCE_ADDENDUM, auditor.PROTOCOL}
+                 auditor.ACCEPTANCE_ADDENDUM, auditor.PROTOCOL, auditor.CACHE_AUDIT_ADDENDUM}
     assert set(auditor.PINS) - set(original.PINS) == additions
     for path in additions:
         assert hashlib.sha256(path.read_bytes()).hexdigest() == auditor.PINS[path]
@@ -166,6 +206,31 @@ def test_fixed_population_remains_34_cases_and_102_arms(auditor):
         ("epoch9", f"{phase}_{i:02d}") for phase in ("open", "closed") for i in range(16)]
     assert auditor.fixed_cases() == expected
     assert len(set(expected)) == 34 and len(expected) * len(auditor.ARMS) == 102
+
+
+@pytest.fixture
+def elapsed_validator(auditor):
+    # Load only the pure validator AST; never import a runner or numerical module.
+    source = tree(NEW_RUNNER)
+    timeout = next(n for n in source.body if assignment_name(n) == "TIMEOUT")
+    assert ast.literal_eval(timeout.value) == 120
+    validator = next(n for n in source.body if isinstance(n, ast.FunctionDef) and n.name == "validate_elapsed")
+    namespace = {"math": math, "require": auditor.require, "TIMEOUT": ast.literal_eval(timeout.value)}
+    exec(compile(ast.Module(body=[validator], type_ignores=[]), str(NEW_RUNNER), "exec"), namespace)
+    return namespace["validate_elapsed"]
+
+
+@pytest.mark.parametrize("stage", ["loss", "backward"])
+@pytest.mark.parametrize("seconds", [120.05, math.nextafter(120., math.inf), math.nan, math.inf, -math.inf, -0.001])
+def test_elapsed_rejects_late_nonfinite_and_negative_values(elapsed_validator, auditor, stage, seconds):
+    with pytest.raises(auditor.QualificationStop, match=stage):
+        elapsed_validator(seconds, stage)
+
+
+@pytest.mark.parametrize("stage", ["loss", "backward"])
+@pytest.mark.parametrize("seconds", [0., 119.99, 120.])
+def test_elapsed_accepts_inclusive_fixed_deadline(elapsed_validator, stage, seconds):
+    elapsed_validator(seconds, stage)
 
 
 @pytest.mark.parametrize("name", ["audit_1", "audit_001", "qualification_01", "other"])
