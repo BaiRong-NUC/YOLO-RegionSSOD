@@ -1,0 +1,1063 @@
+# RegionSSOD 实验命令与历史记录
+
+本文保存原首页中的环境配置、训练、恢复和审计命令。阅读当前论文请从[仓库首页](README.md)开始。下文的启动说明对应各实验当时的状态。
+
+## 从哪里看主方法
+
+用 VS Code 打开 [RegionSSOD.code-workspace](RegionSSOD.code-workspace)。在资源管理器中，正式 100 轮入口、各消融和后续候选分别归组。展开父文件左侧的箭头即可看到对应脚本。工作区直接打开仓库原文件。
+
+B2 和 P1 都采用 Ultralytics YOLO11s，推理时都经过相同的 Backbone（提取特征）、Neck（融合多尺度特征）和 Detect Head（输出类别和框）。P1 的改动在训练流程的两处：教师输出转成伪标签时，以及学生用检测头输出计算分类损失时。
+
+| 想看什么 | 代码或证据 |
+|---|---|
+| B2 对照怎样训练 | 同一 B1 教师产生伪框，统一取置信度 ≥ 0.50 的框，再训练 YOLO11s 学生。[伪标签](src/regionssod/pseudo/generator.py) · [训练入口](src/regionssod/training/runner.py) |
+| P1 怎样选框 | 按原始图块上的框面积分层，小框采用 0.30 的正阈值，中、大框采用 0.50。[筛选实现](src/regionssod/pseudo/scale.py) · [阈值配置](configs/pseudo_p1_10.yaml) |
+| P1 怎样用这些框 | `classification_factors` 用教师置信度给伪标签正位置的分类损失加权，并屏蔽不确定框内背景位置的分类损失。`P1DetectionLoss` 在检测头输出后应用这些权重。[损失实现](src/regionssod/training/p1.py) |
+| 正式实验的命令和数字 | [学生 seed 0 入口](scripts/run_paper1_full100.py) · [学生 seed 1 入口](scripts/run_paper1_seed1_full100.py) · [100 轮两 seed 配对结果](docs/paper/p1_b2_seed1_full100_results.md) |
+
+在 VisDrone 的固定 10% 面积标注划分上，P1 相对 B2 的两个学生 seed 平均提升 **2.2726 个百分点的小目标召回率**和 **0.1939 个百分点的 mAP50–95**。两组均在 548 张完整验证图上评测，小目标召回使用 conf 0.25、匹配 IoU 0.50。
+在该操作点，seed 0、1 分别净多检出 565、643 个小目标。覆盖收益伴随额外误检，例如 seed 1 的全尺寸未匹配预测增加了 1435 个。
+
+后续缓存版三臂也已各完成 30 轮。统一 val960 的 COCO 口径下，原 P1、候选和强控制的 AP 分别为 24.0457%、23.7844%、23.8341%，原 P1 仍是主方法。本机结果在 `outputs/bounded_retention_cached_three30_s0/evaluation/report.json`。
+
+## 历史实验命令
+
+以下为缓存版开训前的交付记录。该三臂实验已完成。
+使用academic-research-suite完成独立实现，保持连续目标、最强同界连续点DFL、全部锚点和数值上限；
+2310 tests通过，34压力case/102完整loss反向、6生产接线case及独立只读复核通过。
+真实3U候选初始/第9轮完整loss为80.71/81.52秒，均低于原120秒；不是性能改善证明。
+[验证与成本报告](docs/paper/candidates/bounded_retention/point_geometry_cache_results.md)、
+[生产合同](docs/paper/candidates/bounded_retention/cached_training_contract.md)。用户启动命令：
+
+```powershell
+Set-Location 'D:\Python\YOLO-RegionSSOD'
+& 'C:\Users\BaiRong-NUC\.conda\envs\yolo\python.exe' -B -u scripts/run_bounded_retention_cached.py --train --spec outputs/bounded_retention_cached_freeze_20261106/freeze.json
+```
+
+按原P1→候选→强控制顺序，各全新完整30轮，CUDA设备0；完成后统一548图full-image val960及全部比较指标。
+冻结输出目录为 `outputs/bounded_retention_cached_three30_s0/`，入口拒绝覆盖/重试/恢复。
+内置每30分钟临时监控随进程终态结束，无需另建计划任务。只读预检将`--train`改为`--check`。
+固定窗口机械外推约75小时纯计算，仅成本提示、非ETA，未含加载/优化器/评估且不覆盖权重漂移。
+本机freeze SHA为`5c15221d671cbcaa12270744b039b510a5edf0000478329dbf285c471282983e`；
+旧失败和历史门槛保留，以下各段为历史记录，不复用旧启动命令。
+
+此前[120秒超时定位](docs/paper/candidates/bounded_retention/loss_timeout_diagnostic_results.md)：
+固定保存预测的候选/强控制均完成相同2590个点请求，其中同一3U对象的2233个锚点CPU求解约101–104秒。
+控制完整loss108.391秒；候选120秒截断于第7次后验采样，积分约0.42秒，未见显式CUDA等待主导。
+120秒是额外整批工程保护，不能作为机制否定；本轮不提高期限/数值上限、不改机制、不训练。
+2147tests通过；诊断入口`diagnose_bounded_retention_loss_timeout.py`，完整失败与修订记录见报告。
+
+此前[真实3U/第9轮EMA压力审查](docs/paper/candidates/bounded_retention/point_pressure_results.md)
+停止于初始权重真实3U批的候选完整loss超过冻结120秒期限；第9轮case及32批未执行。
+两条完整1414批增强流/固定压力张量哈希通过，原P1同批loss/反向通过，但候选/控制未获资格。
+这是诊断超时，不能写成已确认的点容量故障或机制无效；**未接入新训练入口、未冻结新三臂、未开训**。
+压力入口为`scripts/check_bounded_retention_point_pressure.py`，已执行audit_01/02并保留失败；
+只读复核入口为`scripts/audit_bounded_retention_point_pressure.py`，qualification_01为STOP。
+本轮停止，不复制命令重试，不提高上限。合同及实际命令见上述报告。
+
+此前[容量修复零训练审查](docs/paper/candidates/bounded_retention/point_capacity_review_results.md)：
+最终合成8例、真实固定32批及2087tests通过；完整loss旧/新比0.9465，新耗时增加5.65%，未达2倍门槛。
+本版仅为独立原型，未接入生产。**停止本轮扩展，不恢复/新开训练，不提高容量上限。**
+零训练入口`python scripts/check_bounded_retention_point_real.py --output outputs/bounded_retention_point_review_20261106/real_NN`；
+已执行real_03，要求全新目录，不覆盖旧证据。合成入口为`check_bounded_retention_point_search.py`；
+本轮24次压力预算及固定32批已经完成，不为改善统计重复运行。三臂成本外推64.63小时仅描述初始窗口，非训练承诺。
+
+2026-11-06当前终态：V6连续集合候选在第10轮触发`global point resource cap`，
+**原P1完成30轮、候选完成9轮、强控制未启动**。这是同界全局点求解器的容量故障，
+不是CUDA OOM；三臂未完成，未执行最终548图val960，不作性能或机制成立判断。
+[完整失败报告与成本复盘](docs/paper/candidates/bounded_retention/three_arm30_terminal_failure.md)：
+只读终态审计exit0，`accepted=false/terminal_evidence_verified=true`；61封印产物、
+24004冻结输入通过，进程均结束，临时监控脚本已清理，无自动重试或恢复。
+[三臂合同](docs/paper/candidates/bounded_retention/three_arm30_contract.md)、
+[启动修订](docs/paper/candidates/bounded_retention/three_arm30_launch_addendum.md)及
+[2042 tests/零优化工程证据](docs/paper/candidates/bounded_retention/continuous_amp_results.md)保留。
+以下为已执行的历史启动命令，禁止再次执行：
+
+```powershell
+& 'C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe' -u scripts/run_bounded_retention_continuous_v2.py --train --spec outputs/bounded_retention_continuous_freeze_20261105_v2/freeze.json
+```
+
+封印输出：`outputs/bounded_retention_continuous_three30_s0/`，禁止重跑或写入。
+已完成的历史只读终态复核使用同脚本`--audit`；收尾证据位于`outputs/bounded_retention_continuous_terminal_20261106/`。
+旧auditor会枚举当前全部源码；新增审查文件后不要在当前工作树直接重跑该历史冻结门，
+否则会因新增文件不在旧清单而拒绝。历史终态回执与冻结源码快照保留，不改auditor放宽检查。
+
+工程历史：V4确定性矩形积分未通过完整3U容量检查（19999cells，残差界0.4247）。
+这不是连续目标无效；已先冻结[目标不变的V5后验采样计算合同](docs/paper/candidates/bounded_retention/continuous_sampling_contract.md)，
+V5真实检查在第21batch被额外的E-canvas门阻断；独立V6保留E原值，仅限制U积分域，完整1862 tests通过。
+V6真实mosaic开启/关闭各1414batch几何通过；一次真实前向及7项head数值审计（含3U）后，
+停在初始scale65536下“原P1 loss或梯度非有限”的合并检查，尚未放行训练；旧失败不改。
+原E、全部对象、插值权重、面积耦合与最强连续点控制不变。
+有限样本梯度有方差，报告值与精确NLL分开；不宣称纯sum/min消融、原创性或性能成立。
+执行清单见[独立验证合同](docs/paper/candidates/bounded_retention/continuous_sampling_validation.md)，
+[已知边观测语义](docs/paper/candidates/bounded_retention/continuous_observation_semantics.md)明确名义E与latent U的混合表示。
+新独立零优化入口：`python scripts/check_bounded_retention_amp.py`（已通过，不重跑）；
+先冻结[AMP诊断合同](docs/paper/candidates/bounded_retention/amp_audit_revision_contract.md)，
+继承已绑定的完整几何流，重放原固定3U压力batch，区分未缩放loss错误与AMP缩放溢出。
+不修改实际训练的原生动态scaler，不重启旧失败检查。原生E依据见[合同](docs/paper/candidates/bounded_retention/native_e_revision_contract.md)。
+
+此前终态：[原P1编码语义复核与V3未知边空集](docs/paper/candidates/bounded_retention/p1_encoding_results.md)。
+上一轮E支撑门是额外合同；原P1保留连续几何，仅DFL编码饱和。V3已显式恢复此语义，坐标/对象不变。
+真实检查前12batch通过，第13batch未知bottom连续可行约[637.5464,640]却无字面DFL原子；当前离散质量候选停止。
+编码union会丢掉区间位置/插值权重，不能当无损修复或以较弱MAP控制直接开训。三臂未启动，1316tests通过。
+只读复核：`python scripts/audit_bounded_retention_p1_encoding.py --audit`。原P1、V1/V2及新V3证据保留。
+未否定保留事件信息或连续定位；未读隐藏训练GT，公开事件模拟侧信息、CABB/GFL边界及收缩解释不变。
+
+既有B审查：[合法人工实例跨尺度观测B：停止泛化候选](docs/paper/diagnostics/human_multiscale_observation_review/results.md)。
+6471个人工tile原生长边131–548，载入640均放大，不存在“首次缩到640后补回细节”的前提；
+全图960可增加上下文，但同目标名义线性尺度仅为tile640的35.54%–41.10%。
+人工实例对应不同于旧伪框质量诊断，也可增加训练约束；对照SoCo/PseCo/MixTeacher等，
+当前未建立独立新信号/动作，故不实现loss或训练；不把此决定说成所有跨尺度学习无效。
+
+既有来源审查：[跨对象排序的可靠背景未建立，停止A](docs/paper/diagnostics/reliable_region_ranking_feasibility/results.md)。
+6471个人工tile/105058个导出框的身份通过；裁片过滤足迹/完整性证书与增强后空间证明不足，
+G2/G3未建立。不用隐藏GT补齐，不实现新loss或训练；这不是新学生性能负结果。
+
+既有三臂终态：[正目标几何重排V2负结果与方法投入复盘](docs/paper/diagnostics/positive_quality_negative_review/results.md)。
+全新P1参考/候选/匹配扰动控制各完整30轮、exit0，统一548图val960与终态audit工程通过；
+候选−P1 AP50–95−0.3145pp、AP_small−0.3453pp、conf.25 small recall−0.9444pp；
+IoU.50/P90+0.5418pp，但对控制−0.0301pp，11项线仅4过，按合同停止。
+同FP7889仍少160个small，同预测数仍少103；负结果不能仅用固定conf解释。
+原P1及所有失败封印/源码/合同保留。当前不训练、不重试/恢复/扩训；临时v2观察已删除。
+
+```powershell
+Set-Location D:/Python/YOLO-RegionSSOD
+# 本地合法人工导出与本轮审查结果存在时，只读核验来源/合成反例，无模型或数据集构造
+& C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe -B scripts/audit_reliable_region_ranking_feasibility.py --audit
+```
+
+此前提出的完整区域跨对象排序现已完成来源审查并停止；不是宣称实际可靠负例不存在。
+先行协议、几何反例和证明边界见最新报告；原三臂正负结果与所有冻结证据保留。
+以下及[V2冻结执行协议](docs/paper/candidates/positive_quality_transport_v2/student_protocol.md)为历史记录，
+已有目录不要再启动check-only/train或重复终态audit。V1仍是0epoch初始化失败，勿与V2负结果混淆。
+
+2026-11-04当前终态：[人工GT可信竞争负监督三臂结果](docs/paper/candidates/reliable_competitor_negative/results30.md)。
+全新P1参考／候选／等强度控制各完整30轮、exit0，统一548图val960及独立只读audit通过。
+候选−P1：AP50–95−0.3502pp／AP_small−0.1088pp／conf.25 small recall−3.1682pp；
+P90 small+1.1890pp、FP−22.5377%、wrong-class FP−25.5983%，收益与代价同时保留。
+十项投入门槛仅5项通过；相对控制AP−0.2034pp，机制未建立，按冻结合同停止候选、保留原P1。
+工程通过不等于性能条件通过。当前只读复核（不要在已有目录重训／恢复）：
+
+```powershell
+Set-Location D:/Python/YOLO-RegionSSOD
+& C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe -B scripts/run_reliable_competitor_negative.py --audit
+```
+
+完整十项门槛、全部类别／FP类型／成本及审计边界见[独立验证](docs/paper/candidates/reliable_competitor_negative/terminal_validation.md)。
+原[工程与学生合同](docs/paper/candidates/reliable_competitor_negative/student_protocol.md)为冻结历史，现以本终态为准；不调val／重试／扩训。
+
+2026-11-03新增[V2召回／AP分歧与原P1瓶颈诊断](docs/paper/diagnostics/competitive_negative_v2_bottleneck/results.md)：
+相同FP预算下V2比P1少137个small匹配；完成零训练／零新推理重放和318tests。
+[人工正锚点可信竞争类负监督](docs/paper/candidates/reliable_competitor_negative/README.md)后续实现状态见顶部；
+原瓶颈诊断缓存只读复核：
+
+```powershell
+& C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe scripts/diagnose_p1_v2_bottleneck.py --audit
+```
+
+当前状态（2026-11-03）：**V2完整30轮及复用B2／P1的统一三方法评估、独立审计完成**。
+原P1−B2的AP50–95+0.3349pp；V2−P1 AP−0.1628pp／AP_small−0.2279pp／FP+7.8971%，
+七护栏仅2项通过，停止V2、保留原P1。见[三方法完整结果](docs/paper/candidates/competitive_negative_v2/results30.md)。
+现有目录不重训，只读复核：
+
+```powershell
+& C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe scripts/run_p1_main_comparison_repair.py --audit
+```
+
+此命令不训练／推理；V2的工程验证与性能终态分开，见[V2记录](docs/paper/candidates/competitive_negative_v2/README.md)。
+原主三臂candidate首批失败、B2／P1均已成功，其证据及冻结合同保留，勿在原目录重跑。
+
+2026-11-03新增[第一篇扩大方向评审](docs/paper/candidates/competitive_negative/direction_review.md)：
+已完成六学生缓存与教师分数的[零训练诊断](docs/paper/candidates/competitive_negative/diagnostic_results.md)，
+该阶段准备保留正目标的竞争类别负项衰减及强度控制，后续状态以顶部V2入口为准。
+原P1与旧类别分数负结果均保留，不将新候选视为已验证升级。
+
+```powershell
+& C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe scripts/diagnose_competitive_negative.py --audit
+& C:/Users/BaiRong-NUC/.conda/envs/yolo/python.exe scripts/run_p1_competitive_negative.py --check-only
+```
+
+两命令均不训练／新推理，仅作历史诊断复核；旧学生合同和固定停止条件见
+[独立学生协议](docs/paper/candidates/competitive_negative/student_protocol.md)，当前无新训练任务。
+
+第一篇整理入口：[正文1–6章](docs/paper/README.md)、
+[现有成果与证据地图](docs/paper/paper1_writeup_plan.md)、
+[代码/旧改进点/新候选分轨](docs/paper/research_tracks.md)。
+原P1已建立[Git保存点与本地产物副本](docs/paper/preservation.md)。
+类别分数分类监督的[完整30轮配对结果](docs/paper/candidates/class_ambiguity/results30.md)已于2026-11-03验收。
+相对同轮数原P1：IoU.50/P90 small recall +0.8203pp，但AP50–95 −0.2631pp、
+AP_small −0.4162pp、P70 small −0.5418pp，未通过全部固定条件，不扩大本变体训练。
+IoU.75/P90 small −0.2446pp；现有原P1正式100轮成果独立保留。
+
+当前只读复核，在已有yolo环境、仓库根目录：
+
+```bash
+python scripts/run_p1_class_ambiguity.py --audit
+python scripts/preserve_paper1.py --audit
+```
+
+两臂各30轮均已完成，不要重复执行`--train`或`--check-only`；它们会拒绝既有目录。
+新配对全部产物在`outputs/p1_class_ambiguity_pair30_s0/`，完整PR及逐类取舍见结果报告。
+下文原100轮训练命令同样属于历史协议，不是当前待执行队列。
+
+面向高分辨率航拍图像的区域局部标注小目标半监督检测实验仓库。
+
+本仓库对应一个明确的论文问题：每张高分辨率图像只标注少量区域，未标注区域
+不能被视为纯背景。目标是复用 VisDrone、YOLO11 和航拍小目标经验，在单张
+RTX 4070 Ti 12 GB 上完成毕业/中文核心所需的完整实验。
+
+当前状态（2026-11-02）：B2/P1在固定split0/教师下的两学生seed、各100轮均已验收。
+正式Ultralytics配对均值为mAP50-95 +0.1939pp、固定点small recall +2.2726pp。
+新增冻结权重的[AP_small、完整PR与等精度召回补评估](docs/paper/small_pr_results.md)，
+不启动新训练：COCO-style AP_small两seed方向不同；IoU0.50、precision≥70%时
+small recall平均+0.7036pp，precision≥90%时平均−0.2032pp。完整正负结果均保留，
+COCO-style指标不冒充VisDrone官方AP，原Gate3/4不追认为通过。
+本轮文献与Zotero归档见[机制线索](docs/paper/small_pr_literature.md)。
+
+2026-11-02新增两项零训练诊断：[高精度退化原因](docs/paper/high_precision_diagnostic_results.md)
+与[尺度条件操作点跨拟合](docs/paper/scale_operating_point_results.md)。在IoU0.50、
+90%全尺寸precision下，P1少找回的small GT中695/711和730/752在完整缓存里已匹配，
+只是分数低于P1全局阈值；共同GT几何没有变差。尺度条件阈值提高两臂约4.4–5.4pp
+small recall，但不是P1独有优势，预先继续线未通过。故当前不启动回归/NWD新训练；
+结果支持把高精度退化写成全局阈值/排序瓶颈，而非已证明的回归质量瓶颈。
+
+只读复核（在已有`yolo`环境、仓库根目录；已有预测时不要再次推理）：
+
+```bash
+python scripts/audit_paper1_frozen.py --stage all
+python scripts/build_small_pr_results.py --check
+python scripts/diagnose_paper1_high_precision.py --check-doc
+python scripts/evaluate_scaled_operating_point.py --check-doc
+```
+
+新复核回执自动写到`outputs/paper1_reaudits/<时间戳>/`，历史验收回执保持原字节；
+旧脚本直接`--audit`会改写回执时间戳，不再作为当前推荐入口。
+
+缓存、原图预测及PNG/PDF/SVG在忽略目录
+`outputs/paper1_small_pr_20261102/bound_v2/`；[协议](docs/paper/small_pr_protocol.md)
+固定低分端、NMS/max_det和precision网格，区分validator与旧predict的缩放/匹配口径。
+
+历史30轮记录（2026-10-30）：B2/P1 固定 split/教师、学生 seed0/1 的独立 30 epoch
+配对复验已完成验收。P1 相对 B2 的 mAP50-95 两 seed 均提高，平均配对增益为
+**+0.2893±0.0644 个百分点**；small recall 为 **+1.7854±0.1304 个百分点**
+（样本 SD，ddof=1）。seed1 分别提高 0.2438/1.6932 个百分点，多匹配 450 个
+小目标，但 large recall 降低 0.6560 个百分点。116 项独立检查通过。
+表 4-1 至 4-6 保留 seed0 主对照，新增表 4-S4 单列两 seed 统计；B1 未重复，
+这不是多 split、显著性或官方 AP_small 证据。原 Gate 3 未达门槛的判定不变，
+详见 `docs/paper_completion_plan.md` 第 3.8、3.20 节。
+
+论文初稿入口：[论文写作](docs/paper/README.md)。已有
+[引言初稿](docs/paper/introduction.md)和 [S³OD 方法差异对照](docs/paper/s3od_comparison.md)，以及
+[论文结果表格](docs/paper/results_tables.md)、[方法章节](docs/paper/methods.md)
+和[实验分析章节](docs/paper/experiments.md)，B1/B2/P1 的同操作点分尺寸 recall
+也已补齐；[相关工作](docs/paper/related_work.md)与[参考文献](docs/paper/references.md)
+已整理，含 BibTeX；S³OD 已更新为 2025 年期刊版引用。用 `python scripts/build_paper_tables.py --check` 核对表格。
+
+实时查看 P1：在 `yolo` 环境、仓库根目录运行 `python scripts/watch_p1.py`，打开
+终端输出的本机地址。页面每 3 秒刷新 epoch、批次、估计剩余训练时间及最近日志，
+并区分训练、val960、小目标 recall 和全部完成。看到“训练和自动评估均已完成”后
+即可通知助手验收。当前查看地址保存在 `outputs/p1_monitor/server.json`；
+查看器只读取现有日志与产物，关闭页面不影响训练。
+
+## 项目级科研 Skill
+
+本项目在 `.agents/skills/academic-research-suite/` 安装 ARS-Codex 3.24.0，
+来源为 `Imbad0202/academic-research-skills-codex`，固定上游提交
+`a1556557887f345aac99bdc6027e008e91fef236`。Codex 从项目目录加载该技能；
+下一轮对话可使用 `$academic-research-suite`，例如：
+
+```text
+$academic-research-suite 请用 ars-plan 盘点当前论文结构和证据缺口。
+$academic-research-suite 请用 ars-citation-check 核查当前论文引用。
+```
+
+技能入口和完整工作流随仓库保存；来源、许可证及安装记录见
+`.agents/skills/academic-research-suite/INSTALLATION.md`。
+使用时继续遵守根目录 `AGENTS.md` 的实验预算、证据边界及既有论文路径。
+
+## 研究问题
+
+- 每张训练图只保留一个目标中心 tile 的标签。
+- 5%、10%、20% 表示标注面积比例，不是随机抽取图片的比例。
+- 标注 tile 之外的真实目标仍存在，但对监督分支不可见。
+- 验证集使用完整原图和完整标签，不能只验证标注 tile。
+- 首轮比较固定 YOLO11s、640 训练分辨率、100 epoch，避免把网络改动混入方法。
+
+## 环境
+
+建议直接使用已有 `yolo` Conda 环境：
+
+```powershell
+conda activate yolo
+Set-Location D:\Python\YOLO-RegionSSOD
+python -m pip install -e . --no-deps
+python -m pytest
+```
+
+如果终端提示包含 `MINGW64`，当前使用的是 Git Bash。本机 Conda 安装在
+`D:/MiniConda`，先在当前终端加载它，再激活已有环境：
+
+```bash
+source /d/MiniConda/etc/profile.d/conda.sh
+conda activate yolo
+cd /d/Python/YOLO-RegionSSOD
+regionssod --help
+```
+
+若激活后仍找不到 `regionssod`，在仓库目录执行
+`python -m pip install -e . --no-deps`。Git Bash 使用 `cd` 切换目录，命令参数中的
+Windows 路径使用正斜杠，例如 `D:/Python/YOLO/data/visdrone/dataset.yaml`。
+本文其余命令块使用 PowerShell 语法；Git Bash 下可将命令写成单行，例如：
+
+```bash
+regionssod make-partial --source-data D:/Python/YOLO/data/visdrone/dataset.yaml --output data/visdrone_area10 --ratio 0.10 --seed 0 --unlabeled-per-image 1
+```
+
+数据默认使用：
+
+```text
+D:\Python\YOLO\data\visdrone\dataset.yaml
+```
+
+预训练权重默认使用：
+
+```text
+D:\Python\YOLO\yolo11s.pt
+```
+
+## 快速开始
+
+先用 20 张图像做链路烟测：
+
+```powershell
+regionssod make-partial `
+  --source-data D:\Python\YOLO\data\visdrone\dataset.yaml `
+  --output data\smoke_area10 `
+  --ratio 0.10 `
+  --seed 0 `
+  --unlabeled-per-image 1 `
+  --limit 20
+```
+
+生成正式 10% 区域标注数据集：
+
+```powershell
+regionssod make-partial `
+  --source-data D:\Python\YOLO\data\visdrone\dataset.yaml `
+  --output data\visdrone_area10 `
+  --ratio 0.10 `
+  --seed 0 `
+  --unlabeled-per-image 1
+```
+
+在上述 20 张图的数据上进行 5 个 epoch 的 baseline 烟测：
+
+```powershell
+regionssod train `
+  --config configs\train_partial_10.yaml `
+  --data data\smoke_area10\dataset.yaml `
+  --epochs 5 `
+  --project runs\smoke `
+  --name partial10_sup_smoke5
+```
+
+烟测权重也必须在完整原图上进行 960 验证：
+
+```powershell
+regionssod validate `
+  --weights runs\smoke\partial10_sup_smoke5\weights\best.pt `
+  --data data\smoke_area10\dataset.yaml `
+  --imgsz 960 `
+  --name partial10_sup_smoke5_val960
+```
+
+正式部分监督 baseline：
+
+```powershell
+regionssod train `
+  --config configs\train_partial_10.yaml `
+  --data data\visdrone_area10\dataset.yaml `
+  --name partial10_sup_s0
+```
+
+Git Bash 的正式 B1 训练命令如下，配置固定 100 epoch，并从 COCO 预训练
+`D:/Python/YOLO/yolo11s.pt` 初始化：
+
+```bash
+regionssod train --config configs/train_partial_10.yaml --data data/visdrone_area10/dataset.yaml --name partial10_sup_s0
+```
+
+用完整原图在 960 分辨率评估：
+
+```powershell
+regionssod validate `
+  --weights runs\partial10_sup_s0\weights\best.pt `
+  --data data\visdrone_area10\dataset.yaml `
+  --imgsz 960 `
+  --name partial10_sup_s0_val960
+```
+
+完整监督参考 B0：
+
+```powershell
+regionssod train `
+  --config configs\train_full.yaml `
+  --name full_sup_s0
+```
+
+## 朴素自训练 baseline
+
+先生成全局阈值 0.50 的伪标签：
+
+```powershell
+regionssod pseudo-label `
+  --weights runs\partial10_sup_s0\weights\best.pt `
+  --images-list data\visdrone_area10\splits\unlabeled_train.txt `
+  --output data\visdrone_area10\pseudo\naive_t050 `
+  --threshold 0.50 `
+  --conf-floor 0.05 `
+  --imgsz 960 `
+  --batch 8
+```
+
+Git Bash 对应命令：
+
+```bash
+regionssod pseudo-label --weights runs/partial10_sup_s0/weights/best.pt --images-list data/visdrone_area10/splits/unlabeled_train.txt --output data/visdrone_area10/pseudo/naive_t050 --threshold 0.50 --conf-floor 0.05 --imgsz 960 --batch 8 --device 0
+```
+
+推理输入会保存在 `prediction_images.txt`，按 `--batch` 分批读取；输出目录必须
+为空，已有成功产物可直接复用。
+
+合并标注 tile 和伪标签 tile：
+
+```powershell
+regionssod combine-lists `
+  --inputs `
+    data\visdrone_area10\splits\labeled_train.txt `
+    data\visdrone_area10\pseudo\naive_t050\pseudo_train.txt `
+  --output data\visdrone_area10\combined_naive_t050.txt `
+  --dataset-yaml data\visdrone_area10\dataset_naive_t050.yaml `
+  --source-data D:\Python\YOLO\data\visdrone\dataset.yaml
+```
+
+Git Bash 对应命令：
+
+```bash
+regionssod combine-lists --inputs data/visdrone_area10/splits/labeled_train.txt data/visdrone_area10/pseudo/naive_t050/pseudo_train.txt --output data/visdrone_area10/combined_naive_t050.txt --dataset-yaml data/visdrone_area10/dataset_naive_t050.yaml --source-data D:/Python/YOLO/data/visdrone/dataset.yaml
+```
+
+先执行 30 epoch 的 B1/B2 配对 pilot，检查半监督信号。两个学生均从同一 COCO
+预训练初始化；B2 及后续 P1 的 pilot 固定使用上面的 B1 100 epoch 教师：
+
+```bash
+regionssod train --config configs/train_partial_10.yaml --data data/visdrone_area10/dataset.yaml --epochs 30 --name partial10_sup_pilot30_s0
+regionssod train --config configs/train_naive_10.yaml --data data/visdrone_area10/dataset_naive_t050.yaml --epochs 30 --name partial10_naive_t050_pilot30_s0
+```
+
+两个 pilot 均需完整原图 960 验证，再按 Gate 2 比较；完整验证命令见
+`docs/baseline_protocol.md` 第 4.1 节。B2 的 30 epoch 结果不能直接与 B1 的
+100 epoch 结果作 gate 比较。
+
+完成 pilot 后，100 epoch 的正式自训练 baseline 命令是：
+
+```powershell
+regionssod train `
+  --config configs\train_naive_10.yaml `
+  --data data\visdrone_area10\dataset_naive_t050.yaml `
+  --name partial10_naive_t050_s0
+```
+
+## P1：尺度阈值、软权重与 uncertain-ignore
+
+固定参数见 `configs/pseudo_p1_10.yaml`：原始 tile 框面积 small<32²、
+medium<96²，其余为 large；正阈值依次为 0.30/0.50/0.50，下限为 0.05。
+这是一组待检验的 pilot 参数，不是已证明最优的阈值。正框保留教师置信度，
+其余候选作为 ignore；没有正框的 tile 被排除，候选仍写入离线记录。
+
+以下为本轮冻结的复现命令，已有训练及评估产物可直接复用：
+
+```bash
+regionssod pseudo-label-p1 --weights runs/partial10_sup_s0/weights/best.pt --images-list data/visdrone_area10/splits/unlabeled_train.txt --output data/visdrone_area10/pseudo/p1_s030_m050_l050 --policy configs/pseudo_p1_10.yaml --imgsz 960 --batch 8 --device 0
+regionssod combine-lists --inputs data/visdrone_area10/splits/labeled_train.txt data/visdrone_area10/pseudo/p1_s030_m050_l050/pseudo_train.txt --output data/visdrone_area10/combined_p1.txt --dataset-yaml data/visdrone_area10/dataset_p1.yaml --source-data D:/Python/YOLO/data/visdrone/dataset.yaml --p1-metadata data/visdrone_area10/pseudo/p1_s030_m050_l050/metadata.jsonl
+regionssod train --config configs/train_p1_10.yaml --name partial10_p1_pilot30_s0
+regionssod validate --weights runs/partial10_p1_pilot30_s0/weights/best.pt --data data/visdrone_area10/dataset_p1.yaml --imgsz 960 --name partial10_p1_pilot30_s0_val960
+regionssod size-recall --weights runs/partial10_naive_t050_pilot30_s0/weights/best.pt --data D:/Python/YOLO/data/visdrone/dataset.yaml --output runs/size_recall/b2_pilot30_s0 --imgsz 960 --conf 0.25 --match-iou 0.50
+regionssod size-recall --weights runs/partial10_p1_pilot30_s0/weights/best.pt --data D:/Python/YOLO/data/visdrone/dataset.yaml --output runs/size_recall/p1_pilot30_s0 --imgsz 960 --conf 0.25 --match-iou 0.50
+```
+
+训练器通过相同数据增强同步变换正框、置信度和 ignore 框；分类损失按匹配正框的
+教师置信度加权，人工标签权重为 1，分母保持原 TAL 分母。ignore 只屏蔽锚点中心
+落入候选框内的**负**分类项，已匹配正样本优先；box/DFL 不变。实现细节、消融
+开关和审计见 baseline 协议第 4.3 节。
+
+Gate 3 要求 P1 完整原图 val960 mAP50-95 至少 0.239534294688062，且相对 B2
+小目标 recall 同向改善。这里的 `size-recall` 固定 conf=0.25、IoU=0.50、max_det=500，
+按完整原图 GT 面积分组，在所有尺度 GT 上联合一对一匹配；这是开发诊断 recall，
+不是官方 AP_small 或 AR500，也不是伪标签的隐藏 GT recall。
+
+## 第①组消融：关闭 uncertain-ignore
+
+2026-10-27 已完成训练和独立验收。相对完整 P1，去掉 ignore 的 mAP50-95 为
+23.8100%（+0.0217 个百分点），固定操作点 small recall 为 35.5533%
+（−0.1392 个百分点）。已有产物可复用；结果范围和审计见进度文档第 3.13 节。
+
+独立配置为 `configs/train_p1_no_ignore_10.yaml`，仅将 `p1.uncertain_ignore` 设为
+`false`，保留尺度阈值、分类软权重和完整 P1 的其余条件：同一数据/伪标签、
+COCO 初始化、640、30 epoch、batch8、SGD、seed0。元信息与增强链路仍保留，
+只关闭损失侧负分类项屏蔽，不重新生成伪标签。
+
+在已有 `yolo` 环境、仓库根目录运行以下一条命令，自动完成训练、完整原图
+val960、固定操作点分尺寸 recall，以及与已完成的完整 P1 的对比：
+
+```bash
+python -u scripts/run_p1_no_ignore.py
+```
+
+只核对配置与冻结输入、不启动训练或 GPU 评估：
+
+```bash
+python scripts/run_p1_no_ignore.py --check-only
+```
+
+训练目录为 `runs/partial10_p1_no_ignore_pilot30_s0`。阶段记录在
+`outputs/p1_no_ignore_pilot30_s0/status.json`；完成后的对比表及完整数值分别为
+同目录 `comparison.md`、`comparison.json`。差值定义为“去掉 ignore − 完整 P1”，
+单位为百分点。脚本检查冻结输入/参考产物 SHA256、实际参数、连续 30 epoch、
+评估权重及相同验证列表/操作点；已有训练目录或派发记录时拒绝重复启动。
+本组用于单 seed 机制分析，不重新判定原 Gate 3。
+
+## 低成本筛选：置信度软权重
+
+按 2026-10-27 的最新执行约束，新增训练先做有上限的配对筛选，出现值得确认的
+方向后提供正式训练指令并停止自动扩训。软权重筛选入口为：
+
+```bash
+python -u scripts/screen_p1_soft_weights.py
+```
+
+该筛选固定抽取 1024 张训练原图（选择 seed=20261027），保留对应的 1024 个
+人工标注 tile 和 741 个已接受伪标签 tile，共 1765 个训练 tile。完整 P1 和
+去掉软权重两组均从 COCO 初始化，独立训练 5 epoch、batch8、640、SGD、seed0，
+两组均保留 ignore；短程对照统一设 `close_mosaic=0`。完成后分别评估完整原图
+val960 和相同操作点 recall。运行与日志位于 `runs/screen/`、`outputs/screens/`。
+
+这些数值仅用于探索性筛选，不进入论文正式结果表，也不与已有 30 epoch 数字
+直接比较。先行筛选标准为：两组 mAP50-95 差的绝对值至少 0.3 个百分点，且
+小目标 recall 变化同向；它不代表统计显著性或完整训练结论。
+
+2026-10-27 17:53 本轮筛选完成，独立验收通过。去掉软权重相对保留软权重：
+
+| 子集 5 epoch 结果 | 保留软权重 | 去掉软权重 | 差值 / pp |
+|---|---:|---:|---:|
+| mAP50 | 26.8181% | 26.5932% | −0.2249 |
+| mAP50-95 | 15.3751% | 15.4635% | +0.0884 |
+| Small recall | 28.0129% | 28.0920% | +0.0790 |
+
+mAP50-95 与小目标 recall 的方向为正，但都低于预先设定的 0.3 个百分点
+筛选线，mAP50 反而下降。结论为**中性、未达到继续全量训练的标准**；不启动
+30 epoch 去软权重实验。完整记录见 `outputs/screens/p1_soft_weights_1024_e5/`。
+
+## 尺度阈值筛选与全量确认
+
+同一 1024 张训练原图上，将全部伪标签阈值改为 0.50、仍保留软权重和 ignore，
+运行：
+
+```bash
+python -u scripts/screen_p1_scale_threshold.py
+```
+
+2026-10-27 18:00 已完成，独立审计通过。统一 0.50 相对尺度分层：mAP50-95
+从 15.3751% 升至 15.5988%（+0.2237 个百分点），但 small recall 从
+28.0129% 降至 24.8899%（−3.1230 个百分点），medium/large recall 则分别
+提高 1.1066/1.7807 个百分点。自动候选规则因方向不一致而未触发。
+
+由于小目标 recall 的下降与本文核心问题直接相关，且幅度明显大于总体 mAP
+变化，已使用全量数据完成一次 30 epoch 确认。确认数据从冻结教师候选中生成并
+核对：4624 个伪标签 tile、27667 个正框，合并后 11095 个训练 tile；未重跑教师。
+2026-10-27 20:00 完成训练、完整 val960、分尺寸 recall 和与完整 P1 的对比，
+20:21 独立验收通过。统一 0.50 相对完整 P1：mAP50-95 从 23.7883% 降至
+23.1706%（−0.6177 个百分点），small recall 从 35.6925% 降至 35.3501%
+（−0.3424 个百分点）；medium/large recall 仅分别提高 0.4139/0.0937 个百分点。
+small 匹配数少 91 个，逐类别 AP50-95 为 1 类升、9 类降。该结果在全量 30 epoch
+下支持尺度分层阈值更有利于整体检测和固定操作点小目标覆盖。
+
+复现入口为：
+
+```bash
+python -u scripts/run_p1_global_t050.py
+```
+
+只复核数据、不启动 GPU 训练：
+
+```bash
+python scripts/run_p1_global_t050.py --prepare-only
+```
+
+训练已写入 `runs/partial10_p1_global_t050_pilot30_s0/`，比较表及验收记录位于
+`outputs/p1_global_t050_pilot30_s0/{comparison.md,comparison.json,acceptance_audit.json}`。
+入口因已有 run 而拒绝重复启动；完整结果与边界见进度文档第 3.18 节。
+
+### 尺度阈值配对学生 seed 复验
+
+2026-10-27 23:47 已完成学生 seed1 的两组独立 30 epoch 对照及自动验收，后续独立复核通过。
+固定已有 split seed0、B1 教师、两套伪标签与损失机制；仅学生训练 seed 改为 1。
+这不生成新的标注 split，也不重新训练教师或生成伪标签。
+
+```bash
+python scripts/run_p1_scale_seed_pair.py --check-only
+python -u scripts/run_p1_scale_seed_pair.py
+```
+
+入口顺序运行尺度分层与统一 0.50 两组，每组训练结束后自动进行完整 548 图
+val960 和固定操作点分尺寸 recall，最终重放两组保存预测进行 GT 匹配验收。
+日志、状态、比较和验收记录位于 `outputs/p1_scale_threshold_pair_s1/`。
+训练目录分别为 `runs/partial10_p1_pilot30_s1` 和
+`runs/partial10_p1_global_t050_pilot30_s1`。已有训练或派发记录时拒绝重复启动。
+仅重做结果收集与验收可用 `--collect-only`；该选项不训练或推理。
+
+论文表生成器已加入表 4-S3：报告 seed0/1 的单次结果、各方案
+均值±样本标准差及种子内配对差的均值±样本标准差（ddof=1）。结果仍限于一个
+split、同一教师和两个学生 seed，不作显著性结论，不改变原 Gate 3。
+
+seed1 中尺度分层相对统一 0.50：mAP50-95 +0.2420 pp、small recall +0.6434 pp
+（多匹配 171 个小目标），与 seed0 的两项收益方向一致。两学生 seed 的配对增益
+均值±样本 SD 分别为 +0.4299±0.2657 pp 和 +0.4929±0.2128 pp。
+独立验收命令为 `python scripts/audit_p1_scale_seed_pair.py`：36 项检查、33,047
+冻结文件及两组各 548 图预测重放通过。结果、证据和限制见论文第 4.11 节。
+
+全量 30 epoch 的去软权重确认配置和入口已准备，但不由筛选脚本自动启动：
+
+```bash
+python -u scripts/run_p1_no_soft_weights.py
+```
+
+它只关闭 `p1.soft_weights`，保留 `p1.uncertain_ignore=true` 和完整 P1 的其他条件。
+
+## B2 学生 seed1 与主对照案例图
+
+2026-10-30 12:11，用户终端完成 B2 seed1 的连续 30 epoch、548 图完整 val960 和
+固定操作点 recall，复用已有 P1 seed1 后，两 seed 均支持 P1 的总体检测和小目标
+召回增益；large recall 在两 seed 中方向不同，完整统计见表 4-S4 和实验第 4.12 节。
+固定 split seed0、原 B1 教师及各自既有伪标签，640、batch8、SGD 和原增强不变。
+
+已有结果直接核验：
+
+```bash
+python scripts/audit_b2_seed1.py
+python scripts/build_detection_cases.py --check
+python scripts/build_paper_tables.py --check
+```
+
+完整数值、自动/独立验收和日志保存在 `outputs/b2_pilot30_s1/`，训练为
+`runs/partial10_naive_t050_pilot30_s1`。`--collect-only` 只重做完整已有评估的验收/
+汇总，不训练或推理；重做后须再运行独立验收及表格生成/核对。入口有防重复保护，
+在具有相同冻结输入且尚无本组 run/派发记录的环境中，训练复现命令为：
+
+```bash
+python scripts/run_b2_seed1.py --check-only
+python -u scripts/run_b2_seed1.py
+```
+
+最终完整运行前的两次异常中断及一次手动交接，均已连同权重、日志、脚本/配置
+快照和哈希保留在 `outputs/b2_seed1_interrupted_20261030_{091251,101330,102720}/`。
+独立验收复核三层来源链，中断 epoch 不拼接或进入论文。用户手动训练已完成，
+本组完整运行已冻结，不自动扩大训练或启动新 seed。
+
+四类 seed0 成功与失败案例在新增 B2 seed1 结果出现前选定，图注、选图规则及
+边界见[案例图](docs/paper/case_studies.md)。生成器只重放保存预测，在没有输出的
+环境可用 `python scripts/build_detection_cases.py` 生成；已有输出时用 `--check`。
+300 dpi PNG、单行图和 manifest 位于忽略目录 `outputs/paper_cases_b2_p1_s0/`；
+Git 保存配置、脚本、测试与文稿，数据/日志/权重/图像均保留于忽略目录。
+
+## 第一篇的低成本诊断
+
+实验缺口和投入顺序见 [第一篇清单](docs/paper1_experiment_gaps.md)，已完成的
+[ignore 可恢复增量](docs/paper/ignore_recovery_analysis.md) 仅重放保存候选，不训练或推理。
+原始数据与诊断产物均在忽略目录；已有结果核验：
+
+```bash
+python scripts/audit_paper1_gaps.py --check
+python scripts/audit_ignore_recovery.py --check
+```
+
+当前结论是有条件恢复空间、但直接降低阈值的新增独立匹配比例较低，尚不据此扩训。
+有可靠筛选信号后再准备单因素有界训练命令，由用户自行运行。
+
+2026-10-30 后续已完成翻转跨视图筛选及 128 tile 的 NMS/max-det
+[候选覆盖检查](docs/paper/candidate_retention_analysis.md)，两项暂未给出值得学生训练的信号。
+提高 max-det 没有新增候选，放宽 NMS 的新增正框独立匹配比例仅 4.29%；本轮停止该路线。
+已有检查可在 `yolo` 环境只读重放：
+
+```powershell
+python scripts/audit_candidate_retention.py --check
+```
+
+用户最新授权允许有可靠信号时自主做至多 30 epoch 的小规模训练，启动时创建临时
+进度定时任务，完成/失败后清理；更长训练仍须结果支持。该授权替代前述手动启动
+安排，不表示已有新训练启动，每轮代码和文档修改使用中文 Git 提交。
+
+跨输入尺度候选支持已完成探索和不重叠样本确认，固定候选未通过确认线，
+见[跨尺度分析](docs/paper/scale_support_analysis.md)。只读复核：
+
+```powershell
+python scripts/audit_scale_support.py --check
+python scripts/audit_scale_support.py --confirm --check
+```
+
+当前统一执行安排见[三篇文章与部署总计划第10节](docs/publication_and_edge_deployment_plan.md#10-当前可执行安排与职责)：
+当前只推进A第一篇，C/B留作远期规划；有界小试由Codex执行和临时监控，
+值得扩大训练后准备代码与命令交给用户。
+
+按最新A范围和30epoch小试授权，本轮只补软权重正式单因素消融，
+预算与后续判据见[第一篇清单第7节](docs/paper1_experiment_gaps.md#7-本轮唯一训练软权重正式单因素消融)。
+旧5epoch中性结论不改写为过线；已有原始训练入口执行后自动完成val960和recall。
+本组已于北京时间2026-10-30 16:28完成训练及自动评估，并通过独立验收；
+去软权重mAP50-95−0.1623pp、small recall+0.9143pp（+243小目标），
+存在精度/覆盖取舍，未达预先记录的扩大训练线，不启动长训练。请勿重复启动。
+表4-S5、实验4.14已同步；六类关键词的论文依据、阅读范围与后续假设见
+[A关键词调研](docs/paper/a_keyword_research.md)，未另行启动模型微调或新损失训练。
+完成后的独立复核：
+
+```powershell
+python scripts/audit_p1_no_soft_weights.py
+```
+
+已有正伪框的跨尺度定位稳定性也已完成零训练诊断：两组不稳定small各仅6框，
+未形成足够的置信度/类别分层比较，停止当前规则，不实现回归加权。
+详见[定位可靠性诊断](docs/paper/positive_localization_analysis.md)；只读复核：
+
+```powershell
+python scripts/audit_positive_localization.py --check
+```
+
+原图上下文类别纠正的执行前协议、固定继续线和版本依据见
+`docs/paper/context_rectification_analysis.md`，只检验已有small正伪框，不训练。
+首次执行只做128张原图推理；已有结果只读重放：
+
+```bash
+python scripts/audit_context_rectification.py --check
+```
+
+探索通过继续线后，`--confirm`才允许另128张不重叠原图确认；未过线时拒绝执行。
+128图探索已完成，只触发1次类别纠正且改错，总体/small匹配各−1；
+未过线，不运行确认或训练。结果和成本见`docs/paper/context_rectification_results.md`。
+论文归档在Zotero顶层
+`YOLO-RegionSSOD`，清单与PDF版本说明见`docs/paper/zotero_literature_library.md`。
+
+开放区域置信度校准的固定协议见`docs/paper/confidence_calibration_protocol.md`。
+只拟合512个已有开放标注tile，再用来源不重叠的256个未标注tile检查；
+若已有结果，只读核对命令为：
+
+```bash
+python scripts/audit_confidence_calibration.py --check
+```
+
+首次生成去掉`--check`，只新增512tile推理、不训练；`--confirm`仅在探索过线后
+允许另256tile确认且不再推理/拟合。校准器不得使用隐藏GT或val标签拟合，
+不更改已有正伪标签集合。通过诊断不等同于学生效果或值得长期训练。
+2026-10-30探索已完成：整体Brier未改善，虽small改善，仍未过固定继续线；
+不执行确认或训练，完整计数/成本/局限见`docs/paper/confidence_calibration_results.md`。
+
+小框NWD回归的单因素筛查见`docs/paper/small_nwd_protocol.md`。
+先核对冻结输入，只估计开放GT常数、不训练：
+
+```bash
+python scripts/screen_p1_small_nwd.py --check-only
+python scripts/screen_p1_small_nwd.py --geometry-only
+```
+
+第二条额外做真实YOLO11s的GPU AMP前反传，零优化器步骤。源码/协议需先提交；
+通过后首次去掉这两个选项只新增一组5epoch，复用已验收的同子集P1参考，
+随后完整val960和固定操作点recall。已有训练/阶段记录时拒绝重复启动。
+验收为`python scripts/audit_small_nwd_screen.py`，必须包装进程exit0且全部阶段完成；
+此筛查不自动派发30/100epoch，也不进入正式论文结果表。
+2026-10-30已完成独立验收：mAP50-95−0.1746pp、small recall+1.5464pp，
+原固定继续线失败、验收当时停止扩训；详细结果和限制见`docs/paper/small_nwd_results.md`。
+
+用户随后明确至少30epoch才判断性能，旧5epoch仅保留探索记录。
+当前新增唯一全量NWD30确认，固定原C/mix/面积边界与完整P1同预算配对，
+协议`docs/paper/small_nwd30_protocol.md`。短程不再作为性能淘汰依据，
+当前自主单候选固定30epoch，更多训练仍由用户执行。中文提交后按最新授权push。
+
+```bash
+python scripts/run_p1_small_nwd.py --check-only
+python scripts/audit_small_nwd_tradeoff.py --check
+```
+
+第一条仅预检；首次由后台包装`scripts/run_small_nwd30_background.py`运行唯一
+30epoch，再做548原图val960/recall。状态、启动记录与日志位于
+`outputs/p1_small_nwd_pilot30_s0/`；已有状态/dispatch/产物时拒绝重启。
+完成后运行`python scripts/audit_p1_small_nwd.py`独立验收。
+训练启动时创建临时监控，终态处置后删除，不并行第二组或自动扩训。
+该唯一训练于2026-10-30 18:54启动，20:11发现中断，20:14二次核实：
+包装/训练进程均不存在，只完成13/30epoch，日志停在第14轮181/1414batch。
+Windows记录原包装进程停止响应并关闭；退出码缺失，根因尚未确定。
+本次未完成30轮及最终评估，不能判断性能或是否值得扩训。
+证据与处理见[中断记录](docs/paper/small_nwd30_interruption.md)；
+临时监控`a-nwd`在中断处置后删除，不重复运行启动入口，不拼接或自动重训。
+
+2026-10-31用户确认上次为手动中断，改由本人终端重新运行完整30轮。
+旧输出及run已保留到`outputs/p1_small_nwd_manual_handoff_20261031/`，
+原中断快照仍保留；新训练从COCO初始化，配置/损失/继续线不变。
+在Git Bash执行：
+
+```bash
+source /d/MiniConda/etc/profile.d/conda.sh
+conda activate yolo
+cd /d/Python/YOLO-RegionSSOD
+python -u scripts/run_small_nwd30_background.py
+```
+
+虽然入口文件名带background，这条命令会在当前终端等待全部阶段结束；
+训练进度写入`outputs/p1_small_nwd_pilot30_s0/stdout.log`。
+可在另一Git Bash窗口运行
+`tail -f /d/Python/YOLO-RegionSSOD/outputs/p1_small_nwd_pilot30_s0/stdout.log`查看。
+30轮后自动完成548原图val960、分尺寸recall和对比；训练完由用户通知验收。
+上段为当时交接命令，现已执行完成，不要再次启动。
+2026-10-31用户完成完整30轮、val960/recall，exit0及独立验收通过。
+NWD相对完整P1的mAP50-95−0.2123pp、small recall−0.6698pp，
+两条预登记后续线均未达到，保留原P1，不扩大本变体训练。
+完整类别/尺寸取舍与证据见[全量NWD结果](docs/paper/small_nwd30_results.md)；
+仅需复核时运行`python scripts/audit_p1_small_nwd.py`，不消耗新训练或推理。
+
+NWD之后的小框分配诊断见`docs/paper/assignment_geometry_results.md`：
+初版减少框外点却丢失已有小目标分配，不训练该初版。
+带整图覆盖保护的新规则已完成128个新基础tile确认，目标保留100%，
+但框外监督质量只降低48.10%，未达固定50%条件；两种分配候选均不训练。
+见`docs/paper/assignment_coverage_results.md`。这仍是零训练诊断，
+不是新的学生性能结果，也不据此改写原P1主对照。
+
+下一候选为原教师置信度同时用于伪框box/DFL，缓存诊断已通过，
+固定完整30轮协议见`docs/paper/regression_confidence30_protocol.md`。
+仅新增回归权重，原P1/NWD和两种分配规则不修改/叠加。
+预检与独立验收入口为：
+
+```bash
+python scripts/run_p1_regression_confidence.py --check-only
+python scripts/audit_p1_regression_confidence.py
+```
+
+完整训练入口为`python -u scripts/run_regression_confidence_background.py`，
+实际启动由本轮有界实验安排执行一次，已有运行状态时不要重复启动。
+日志/阶段/进程回执保存在`outputs/p1_regression_confidence_pilot30_s0/`，
+30轮后自动完整val960及recall；扩大训练仍需完整结果及用户执行。
+该次训练于2026-10-31 12:31启动、12:37首轮验证时报错退出（exit1）。
+验证集没有训练专用的`pseudo_weights`字段，新增损失误将其判为异常；
+没有完整epoch记录或学生性能结论，不重启、不续训。
+原始证据已保留，临时监控按失败终态清理；不要重复运行上述入口。
+详见[工程失败记录](docs/paper/regression_confidence30_failure.md)。
+
+验证兼容修正版使用独立目录，见
+[修正版协议](docs/paper/regression_confidence30_valfix_protocol.md)。
+训练时仍强制伪框元数据，验证时用原P1损失；不覆盖旧失败产物。
+在仓库根目录、`yolo`环境执行：
+
+```powershell
+python scripts/run_p1_regression_confidence.py --validation-fix --check-only
+python scripts/run_p1_regression_confidence.py --validation-fix --engineering-only
+```
+
+前两条为零优化器步骤工程检查，不是新训练。
+检查通过后执行以下完整30轮命令。2026-10-31用户明确“小训练由助手启动”，
+本次由助手单次启动，用户不需重复执行；更长训练仍交用户：
+
+```powershell
+python -u scripts/run_regression_confidence_background.py --validation-fix
+```
+
+输出位于`outputs/p1_regression_confidence_valfix_pilot30_s0/`，
+包装结束后检查真实exit_code和status，成功才独立验收：
+
+```powershell
+python scripts/audit_p1_regression_confidence.py --validation-fix
+```
+
+工程检查必须包括标准验证数据2张图的训练期DetectionValidator调用、
+有限验证损失、与原P1验证损失一致，以及train缺元数据仍拒绝；
+这些小样本数值不用于性能判断。更大训练仍需完整30轮过固定继续线。
+2026-10-31修正版工程检查已实际通过：255个梯度张量有限、标准验证2图、
+原P1损失精确一致，0优化器步骤；后续预检23809来源通过。
+修复时124项测试及五个相关Python文件Pyright零错误/警告；
+补充零推理份额统计后全库131项测试通过。
+13:28一次启动首轮被KeyboardInterrupt中断，原始证据已完整归档；
+本次按新授权从COCO独立开始30轮，不拼接中断进度，实际状态以回执/日志为准。
+该独立运行已于2026-10-31 13:36由助手启动，包装22020/训练22512
+身份已核实，临时监控ID为`a`，每10分钟核对，正常静默。
+23809来源预检及实际args配对检查通过；该次运行现已结束，勿重复执行启动入口。
+13:41已完成首轮训练及全部35批验证并进入第2轮，CSV首行和验证loss有限，
+stderr为空；已越过此前验证崩溃点，但仍须完整30轮后判断性能。
+
+2026-10-31 15:41完整30轮、548原图val960/recall结束，包装exit0，
+原进程均已停止；15:48上述valfix独立验收通过。
+相对完整P1，mAP50-95−0.1755pp、small recall+0.9444pp（+251匹配），
+medium/large recall分别−0.1350/−0.1874pp，类别AP为1升9降。
+两条预登记扩大训练条件均未通过，不扩大本变体训练。
+完整表、来源及限制见[回归置信度30轮结果](docs/paper/regression_confidence30_results.md)。
+仅复核时运行上述独立验收命令，不重启训练；临时监控`a`在收尾后删除。
+持续目标已由用户暂停并保持paused，需要继续研究时由用户点击继续。
+
+## 覆盖保护分配：新授权的探索性30轮
+
+2026-10-31用户重新激活目标并要求降低探索门槛。旧诊断保留100%有效目标、
+框外质量降低48.10%，未达当时50%代理线；本次另行登记完整学生确认，
+不改旧判定。唯一变量为带整图覆盖退回的框内点优先分配。
+
+```powershell
+python scripts/run_p1_coverage_guard.py --check-only
+python scripts/run_p1_coverage_guard.py --engineering-only
+python -u scripts/run_coverage_guard_background.py
+python scripts/audit_p1_coverage_guard.py
+```
+
+前两条为预检与零步工程检查；第三条由助手单次启动完整30轮并配临时监控，
+第四条在终态后独立验收。已有run/dispatch时不重复启动。
+参考复用完整P1 seed0独立30轮，完整val960与固定recall自动执行。
+新探索条件为AP≥+0.10pp且small不降，或small≥+0.50pp且AP不降，
+不代表显著性或原Gate3通过。协议见
+[覆盖保护30轮](docs/paper/assignment_coverage30_protocol.md)。
+Zotero文献位置现为`Research / YOLO-RegionSSOD`。
+
+等待期另备正式100轮配对入口，当前只可查看计划：
+
+```powershell
+python scripts/run_coverage_guard_full100.py --plan-only
+```
+
+该入口在完整30轮独立验收且值得扩大训练前拒绝启动；
+尚未建议或执行大训练。条件式命令与职责见
+[正式配对协议](docs/paper/coverage_guard_full100_protocol.md)。
+
+终态更新（2026-10-31）：覆盖保护于18:29:34正常完成30轮及完整val960/recall，
+18:42独立验收通过；mAP50-95−0.0652pp、small recall+0.1016pp（+27匹配），
+未达本轮较低探索线，不扩大训练，条件式100轮入口仍拒绝启动。
+完整尺寸/类别/耗时及证据见
+[覆盖保护30轮结果](docs/paper/coverage_guard30_results.md)。
+上面的30轮启动命令保留为复现入口，已有产物时不要再次运行；
+只需复核时运行独立验收。监控30在收尾后删除，持续目标保持paused，
+后续研究需点击继续。
+
+## 综合盘点后的正式主对照交接（2026-10-31）
+
+用户要求成果衡量不限于两条条件。已重放12组完整30轮，
+综合整体/类别/尺寸、逐目标增失、固定点误检/F1、重复seed与成本，
+决定优先补原B2/P1各100轮，覆盖保护的净+27小目标成果保留、暂不优先扩训。
+原Gate3及各候选历史判定不改；完整依据见
+[训练投入盘点](docs/paper/training_investment_review_20261031.md)。
+
+以下为seed0原交接历史，现已完成，不要重复运行这些训练命令：
+
+```bash
+python scripts/run_paper1_full100.py --arm b2 --check-only
+python scripts/run_paper1_full100.py --arm p1 --check-only
+python -u scripts/run_paper1_full100.py --arm b2 --train
+# B2正常退出并验收通过后再执行：
+python -u scripts/run_paper1_full100.py --arm p1 --train
+```
+
+两臂各自COCO初始化，自动val960/recall/预测重放验收；
+助手本轮只预检，没有启动大训练。预算、日志、失败处理及只读验收见
+[正式主对照协议](docs/paper/paper1_full100_protocol.md)。
+早前覆盖保护100轮入口只对应该分配候选，本主对照使用独立入口和目录。
+
+正式B2误中断恢复（2026-10-31）：完整1–63轮和last.pt可用，
+原始13文件已归档；只针对此次B2新增显式检查点续训，不重跑前63轮。
+先由助手完成恢复检查，再由用户在原环境执行：
+
+```bash
+python scripts/run_paper1_full100.py --arm b2 --resume-check
+python -u scripts/run_paper1_full100.py --arm b2 --resume
+```
+
+从第64轮继续到100轮，进度改看
+`outputs/paper1_b2_formal100_s0/resume_stdout.log`。
+不要重复使用`--train`启动该B2目录；结束后自动执行原评估/验收。
+完整限制、归档和计时处理见
+[B2恢复协议](docs/paper/paper1_full100_recovery.md)。
+
+正式B2终态（2026-11-01）：恢复后完整100轮、val960和预测重放验收通过，
+真实exit0；AP50-95=25.8264%、small recall=39.2858%，
+相对既有B1同轮数AP50-95+0.9429pp。原63轮恢复事实保留。
+上述B2恢复命令已执行，**不要再次恢复或重复训练B2**。
+完整结果见[正式B2结果](docs/paper/b2_full100_results.md)。
+
+P1正式100轮也已于2026-11-01 16:17:55正常完成并独立验收通过，
+上述seed0训练和恢复命令均已完成，不要重复执行。只读复核使用：
+
+```bash
+python scripts/run_paper1_full100.py --arm p1 --audit
+```
+
+正式100轮P1−B2：mAP50-95+0.0528pp、小目标召回+2.1259pp（净多565个），
+同操作点未匹配预测+1221、F1+0.1800pp，类别AP7升3降。
+小目标收益保留，整体AP仅微升；B2中断恢复事实和原30轮证据分别报告。
+详见[正式配对结果](docs/paper/p1_b2_full100_results.md)。
+
+学生seed1的B2已于2026-11-01 23:04:51正常结束并独立验收通过：
+mAP50-95=25.6683%、small recall=39.3611%（10461/26577）。
+见[学生seed1 B2结果](docs/paper/b2_seed1_full100_results.md)；不要重复训练B2。
+同seed1的P1已于2026-11-02在55轮后由用户恢复，17:20:27真实exit0，
+连续完整100轮、548原图val960/recall和预测重放通过独立验收。
+原55轮CSV前缀和21文件归档保留，原中断退出码仍未知。
+**两学生seed的正式配对均已完成，不要重复执行训练或恢复。**
+在已激活`yolo`的Git Bash只读复核：
+
+```bash
+cd /d/Python/YOLO-RegionSSOD
+python scripts/run_paper1_seed1_full100.py --arm b2 --audit
+python scripts/resume_paper1_p1_seed1.py --audit
+python scripts/audit_paper1_seed1_effects.py
+```
+
+seed1 P1−B2：AP50-95+0.3351pp、small recall+2.4194pp（净+643），
+未匹配预测+1435、precision−2.6573pp、F1+0.4031pp，学生耗时多31.82%。
+两个正式100轮seed平均配对增益为AP50-95+0.1939±0.1996pp、
+small recall+2.2726±0.2075pp（样本SD）；原30轮另报。
+建议本轮主线训练收束、优先写作与已有机制分析，不自动加seed或轮数。
+原Gate3/4不追认为通过，B0等论文证据缺口仍需按投稿范围盘点。
+完整结果见[seed1与两seed正式配对](docs/paper/p1_b2_seed1_full100_results.md)。
+seed0 B2及seed1 P1的恢复均不承诺逐位连续等价。恢复历史见
+[P1种子1恢复说明](docs/paper/paper1_p1_seed1_recovery.md)，
+原[seed1确认协议](docs/paper/paper1_seed1_full100_protocol.md)保持冻结。
+
+## Baseline 定义
+
+| 名称 | 训练数据 | 作用 |
+|---|---|---|
+| B0 Full-sup reference | 完整 VisDrone 标签 | 上界参考，不参与方法变量 |
+| B1 Partial-sup crop | 仅标注 tile | 区域局部监督主 baseline |
+| B2 Naive self-training | 标注 tile + 全局阈值伪标签 tile | 半监督基线 |
+| P1 Scale-aware | 尺度分层阈值 + 置信度软权重 + uncertain-ignore | 已验收，有正向初步收益；原 Gate 3 未达门槛 |
+
+## 数据目录约定
+
+每次 `make-partial` 生成一个新目录：
+
+```text
+data/visdrone_area10/
+  labeled/images/train/
+  labeled/labels/train/
+  unlabeled/images/train/
+  splits/labeled_train.txt
+  splits/unlabeled_train.txt
+  splits/val.txt
+  manifest.jsonl
+  summary.json
+  dataset.yaml
+```
+
+`manifest.jsonl` 会逐图记录 tile 坐标、被保留标签数和未标注 tile 中实际可见的
+隐藏 GT 数。这个字段用于分析伪标签漏检，不允许作为训练输入。
+
+## 重要限制
+
+- Ultralytics 的 mAP 不是 VisDrone 官方 AP；论文最终表仍需官方工具或服务器。
+- 现有 VisDrone test-dev 已被旧项目多次查看，不能继续当作盲测集。
+- 表 4-1 至 4-6 仍为 seed0 主对照，表 4-S4 是固定 split/教师下 B2/P1 的两学生 seed 复验；原 Gate 3 不变，见进度文档第 3.8、3.20 节。
+- 首轮不要把网络结构、P2、注意力和推理分辨率一起修改，否则无法归因。
+
+详细实验计划见 `docs/experiment_plan_8weeks.md`，命令协议见
+`docs/baseline_protocol.md`。
+
+论文完成计划、当前进度和后续会话交接见
+`docs/paper_completion_plan.md`；新的 Codex 会话应先阅读根目录 `AGENTS.md`。

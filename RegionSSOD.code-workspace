@@ -6,6 +6,12 @@
     "explorer.fileNesting.enabled": true,
     "explorer.fileNesting.expand": false,
     "explorer.fileNesting.patterns": {
+      "README.md": "EXPERIMENT_COMMANDS.md",
+      "01-论文复现.md": "s3od_comparison.md, literature_map.md, zotero_literature_library.md, a_keyword_research.md, small_pr_literature.md, coverage_guard_literature.md",
+      "02-基线拆解.md": "positive_localization_analysis.md, candidate_retention_analysis.md, cross_view_flip_analysis.md, scale_support_analysis.md, ignore_recovery_analysis.md",
+      "03-方法设计.md": "research_tracks.md, nwd_mechanism_positioning.md, assignment_*protocol.md, coverage_guard_full100_protocol.md, small_nwd*protocol.md, regression_confidence*protocol.md, confidence_calibration_protocol.md, context_rectification_analysis.md",
+      "04-实验验证.md": "assignment_*results.md, b2_*results.md, p1_b2_*results.md, paper1_*protocol.md, paper1_*recovery.md, case_studies.md, experiments.md, results_tables.md, evidence.md, confidence_calibration_results.md, context_rectification_results.md, coverage_guard30_results.md, high_precision_diagnostic_*.md, scale_operating_point_*.md, regression_confidence*results.md, regression_confidence30_failure.md, regression_confidence_diagnostic.md, small_nwd*results.md, small_nwd30_interruption.md, small_pr_protocol.md, small_pr_results.md, training_investment_*, organization_validation.md, preservation.md, preservation_receipt.json",
+      "05-论文写作.md": "introduction.md, related_work.md, methods.md, main_results.md, discussion.md, conclusion.md, references.md, references.bib, paper1_writeup_plan.md",
       "bounded_retention.py": "bounded_retention_*.py",
       "competitive_negative.py": "competitive_negative_v2.py",
       "positive_quality_transport.py": "positive_quality_transport_v2.py, positive_quality_pipeline_check.py",
