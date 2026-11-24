@@ -1,0 +1,394 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1430" viewBox="0 0 1400 1430" role="img" aria-labelledby="title desc">
+<title id="title">YOLOv5m · VisDrone 水平框检测全流程</title>
+<desc id="desc">上方是整图数据流。左列主干的三个侧输出连入下方双向金字塔，再由右侧检测头输出整图水平框。编号对应中部算子展开。</desc>
+<defs>
+  <marker id="end" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5.6" markerHeight="5.6" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#576775"/></marker>
+  <linearGradient id="detect" x2="1" y2="1" gradientUnits="objectBoundingBox"><stop stop-color="#aaca8e"/><stop offset="1" stop-color="#ffdc65"/></linearGradient>
+  <pattern id="airfield" patternUnits="userSpaceOnUse" width="184" height="90"><rect width="184" height="90" fill="#adb9a1"/><path d="M-4 5L186 61M-5 42L186 98" stroke="#788980" stroke-width="12"/><path d="M-4 5L186 61" stroke="#e6e4cf" stroke-width="1.3" stroke-dasharray="10 5"/><path d="M8 78l34-48m54 35 20-27" stroke="#d3cbb2" stroke-width="8"/><g fill="#eff0df" stroke="#46555a" stroke-width=".65"><path id="plane" d="M0-8l1.5 6 7 4v2L1 2v4l2.5 2v1L0 8l-3.5 1V8l2.5-2V2l-7.5 2V2l7-4z"/><use href="#plane" transform="translate(49 59) rotate(42)"/><use href="#plane" transform="translate(85 68) rotate(42)"/><use href="#plane" transform="translate(135 24) rotate(-32)"/></g></pattern>
+<pattern id="street" patternUnits="userSpaceOnUse" width="96" height="66">
+      <rect width="96" height="66" fill="#afbaa9"/><path d="M0 28h96m-67-28v66" stroke="#7e8d8b" stroke-width="14"/>
+      <path d="M0 28h96" stroke="#efe4bd" stroke-dasharray="7 4"/><g fill="#d6cbb9" stroke="#8d9189">
+      <path d="M4 4h14v13H4zM43 5h39v12H43zM45 44h18v17H45z"/></g>
+      <path d="M4 25h8m31 7h8m17-7h8" stroke="#f3ecdc" stroke-width="3"/></pattern></defs>
+<style>text{font-family:"Microsoft YaHei",sans-serif;fill:#263644} .wire{fill:none;stroke:#71808a;stroke-width:1.35;stroke-linecap:round;stroke-linejoin:round}</style>
+<rect x="0" y="0" width="1400" height="1430" rx="0" fill="#fff" stroke="none"/>
+<text x="47" y="51" text-anchor="start" font-size="38" font-weight="700" style="fill:#0088d1">YOLOv5m</text>
+<text x="360" y="50" text-anchor="start" font-size="22" font-weight="600" style="fill:#09557e">作者基线 · 全图检测</text>
+<text x="1351" y="49" text-anchor="end" font-size="17" font-weight="600" style="fill:#428abb">VisDrone  /  YOLOv5m  /  水平框</text>
+<rect x="38" y="65" width="1324" height="1322" rx="17" fill="#ededed" stroke="#d7dadd"/>
+<path class="wire" d="M446 66V1386"/>
+<path class="wire" d="M446 239H1361"/>
+<path class="wire" d="M446 827H1361"/>
+<path class="wire" d="M39 353H445"/>
+<text x="50" y="94" text-anchor="start" font-size="24" font-weight="700" style="fill:#09557e">Backbone</text>
+<text x="51" y="116" text-anchor="start" font-size="15" font-weight="500" style="fill:#09557e">CSP · YOLOv5m</text>
+<text x="51" y="136" text-anchor="start" font-size="15" font-weight="500" style="fill:#09557e">三层侧输出</text>
+<text x="462" y="94" text-anchor="start" font-size="24" font-weight="700" style="fill:#09557e">Head</text>
+<text x="538" y="94" text-anchor="start" font-size="16" font-weight="500" style="fill:#09557e">FPN → PAN → Detect → 整图水平框</text>
+<path d="M69 327l75 -75h262l-75 75z" fill="url(#street)" stroke="#4388bc"/>
+<path d="M69 327h262v15h-262z" fill="#fff" stroke="#4388bc"/>
+<path d="M331 327l75 -75v15l-75 75z" fill="#c5d2de" stroke="#4388bc"/>
+<text x="200.0" y="339" text-anchor="middle" font-size="12" font-weight="650" style="fill:#263644">无人机输入 · 街景示意</text>
+<path d="M96 262l55 -55h220l-55 55z" fill="#fff" stroke="#4388bc"/>
+<path d="M96 262h220v15h-220z" fill="#fff" stroke="#4388bc"/>
+<path d="M316 262l55 -55v15l-55 55z" fill="#c5d2de" stroke="#4388bc"/>
+<text x="206.0" y="274" text-anchor="middle" font-size="12" font-weight="650" style="fill:#263644">P3 · stride 8</text>
+<path d="M122 206l43 -43h177l-43 43z" fill="#fff" stroke="#4388bc"/>
+<path d="M122 206h177v15h-177z" fill="#fff" stroke="#4388bc"/>
+<path d="M299 206l43 -43v15l-43 43z" fill="#c5d2de" stroke="#4388bc"/>
+<text x="210.5" y="218" text-anchor="middle" font-size="12" font-weight="650" style="fill:#263644">P4 · stride 16</text>
+<path d="M151 153l34 -34h133l-34 34z" fill="#fff" stroke="#4388bc"/>
+<path d="M151 153h133v15h-133z" fill="#fff" stroke="#4388bc"/>
+<path d="M284 153l34 -34v15l-34 34z" fill="#c5d2de" stroke="#4388bc"/>
+<text x="217.5" y="165" text-anchor="middle" font-size="12" font-weight="650" style="fill:#263644">P5 · stride 32</text>
+<path class="wire" d="M292 160H500V134H566" marker-end="url(#end)"/>
+<rect x="568" y="124" width="64" height="20" rx="4" fill="#ffe8a2" stroke="#8c9da6"/>
+<text x="600.0" y="138.08" text-anchor="middle" font-size="12" font-weight="650" style="fill:#263644">P5</text>
+<path class="wire" d="M632 134H663" marker-end="url(#end)"/>
+<rect x="665" y="124" width="78" height="20" rx="4" fill="#85d9f1" stroke="#8c9da6"/>
+<text x="704.0" y="138.08" text-anchor="middle" font-size="12" font-weight="650" style="fill:#263644">FPN / PAN</text>
+<path class="wire" d="M743 134H790" marker-end="url(#end)"/>
+<path class="wire" d="M307 213H520V166H566" marker-end="url(#end)"/>
+<rect x="568" y="156" width="64" height="20" rx="4" fill="#ffe8a2" stroke="#8c9da6"/>
+<text x="600.0" y="170.08" text-anchor="middle" font-size="12" font-weight="650" style="fill:#263644">P4</text>
+<path class="wire" d="M632 166H663" marker-end="url(#end)"/>
+<rect x="665" y="156" width="78" height="20" rx="4" fill="#85d9f1" stroke="#8c9da6"/>
+<text x="704.0" y="170.08" text-anchor="middle" font-size="12" font-weight="650" style="fill:#263644">FPN / PAN</text>
+<path class="wire" d="M743 166H790" marker-end="url(#end)"/>
+<path class="wire" d="M324 269H430V199H566" marker-end="url(#end)"/>
+<rect x="568" y="189" width="64" height="20" rx="4" fill="#ffe8a2" stroke="#8c9da6"/>
+<text x="600.0" y="203.08" text-anchor="middle" font-size="12" font-weight="650" style="fill:#263644">P3</text>
+<path class="wire" d="M632 199H663" marker-end="url(#end)"/>
+<rect x="665" y="189" width="78" height="20" rx="4" fill="#85d9f1" stroke="#8c9da6"/>
+<text x="704.0" y="203.08" text-anchor="middle" font-size="12" font-weight="650" style="fill:#263644">FPN / PAN</text>
+<path class="wire" d="M743 199H790" marker-end="url(#end)"/>
+<path d="M791 195l22 -22h74l-22 22z" fill="#fff" stroke="#4388bc"/>
+<path d="M791 195h74v15h-74z" fill="#fff" stroke="#4388bc"/>
+<path d="M865 195l22 -22v15l-22 22z" fill="#c5d2de" stroke="#4388bc"/>
+<text x="828.0" y="207" text-anchor="middle" font-size="12" font-weight="650" style="fill:#263644">P3</text>
+<path d="M797 169l22 -22h69l-22 22z" fill="#fff" stroke="#4388bc"/>
+<path d="M797 169h69v15h-69z" fill="#fff" stroke="#4388bc"/>
+<path d="M866 169l22 -22v15l-22 22z" fill="#c5d2de" stroke="#4388bc"/>
+<text x="831.5" y="181" text-anchor="middle" font-size="12" font-weight="650" style="fill:#263644">P4</text>
+<path d="M803 143l22 -22h64l-22 22z" fill="#fff" stroke="#4388bc"/>
+<path d="M803 143h64v15h-64z" fill="#fff" stroke="#4388bc"/>
+<path d="M867 143l22 -22v15l-22 22z" fill="#c5d2de" stroke="#4388bc"/>
+<text x="835.0" y="155" text-anchor="middle" font-size="12" font-weight="650" style="fill:#263644">P5</text>
+<path class="wire" d="M879 166H927" marker-end="url(#end)"/>
+<rect x="930" y="143" width="105" height="46" rx="4" fill="url(#detect)" stroke="#8c9da6"/>
+<text x="982.5" y="164.0" text-anchor="middle" font-size="15" font-weight="650" style="fill:#263644">Detect</text>
+<text x="982.5" y="181.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">三尺度预测</text>
+<path class="wire" d="M1035 166H1056" marker-end="url(#end)"/>
+<rect x="1058" y="143" width="85" height="46" rx="4" fill="url(#detect)" stroke="#8c9da6"/>
+<text x="1100.5" y="164.0" text-anchor="middle" font-size="15" font-weight="650" style="fill:#263644">解码</text>
+<text x="1100.5" y="181.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">锚框 + 网格</text>
+<rect x="1170" y="94" width="177" height="128" rx="9" fill="#cfdaeb" stroke="#8c9da6"/>
+<path class="wire" d="M1143 166h13v-42h23" marker-end="url(#end)"/>
+<path class="wire" d="M1156 166v23h23" marker-end="url(#end)"/>
+<rect x="1181" y="108" width="74" height="32" rx="4" fill="#fff" stroke="#8c9da6"/>
+<text x="1218.0" y="128.76" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">BBox</text>
+<rect x="1181" y="174" width="74" height="32" rx="4" fill="#fff" stroke="#8c9da6"/>
+<text x="1218.0" y="194.76" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">Class</text>
+<text x="1262" y="129" text-anchor="start" font-size="13" font-weight="400" style="fill:#263644">4 个坐标</text>
+<text x="1262" y="195" text-anchor="start" font-size="13" font-weight="400" style="fill:#263644">10 类</text>
+<text x="1258" y="160" text-anchor="middle" font-size="13" font-weight="600" style="fill:#09557e">目标性 × 类别分数</text>
+<text x="58" y="381" text-anchor="start" font-size="18" font-weight="700" style="fill:#09557e">整图输入</text>
+<text x="161" y="381" text-anchor="start" font-size="14" font-weight="400" style="fill:#263644">RGB · 长边 1536 · 等比例缩放</text>
+<path class="wire" d="M201 342V360 M230 387V405" marker-end="url(#end)"/>
+<rect x="120" y="407" width="223" height="47" rx="4" fill="#85d9f1" stroke="#8c9da6"/>
+<path class="wire" d="M301 407v47"/>
+<text x="130" y="426" text-anchor="start" font-size="15" font-weight="700" style="fill:#263644">Focus · 3×3 Conv</text>
+<text x="130" y="445" text-anchor="start" font-size="13" font-weight="400" style="fill:#263644">重排邻近像素后卷积</text>
+<text x="322" y="435" text-anchor="middle" font-size="13" font-weight="650" style="fill:#263644">P1</text>
+<text x="239" y="473" text-anchor="start" font-size="12" font-weight="400" style="fill:#263644">步长 2 × 48 通道</text>
+<path class="wire" d="M230 454V483" marker-end="url(#end)"/>
+<rect x="120" y="485" width="223" height="47" rx="4" fill="#85d9f1" stroke="#8c9da6"/>
+<path class="wire" d="M301 485v47"/>
+<text x="130" y="504" text-anchor="start" font-size="15" font-weight="700" style="fill:#263644">Conv ↓2 → C3 ×2</text>
+<text x="130" y="523" text-anchor="start" font-size="13" font-weight="400" style="fill:#263644">3×3 卷积下采样</text>
+<text x="322" y="513" text-anchor="middle" font-size="13" font-weight="650" style="fill:#263644">P2</text>
+<text x="239" y="551" text-anchor="start" font-size="12" font-weight="400" style="fill:#263644">步长 4 × 96 通道</text>
+<path class="wire" d="M230 532V561" marker-end="url(#end)"/>
+<rect x="120" y="563" width="223" height="47" rx="4" fill="#ffe8a2" stroke="#8c9da6"/>
+<path class="wire" d="M301 563v47"/>
+<text x="130" y="582" text-anchor="start" font-size="15" font-weight="700" style="fill:#263644">Conv ↓2 → C3 ×6</text>
+<text x="130" y="601" text-anchor="start" font-size="13" font-weight="400" style="fill:#263644">整图浅层特征</text>
+<text x="322" y="591" text-anchor="middle" font-size="13" font-weight="650" style="fill:#263644">P3</text>
+<text x="239" y="629" text-anchor="start" font-size="12" font-weight="400" style="fill:#263644">步长 8 × 192 通道</text>
+<path class="wire" d="M230 610V654" marker-end="url(#end)"/>
+<rect x="120" y="656" width="223" height="47" rx="4" fill="#f6cba6" stroke="#8c9da6"/>
+<path class="wire" d="M301 656v47"/>
+<text x="130" y="675" text-anchor="start" font-size="15" font-weight="700" style="fill:#263644">P3 直通</text>
+<text x="130" y="694" text-anchor="start" font-size="13" font-weight="400" style="fill:#263644">保留完整特征图</text>
+<rect x="309" y="667" width="25" height="24" rx="4" fill="#9e4d1b" stroke="none"/>
+<text x="321.5" y="684" text-anchor="middle" font-size="14" font-weight="700" style="fill:white">1</text>
+<text x="239" y="722" text-anchor="start" font-size="12" font-weight="400" style="fill:#263644">整幅 P3</text>
+<path class="wire" d="M230 703V752" marker-end="url(#end)"/>
+<rect x="120" y="754" width="223" height="47" rx="4" fill="#b9eeea" stroke="#8c9da6"/>
+<path class="wire" d="M301 754v47"/>
+<text x="130" y="773" text-anchor="start" font-size="15" font-weight="700" style="fill:#263644">整图传递</text>
+<text x="130" y="792" text-anchor="start" font-size="13" font-weight="400" style="fill:#263644">所有位置进入深层</text>
+<rect x="309" y="765" width="25" height="24" rx="4" fill="#266294" stroke="none"/>
+<text x="321.5" y="782" text-anchor="middle" font-size="14" font-weight="700" style="fill:white">2</text>
+<text x="239" y="820" text-anchor="start" font-size="12" font-weight="400" style="fill:#263644">整图 × 192 通道</text>
+<path class="wire" d="M230 801V848" marker-end="url(#end)"/>
+<rect x="120" y="850" width="223" height="47" rx="4" fill="#85d9f1" stroke="#8c9da6"/>
+<path class="wire" d="M301 850v47"/>
+<text x="130" y="869" text-anchor="start" font-size="15" font-weight="700" style="fill:#263644">3×3 Conv ↓2</text>
+<text x="130" y="888" text-anchor="start" font-size="13" font-weight="400" style="fill:#263644">空间降采样</text>
+<text x="322" y="878" text-anchor="middle" font-size="13" font-weight="650" style="fill:#263644">P4</text>
+<text x="239" y="916" text-anchor="start" font-size="12" font-weight="400" style="fill:#263644">步长 16 × 384 通道</text>
+<path class="wire" d="M230 897V951" marker-end="url(#end)"/>
+<rect x="120" y="953" width="223" height="47" rx="4" fill="#ffe8a2" stroke="#8c9da6"/>
+<path class="wire" d="M301 953v47"/>
+<text x="130" y="972" text-anchor="start" font-size="15" font-weight="700" style="fill:#263644">C3 ×6</text>
+<text x="130" y="991" text-anchor="start" font-size="13" font-weight="400" style="fill:#263644">聚合中层上下文</text>
+<text x="322" y="981" text-anchor="middle" font-size="13" font-weight="650" style="fill:#263644">P4</text>
+<text x="239" y="1019" text-anchor="start" font-size="12" font-weight="400" style="fill:#263644">步长 16 × 384 通道</text>
+<path class="wire" d="M230 1000V1052" marker-end="url(#end)"/>
+<rect x="120" y="1054" width="223" height="47" rx="4" fill="#85d9f1" stroke="#8c9da6"/>
+<path class="wire" d="M301 1054v47"/>
+<text x="130" y="1073" text-anchor="start" font-size="15" font-weight="700" style="fill:#263644">3×3 Conv ↓2</text>
+<text x="130" y="1092" text-anchor="start" font-size="13" font-weight="400" style="fill:#263644">空间降采样</text>
+<text x="322" y="1082" text-anchor="middle" font-size="13" font-weight="650" style="fill:#263644">P5</text>
+<text x="239" y="1120" text-anchor="start" font-size="12" font-weight="400" style="fill:#263644">步长 32 × 768 通道</text>
+<path class="wire" d="M230 1101V1153" marker-end="url(#end)"/>
+<rect x="120" y="1155" width="223" height="47" rx="4" fill="#bee09c" stroke="#8c9da6"/>
+<path class="wire" d="M301 1155v47"/>
+<text x="130" y="1174" text-anchor="start" font-size="15" font-weight="700" style="fill:#263644">SPP</text>
+<text x="130" y="1193" text-anchor="start" font-size="13" font-weight="400" style="fill:#263644">池化核 5 / 9 / 13</text>
+<text x="322" y="1183" text-anchor="middle" font-size="13" font-weight="650" style="fill:#263644">P5</text>
+<text x="239" y="1221" text-anchor="start" font-size="12" font-weight="400" style="fill:#263644">拼接多尺度池化结果</text>
+<path class="wire" d="M230 1202V1250" marker-end="url(#end)"/>
+<rect x="120" y="1252" width="223" height="47" rx="4" fill="#ffe8a2" stroke="#8c9da6"/>
+<path class="wire" d="M301 1252v47"/>
+<text x="130" y="1271" text-anchor="start" font-size="15" font-weight="700" style="fill:#263644">C3 ×2</text>
+<text x="130" y="1290" text-anchor="start" font-size="13" font-weight="400" style="fill:#263644">输出深层特征</text>
+<text x="322" y="1280" text-anchor="middle" font-size="13" font-weight="650" style="fill:#263644">P5</text>
+<text x="239" y="1318" text-anchor="start" font-size="12" font-weight="400" style="fill:#263644">步长 32 × 768 通道</text>
+<text x="58" y="1344" text-anchor="start" font-size="13" font-weight="400" style="fill:#263644">尺度标注使用原图坐标系；× 表示瓶颈重复数。</text>
+<text x="230" y="1375" text-anchor="middle" font-size="24" font-weight="700" style="fill:#09557e">Backbone</text>
+<text x="457" y="267" text-anchor="start" font-size="24" font-weight="700" style="fill:#09557e">Details</text>
+<rect x="455" y="278" width="321" height="537" rx="4" fill="#ffe8a2" stroke="#8c9da6"/>
+<text x="466" y="302" text-anchor="start" font-size="20" font-weight="700" style="fill:#09557e">C3 · CSP Bottleneck</text>
+<text x="466" y="324" text-anchor="start" font-size="14" font-weight="400" style="fill:#263644">两路并行变换，在通道维度拼接。</text>
+<text x="609" y="364" text-anchor="middle" font-size="16" font-weight="650" style="fill:#263644">输入特征 x</text>
+<path class="wire" d="M609 372v11H545v19" marker-end="url(#end)"/>
+<path class="wire" d="M609 383h93v19" marker-end="url(#end)"/>
+<rect x="480" y="405" width="130" height="43" rx="4" fill="#85d9f1" stroke="#8c9da6"/>
+<text x="545.0" y="431.6" text-anchor="middle" font-size="15" font-weight="650" style="fill:#263644">1×1 Conv</text>
+<rect x="641" y="405" width="122" height="43" rx="4" fill="#85d9f1" stroke="#8c9da6"/>
+<text x="702.0" y="431.6" text-anchor="middle" font-size="15" font-weight="650" style="fill:#263644">1×1 Conv</text>
+<path class="wire" d="M545 448v32" marker-end="url(#end)"/>
+<rect x="471" y="482" width="148" height="55" rx="4" fill="#f6cba6" stroke="#8c9da6"/>
+<text x="545.0" y="507.5" text-anchor="middle" font-size="15" font-weight="650" style="fill:#263644">Bottleneck ×n</text>
+<text x="545.0" y="524.5" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">1×1 → 3×3</text>
+<path class="wire" d="M545 537v46h63v32" marker-end="url(#end)"/>
+<path class="wire" d="M702 448v135h-78v32" marker-end="url(#end)"/>
+<rect x="554" y="617" width="126" height="38" rx="4" fill="#bee09c" stroke="#8c9da6"/>
+<text x="617.0" y="641.1" text-anchor="middle" font-size="15" font-weight="650" style="fill:#263644">Concat</text>
+<path class="wire" d="M617 655v26" marker-end="url(#end)"/>
+<rect x="554" y="683" width="126" height="38" rx="4" fill="#85d9f1" stroke="#8c9da6"/>
+<text x="617.0" y="707.1" text-anchor="middle" font-size="15" font-weight="650" style="fill:#263644">1×1 Conv</text>
+<path class="wire" d="M617 721v20" marker-end="url(#end)"/>
+<text x="617" y="762" text-anchor="middle" font-size="16" font-weight="650" style="fill:#263644">输出特征 y</text>
+<text x="466" y="793" text-anchor="start" font-size="13" font-weight="400" style="fill:#263644">YOLOv5m 的深度倍率 0.67，宽度倍率 0.75。</text>
+<rect x="787" y="278" width="138" height="23" rx="0" fill="#dfeaf4" stroke="#aebed0"/>
+<text x="856.0" y="294" text-anchor="middle" font-size="13" font-weight="650" style="fill:#263644">主干阶段</text>
+<rect x="925" y="278" width="116" height="23" rx="0" fill="#dfeaf4" stroke="#aebed0"/>
+<text x="983.0" y="294" text-anchor="middle" font-size="13" font-weight="650" style="fill:#263644">P2</text>
+<rect x="1041" y="278" width="113" height="23" rx="0" fill="#dfeaf4" stroke="#aebed0"/>
+<text x="1097.5" y="294" text-anchor="middle" font-size="13" font-weight="650" style="fill:#263644">P3</text>
+<rect x="1154" y="278" width="99" height="23" rx="0" fill="#dfeaf4" stroke="#aebed0"/>
+<text x="1203.5" y="294" text-anchor="middle" font-size="13" font-weight="650" style="fill:#263644">P4</text>
+<rect x="1253" y="278" width="96" height="23" rx="0" fill="#dfeaf4" stroke="#aebed0"/>
+<text x="1301.0" y="294" text-anchor="middle" font-size="13" font-weight="650" style="fill:#263644">P5</text>
+<rect x="787" y="301" width="138" height="23" rx="0" fill="#f3f3f3" stroke="#aebed0"/>
+<text x="856.0" y="317" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">C3 重复数</text>
+<rect x="925" y="301" width="116" height="23" rx="0" fill="#f3f3f3" stroke="#aebed0"/>
+<text x="983.0" y="317" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">2</text>
+<rect x="1041" y="301" width="113" height="23" rx="0" fill="#f3f3f3" stroke="#aebed0"/>
+<text x="1097.5" y="317" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">6</text>
+<rect x="1154" y="301" width="99" height="23" rx="0" fill="#f3f3f3" stroke="#aebed0"/>
+<text x="1203.5" y="317" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">6</text>
+<rect x="1253" y="301" width="96" height="23" rx="0" fill="#f3f3f3" stroke="#aebed0"/>
+<text x="1301.0" y="317" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">2</text>
+<rect x="787" y="324" width="138" height="23" rx="0" fill="#f3f3f3" stroke="#aebed0"/>
+<text x="856.0" y="340" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">输出通道</text>
+<rect x="925" y="324" width="116" height="23" rx="0" fill="#f3f3f3" stroke="#aebed0"/>
+<text x="983.0" y="340" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">96</text>
+<rect x="1041" y="324" width="113" height="23" rx="0" fill="#f3f3f3" stroke="#aebed0"/>
+<text x="1097.5" y="340" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">192</text>
+<rect x="1154" y="324" width="99" height="23" rx="0" fill="#f3f3f3" stroke="#aebed0"/>
+<text x="1203.5" y="340" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">384</text>
+<rect x="1253" y="324" width="96" height="23" rx="0" fill="#f3f3f3" stroke="#aebed0"/>
+<text x="1301.0" y="340" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">768</text>
+<rect x="787" y="347" width="138" height="23" rx="0" fill="#f3f3f3" stroke="#aebed0"/>
+<text x="856.0" y="363" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">输入步长</text>
+<rect x="925" y="347" width="116" height="23" rx="0" fill="#f3f3f3" stroke="#aebed0"/>
+<text x="983.0" y="363" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">4</text>
+<rect x="1041" y="347" width="113" height="23" rx="0" fill="#f3f3f3" stroke="#aebed0"/>
+<text x="1097.5" y="363" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">8</text>
+<rect x="1154" y="347" width="99" height="23" rx="0" fill="#f3f3f3" stroke="#aebed0"/>
+<text x="1203.5" y="363" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">16</text>
+<rect x="1253" y="347" width="96" height="23" rx="0" fill="#f3f3f3" stroke="#aebed0"/>
+<text x="1301.0" y="363" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">32</text>
+<rect x="787" y="381" width="181" height="272" rx="4" fill="#dde3e7" stroke="#8c9da6"/>
+<text x="797" y="407" text-anchor="start" font-size="18" font-weight="700" style="fill:#09557e">全图 P3</text>
+<text x="797" y="430" text-anchor="start" font-size="14" font-weight="400" style="fill:#263644">保留浅层细节</text>
+<rect x="933" y="389" width="25" height="24" rx="4" fill="#9e4d1b" stroke="none"/>
+<text x="945.5" y="406" text-anchor="middle" font-size="14" font-weight="700" style="fill:white">1</text>
+<rect x="798" y="440" width="159" height="46" rx="4" fill="#85d9f1" stroke="#8c9da6"/>
+<text x="877.5" y="461.0" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">整图特征</text>
+<text x="877.5" y="478.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">步长 8</text>
+<path class="wire" d="M877.5 486v16" marker-end="url(#end)"/>
+<rect x="798" y="505" width="159" height="46" rx="4" fill="#e6dff5" stroke="#8c9da6"/>
+<text x="877.5" y="526.0" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">浅层侧输出</text>
+<text x="877.5" y="543.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">参与后续融合</text>
+<path class="wire" d="M877.5 551v16" marker-end="url(#end)"/>
+<rect x="798" y="570" width="159" height="46" rx="4" fill="#bee09c" stroke="#8c9da6"/>
+<text x="877.5" y="591.0" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">全部位置</text>
+<text x="877.5" y="608.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">进入深层主干</text>
+<text x="877.5" y="637" text-anchor="middle" font-size="13" font-weight="600" style="fill:#263644">浅层定位</text>
+<rect x="976" y="381" width="183" height="272" rx="4" fill="#dde3e7" stroke="#8c9da6"/>
+<text x="986" y="407" text-anchor="start" font-size="18" font-weight="700" style="fill:#09557e">稠密主干</text>
+<text x="986" y="430" text-anchor="start" font-size="14" font-weight="400" style="fill:#263644">在全图上提取特征</text>
+<rect x="1124" y="389" width="25" height="24" rx="4" fill="#266294" stroke="none"/>
+<text x="1136.5" y="406" text-anchor="middle" font-size="14" font-weight="700" style="fill:white">2</text>
+<rect x="987" y="440" width="161" height="46" rx="4" fill="#85d9f1" stroke="#8c9da6"/>
+<text x="1067.5" y="461.0" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">整幅 P3</text>
+<text x="1067.5" y="478.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">不筛前景位置</text>
+<path class="wire" d="M1067.5 486v16" marker-end="url(#end)"/>
+<rect x="987" y="505" width="161" height="46" rx="4" fill="#e6dff5" stroke="#8c9da6"/>
+<text x="1067.5" y="526.0" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">卷积下采样</text>
+<text x="1067.5" y="543.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">P4 与 P5</text>
+<path class="wire" d="M1067.5 551v16" marker-end="url(#end)"/>
+<rect x="987" y="570" width="161" height="46" rx="4" fill="#bee09c" stroke="#8c9da6"/>
+<text x="1067.5" y="591.0" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">完整特征图</text>
+<text x="1067.5" y="608.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">背景同样计算</text>
+<text x="1067.5" y="637" text-anchor="middle" font-size="13" font-weight="600" style="fill:#263644">深层计算范围</text>
+<rect x="1167" y="381" width="182" height="272" rx="4" fill="#dde3e7" stroke="#8c9da6"/>
+<text x="1177" y="407" text-anchor="start" font-size="18" font-weight="700" style="fill:#09557e">稠密 Detect</text>
+<text x="1177" y="430" text-anchor="start" font-size="14" font-weight="400" style="fill:#263644">每个网格均预测</text>
+<rect x="1314" y="389" width="25" height="24" rx="4" fill="#146d72" stroke="none"/>
+<text x="1326.5" y="406" text-anchor="middle" font-size="14" font-weight="700" style="fill:white">3</text>
+<rect x="1178" y="440" width="160" height="46" rx="4" fill="#85d9f1" stroke="#8c9da6"/>
+<text x="1258.0" y="461.0" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">三尺度特征</text>
+<text x="1258.0" y="478.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">逐位置卷积</text>
+<path class="wire" d="M1258.0 486v16" marker-end="url(#end)"/>
+<rect x="1178" y="505" width="160" height="46" rx="4" fill="#e6dff5" stroke="#8c9da6"/>
+<text x="1258.0" y="526.0" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">解耦预测</text>
+<text x="1258.0" y="543.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">分类和框回归</text>
+<path class="wire" d="M1258.0 551v16" marker-end="url(#end)"/>
+<rect x="1178" y="570" width="160" height="46" rx="4" fill="#bee09c" stroke="#8c9da6"/>
+<text x="1258.0" y="591.0" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">解码候选框</text>
+<text x="1258.0" y="608.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">全图网格与锚框</text>
+<text x="1258.0" y="637" text-anchor="middle" font-size="13" font-weight="600" style="fill:#263644">检测头计算范围</text>
+<rect x="787" y="662" width="562" height="153" rx="4" fill="#d5dfa1" stroke="#8c9da6"/>
+<text x="798" y="688" text-anchor="start" font-size="19" font-weight="700" style="fill:#09557e">Detect · 解耦头</text>
+<text x="798" y="709" text-anchor="start" font-size="14" font-weight="400" style="fill:#263644">每尺度 3 个锚框，每个锚框输出 15 个数。</text>
+<rect x="798" y="742" width="100" height="44" rx="4" fill="#85d9f1" stroke="#8c9da6"/>
+<text x="848.0" y="769.1" text-anchor="middle" font-size="15" font-weight="650" style="fill:#263644">输入特征</text>
+<path class="wire" d="M898 764h28v-26h20" marker-end="url(#end)"/>
+<path class="wire" d="M926 764v24h20" marker-end="url(#end)"/>
+<rect x="949" y="722" width="120" height="32" rx="4" fill="#b9eeea" stroke="#8c9da6"/>
+<text x="1009.0" y="743.1" text-anchor="middle" font-size="15" font-weight="650" style="fill:#263644">分类支路</text>
+<rect x="949" y="772" width="120" height="32" rx="4" fill="#f6cba6" stroke="#8c9da6"/>
+<text x="1009.0" y="793.1" text-anchor="middle" font-size="15" font-weight="650" style="fill:#263644">回归支路</text>
+<path class="wire" d="M1069 738h38" marker-end="url(#end)"/>
+<path class="wire" d="M1069 788h38" marker-end="url(#end)"/>
+<rect x="1110" y="722" width="222" height="32" rx="4" fill="#e6dff5" stroke="#8c9da6"/>
+<text x="1221.0" y="743.1" text-anchor="middle" font-size="15" font-weight="650" style="fill:#263644">10 类分数</text>
+<rect x="1110" y="772" width="222" height="32" rx="4" fill="#ffe8a2" stroke="#8c9da6"/>
+<text x="1221.0" y="792.76" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">4 个框参数 + 1 个目标性</text>
+<text x="457" y="854" text-anchor="start" font-size="21" font-weight="700" style="fill:#09557e">FPN / PAN</text>
+<text x="596" y="853" text-anchor="start" font-size="14" font-weight="400" style="fill:#263644">自顶向下 ↑     自底向上 ↓</text>
+<text x="974" y="854" text-anchor="start" font-size="20" font-weight="700" style="fill:#09557e">Detect  /  整图输出</text>
+<path class="wire" d="M343 777H378V915H472" marker-end="url(#end)"/>
+<rect x="474" y="894" width="93" height="42" rx="4" fill="#85d9f1" stroke="#8c9da6"/>
+<text x="520.5" y="913.0" text-anchor="middle" font-size="15" font-weight="650" style="fill:#263644">P3</text>
+<text x="520.5" y="930.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">192 通道</text>
+<path class="wire" d="M567 915H598" marker-end="url(#end)"/>
+<rect x="600" y="894" width="127" height="42" rx="4" fill="#ffe8a2" stroke="#8c9da6"/>
+<text x="663.5" y="913.0" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">Concat → C3</text>
+<text x="663.5" y="930.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">P3 融合</text>
+<path class="wire" d="M727 915H781" marker-end="url(#end)"/>
+<rect x="783" y="894" width="146" height="42" rx="4" fill="#85d9f1" stroke="#8c9da6"/>
+<text x="856.0" y="913.0" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">P3 检测特征</text>
+<text x="856.0" y="930.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">192 通道</text>
+<path class="wire" d="M929 915H984" marker-end="url(#end)"/>
+<rect x="986" y="894" width="149" height="42" rx="4" fill="#b9eeea" stroke="#8c9da6"/>
+<text x="1060.5" y="913.0" text-anchor="middle" font-size="15" font-weight="650" style="fill:#263644">P3 · Detect</text>
+<text x="1060.5" y="930.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">全图网格</text>
+<path class="wire" d="M664 1045V1008" marker-end="url(#end)"/>
+<rect x="605" y="974" width="118" height="32" rx="4" fill="#bee09c" stroke="#8c9da6"/>
+<text x="664.0" y="994.76" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">上采样 ×2</text>
+<path class="wire" d="M664 974V938" marker-end="url(#end)"/>
+<path class="wire" d="M856 936V972" marker-end="url(#end)"/>
+<rect x="797" y="974" width="118" height="32" rx="4" fill="#f6cba6" stroke="#8c9da6"/>
+<text x="856.0" y="994.76" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">3×3 Conv ↓2</text>
+<path class="wire" d="M856 1006V1043" marker-end="url(#end)"/>
+<path class="wire" d="M343 976H392V1066H472" marker-end="url(#end)"/>
+<rect x="474" y="1045" width="93" height="42" rx="4" fill="#85d9f1" stroke="#8c9da6"/>
+<text x="520.5" y="1064.0" text-anchor="middle" font-size="15" font-weight="650" style="fill:#263644">P4</text>
+<text x="520.5" y="1081.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">384 通道</text>
+<path class="wire" d="M567 1066H598" marker-end="url(#end)"/>
+<rect x="600" y="1045" width="127" height="42" rx="4" fill="#ffe8a2" stroke="#8c9da6"/>
+<text x="663.5" y="1064.0" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">Concat → C3</text>
+<text x="663.5" y="1081.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">再经 1×1 降维</text>
+<path class="wire" d="M727 1066H781" marker-end="url(#end)"/>
+<rect x="783" y="1045" width="146" height="42" rx="4" fill="#85d9f1" stroke="#8c9da6"/>
+<text x="856.0" y="1064.0" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">Concat → C3</text>
+<text x="856.0" y="1081.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">384 通道</text>
+<path class="wire" d="M929 1066H984" marker-end="url(#end)"/>
+<rect x="986" y="1045" width="149" height="42" rx="4" fill="#b9eeea" stroke="#8c9da6"/>
+<text x="1060.5" y="1064.0" text-anchor="middle" font-size="15" font-weight="650" style="fill:#263644">P4 · Detect</text>
+<text x="1060.5" y="1081.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">全图网格</text>
+<path class="wire" d="M664 1196V1159" marker-end="url(#end)"/>
+<rect x="605" y="1125" width="118" height="32" rx="4" fill="#bee09c" stroke="#8c9da6"/>
+<text x="664.0" y="1145.76" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">上采样 ×2</text>
+<path class="wire" d="M664 1125V1089" marker-end="url(#end)"/>
+<path class="wire" d="M856 1087V1123" marker-end="url(#end)"/>
+<rect x="797" y="1125" width="118" height="32" rx="4" fill="#f6cba6" stroke="#8c9da6"/>
+<text x="856.0" y="1145.76" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">3×3 Conv ↓2</text>
+<path class="wire" d="M856 1157V1194" marker-end="url(#end)"/>
+<path class="wire" d="M343 1275H407V1217H472" marker-end="url(#end)"/>
+<rect x="474" y="1196" width="93" height="42" rx="4" fill="#85d9f1" stroke="#8c9da6"/>
+<text x="520.5" y="1215.0" text-anchor="middle" font-size="15" font-weight="650" style="fill:#263644">P5</text>
+<text x="520.5" y="1232.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">768 通道</text>
+<path class="wire" d="M567 1217H598" marker-end="url(#end)"/>
+<rect x="600" y="1196" width="127" height="42" rx="4" fill="#ffe8a2" stroke="#8c9da6"/>
+<text x="663.5" y="1215.0" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">1×1 Conv</text>
+<text x="663.5" y="1232.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">P5 降维</text>
+<path class="wire" d="M727 1217H781" marker-end="url(#end)"/>
+<rect x="783" y="1196" width="146" height="42" rx="4" fill="#85d9f1" stroke="#8c9da6"/>
+<text x="856.0" y="1215.0" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">Concat → C3</text>
+<text x="856.0" y="1232.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">768 通道</text>
+<path class="wire" d="M929 1217H984" marker-end="url(#end)"/>
+<rect x="986" y="1196" width="149" height="42" rx="4" fill="#b9eeea" stroke="#8c9da6"/>
+<text x="1060.5" y="1215.0" text-anchor="middle" font-size="15" font-weight="650" style="fill:#263644">P5 · Detect</text>
+<text x="1060.5" y="1232.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">全图网格</text>
+<rect x="988" y="944" width="25" height="24" rx="4" fill="#146d72" stroke="none"/>
+<text x="1000.5" y="961" text-anchor="middle" font-size="14" font-weight="700" style="fill:white">3</text>
+<path class="wire" d="M1135 915h19v150h24" marker-end="url(#end)"/>
+<path class="wire" d="M1135 1066h43" marker-end="url(#end)"/>
+<path class="wire" d="M1135 1217h19v-150" marker-end="url(#end)"/>
+<rect x="1181" y="1041" width="157" height="50" rx="4" fill="#e6dff5" stroke="#8c9da6"/>
+<text x="1259.5" y="1064.0" text-anchor="middle" font-size="15" font-weight="650" style="fill:#263644">解码候选框</text>
+<text x="1259.5" y="1081.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">合并三个尺度</text>
+<path class="wire" d="M1259 1091v34" marker-end="url(#end)"/>
+<rect x="1181" y="1128" width="157" height="50" rx="4" fill="#85d9f1" stroke="#8c9da6"/>
+<text x="1259.5" y="1151.0" text-anchor="middle" font-size="15" font-weight="650" style="fill:#263644">还原整图坐标</text>
+<text x="1259.5" y="1168.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">缩放网格坐标</text>
+<path class="wire" d="M1259 1178v35" marker-end="url(#end)"/>
+<rect x="1181" y="1216" width="157" height="43" rx="4" fill="url(#detect)" stroke="#8c9da6"/>
+<text x="1259.5" y="1235.5" text-anchor="middle" font-size="15" font-weight="650" style="fill:#263644">NMS</text>
+<text x="1259.5" y="1252.5" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">抑制重复框</text>
+<path class="wire" d="M1259 1259v31" marker-end="url(#end)"/>
+<rect x="1166" y="1293" width="182" height="43" rx="4" fill="#b9eeea" stroke="#8c9da6"/>
+<text x="1257.0" y="1319.26" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">水平框 · 类别 · 分数</text>
+<text x="471" y="1306" text-anchor="start" font-size="16" font-weight="650" style="fill:#09557e">训练监督</text>
+<text x="471" y="1331" text-anchor="start" font-size="14" font-weight="400" style="fill:#263644">框回归、目标性、分类。</text>
+<text x="884" y="1375" text-anchor="middle" font-size="24" font-weight="700" style="fill:#09557e">Head</text>
+<text x="40" y="1411" text-anchor="start" font-size="14" font-weight="400" style="fill:#536570">作者报告 · VisDrone val · 长边 1536 · 36.2 AP · 28.5 APsmall · 26.1 FPS（表 III）。结构依据作者提交 bde3571。</text>
+</svg>

@@ -1,3 +1,6 @@
 [submodule "reproduce/s3od/upstream"]
 	path = reproduce/s3od/upstream
 	url = https://github.com/ZhangRuixiang-WHU/S3OD.git
+[submodule "reproduce/esod/upstream"]
+	path = reproduce/esod/upstream
+	url = https://github.com/alibaba/esod.git

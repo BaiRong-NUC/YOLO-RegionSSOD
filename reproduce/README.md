@@ -5,5 +5,6 @@
 | 论文 | 作者代码 | 复现进度 |
 |---|---|---|
 | [S³OD](s3od/) | [Rotated Faster R-CNN / DOTA-v1.5](s3od/upstream/) | 已取得源码并核对协议，本机指标待测 |
+| [ESOD](esod/) | [YOLOv5m / VisDrone](esod/upstream/) | 验证集全量作者权重重评和工程测速已完成 |
 
 新克隆仓库后，在仓库根目录执行 `git submodule update --init --recursive` 即可获取登记的作者版本。新增论文时，在同级目录登记作者来源、精确版本、权重来源、评测协议、论文报告值、本机值和差异。
