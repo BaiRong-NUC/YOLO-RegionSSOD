@@ -60,6 +60,7 @@ Thumbs.db
 desktop.ini
 
 # Local temporary files
+/cache/
 tmp/
 temp/
 *.tmp

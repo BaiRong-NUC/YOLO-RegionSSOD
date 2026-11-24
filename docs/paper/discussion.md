@@ -74,4 +74,4 @@ IoU.75/P90亦下降0.2446pp。该结果说明当前规则出现局部精度区�
 教师歧义诊断的信息增益并不自动转化为全面的学生检测增益。
 分类目标质量守恒时，记录到的伪正BCE和score梯度强度仍变化，信息作用与正则化作用
 尚未分离。该实验与正式100轮双seed主表分开，所有退化类别及操作点均保留；
-不能将其作为已验证的整体升级或新颖性证明。完整来源见[30轮结果](candidates/class_ambiguity/results30.md)。
+完整的[类别歧义候选 30 轮报告](https://gitee.com/BaiRong-NUC/YOLO-RegionSSOD/blob/0965ca75734973eb4f0dbf9d05fc628040686381/docs/paper/candidates/class_ambiguity/results30.md)记录了这项取舍。

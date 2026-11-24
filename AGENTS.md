@@ -6,9 +6,8 @@ The active paper is **region-partial semi-supervised tiny-object detection on
 high-resolution UAV imagery**, implemented in this repository. The detector is
 YOLO11s on VisDrone. This is an image-detection project; video is out of scope.
 
-`docs/RGB_IR_Reliability_Experiment_Design.md` is a separate, historical
-RGB-IR reliability design. Do not mix it, its datasets, or its results with
-the RegionSSOD paper.
+The historical RGB-IR design is in the local archive under `cache/` and in
+commit `0965ca7`. Keep its datasets and results separate from RegionSSOD.
 
 ## Read first
 
@@ -81,6 +80,15 @@ Never revert user or other-session changes without authorization.
   parallel experiments. If a paused goal cannot be resumed by available
   controls, report that instead of claiming it was resumed.
 - Run `python -m pytest` after source changes.
+- Keep the active tree focused on the paper under development, accepted results,
+  their controls, reproducibility dependencies and tests. When an experiment
+  stops without an improvement to retain, record the outcome and comparison in
+  section 10 of the completion plan. Archive its dedicated code, configs, tests
+  and reports in `cache/<date>-<experiment>/` under their original relative
+  paths. Record the source commit and file hashes. Check shared imports, frozen
+  receipt paths, paper links and active tests before removing the active copies.
+  Keep shared files and paper evidence at their required paths. Verify the
+  archive and the retained tests before committing the cleanup.
 - Store checkpoints, logs, generated data, and caches only in ignored directories.
 - After a meaningful work session, append a dated entry to section 10 of
   `docs/paper_completion_plan.md`.

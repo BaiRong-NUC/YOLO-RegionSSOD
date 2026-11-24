@@ -204,7 +204,7 @@ box/DFL并未增加教师置信度乘数，该对照也没有验证定位可靠�
 学生从COCO初始化独立训练完整30epoch，与同预算完整P1配对；
 此前手动中断的13轮和五轮子集探索均未拼入本次结果。
 
-[全量确认结果表](small_nwd30_results.md)给出548张完整原图val960结果。
+[归档的全量确认结果表](https://gitee.com/BaiRong-NUC/YOLO-RegionSSOD/blob/0965ca75734973eb4f0dbf9d05fc628040686381/docs/paper/small_nwd30_results.md)给出548张完整原图val960结果。
 NWD的mAP50-95由23.7883%降至23.5761%（−0.2123pp），mAP50下降0.3537pp。
 固定操作点small recall由35.6925%降至35.0228%（−0.6698pp），
 small匹配数9486→9308（−178）；medium、large分别下降0.0900、0.1874pp。
@@ -230,7 +230,7 @@ truck下降0.9732pp，bicycle、van分别下降0.6789、0.6680pp。
 验证兼容修正版在eval使用原P1损失，未叠加NWD或修改结构。
 旧版工程失败与用户主动中断产物不参与比较。
 
-[完整结果表](regression_confidence30_results.md)报告548张完整原图val960评测：
+[归档的完整结果表](https://gitee.com/BaiRong-NUC/YOLO-RegionSSOD/blob/0965ca75734973eb4f0dbf9d05fc628040686381/docs/paper/regression_confidence30_results.md)报告548张完整原图val960评测：
 mAP50-95由23.7883%降至23.6129%（−0.1755pp），mAP50下降0.3134pp；
 固定操作点small recall由35.6925%升至36.6369%（+0.9444pp），
 匹配9486→9737（+251）。medium/large recall分别下降0.1350/0.1874pp。
@@ -257,7 +257,7 @@ COCO独立初始化和原P1训练条件，仅替换分配器：有原框内点�
 否则保留原扩框池；若原本有有效分配的任何目标丢失，整图退回原TAL。
 未叠加NWD、回归加权、网络改造或伪框补全，完整训练30epoch。
 
-[完整结果表](coverage_guard30_results.md)报告548张完整原图val960：
+[归档的完整结果表](https://gitee.com/BaiRong-NUC/YOLO-RegionSSOD/blob/0965ca75734973eb4f0dbf9d05fc628040686381/docs/paper/coverage_guard30_results.md)报告548张完整原图val960：
 mAP50-95由23.7883%变为23.7232%（−0.0652pp），mAP50提高0.0719pp；
 固定操作点small recall由35.6925%变为35.7941%（+0.1016pp），
 small匹配9486→9513（+27）。medium/large recall分别下降0.1350/0.3749pp，

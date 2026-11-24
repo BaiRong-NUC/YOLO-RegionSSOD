@@ -1,25 +1,11 @@
 import pytest
 import torch
-import sys
-from pathlib import Path
 from ultralytics.cfg import get_cfg
 
 from regionssod.training.assignment import CoverageGuardedAssigner
 from regionssod.training.coverage_guard import CoverageGuardLoss, CoverageGuardModel
 from regionssod.training.p1 import P1DetectionLoss
 from test_p1 import loss_fixture
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from run_p1_coverage_guard import qualifies
-
-
-@pytest.mark.parametrize("ap,recall,expected", [
-    (.1, 0., True), (.099, 0., False), (0., .5, True),
-    (-.001, 1., False), (.2, -.001, False), (float("nan"), 1., False),
-    (1., float("inf"), False)])
-def test_prospective_exploratory_handoff_threshold(ap, recall, expected):
-    assert qualifies({"mAP50_95": ap, "small_recall": recall}) is expected
-
 
 @pytest.mark.parametrize("empty", [False, True])
 def test_integrated_loss_uses_guarded_assignment_and_finite_gradients(empty):

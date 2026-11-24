@@ -26,4 +26,4 @@ regionssod --help
 
 生成数据和运行 B0/B1/B2/P1 的命令见[执行协议](docs/baseline_protocol.md)。正式实验分别有[学生 seed 0 协议](docs/paper/paper1_full100_protocol.md)和[学生 seed 1 协议](docs/paper/paper1_seed1_full100_protocol.md)。已有权重与日志的机器可按[恢复与审计记录](docs/paper/paper1_p1_seed1_recovery.md)核查 seed 1；数据、权重和运行产物存放在本地。
 
-查早期脚本用法可看[历史命令](EXPERIMENT_COMMANDS.md)，查实验决策可看[项目进度日志](docs/paper_completion_plan.md)。[八周实验设计](docs/experiment_plan_8weeks.md)记录最初的协议。
+查主线命令可看[执行协议](docs/baseline_protocol.md)。停止的实验按原路径保存在本机 `cache/`，归档位置、可恢复的 Git 版本与比较结论见[项目进度日志](docs/paper_completion_plan.md)。[八周实验设计](docs/experiment_plan_8weeks.md)记录最初的协议。
