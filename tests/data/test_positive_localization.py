@@ -1,12 +1,9 @@
 import copy
-from pathlib import Path
-import sys
 
 import pytest
 
 from regionssod.pseudo.localization import localization_stability
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from audit_positive_localization import controlled_gap
 
 

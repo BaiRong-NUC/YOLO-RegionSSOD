@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 spec = importlib.util.spec_from_file_location(
-    "preserve_paper1", Path(__file__).resolve().parents[1] / "scripts/preserve_paper1.py"
+    "preserve_paper1", Path(__file__).resolve().parents[2] / "scripts/preservation/preserve_paper1.py"
 )
 preserve = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(preserve)

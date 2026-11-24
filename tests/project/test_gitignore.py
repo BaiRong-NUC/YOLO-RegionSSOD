@@ -10,7 +10,7 @@ def test_generated_data_is_ignored_but_dataset_source_can_be_committed(tmp_path)
     if git is None:
         pytest.skip("git is unavailable")
     subprocess.run([git, "init", "--quiet", str(tmp_path)], check=True)
-    root = Path(__file__).resolve().parents[1]
+    root = Path(__file__).resolve().parents[2]
     shutil.copyfile(root / ".gitignore", tmp_path / ".gitignore")
     result = subprocess.run(
         [git, "check-ignore", "--no-index", "-z", "--stdin"], cwd=tmp_path,

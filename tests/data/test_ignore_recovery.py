@@ -1,10 +1,7 @@
 from itertools import combinations, permutations
-from pathlib import Path
-import sys
 
 import numpy as np
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from audit_ignore_recovery import maximum_pairs, residual_analysis
 from regionssod.data.annotations import YoloBox
 

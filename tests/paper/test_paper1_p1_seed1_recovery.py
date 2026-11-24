@@ -1,6 +1,4 @@
 import csv
-from pathlib import Path
-import sys
 from types import SimpleNamespace
 
 import pytest
@@ -9,7 +7,6 @@ import yaml
 
 from regionssod.training.p1 import P1Trainer
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 import resume_paper1_p1_seed1 as continuation
 
 

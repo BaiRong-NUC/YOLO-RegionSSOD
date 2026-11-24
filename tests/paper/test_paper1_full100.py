@@ -1,10 +1,7 @@
 import json
-from pathlib import Path
-import sys
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 import run_paper1_full100 as formal
 from audit_training_investment import paired_counts
 

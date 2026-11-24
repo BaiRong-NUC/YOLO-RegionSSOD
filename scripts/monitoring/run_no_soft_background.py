@@ -9,7 +9,7 @@ import subprocess
 import sys
 from zoneinfo import ZoneInfo
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "outputs/p1_no_soft_weights_pilot30_s0"
 
 

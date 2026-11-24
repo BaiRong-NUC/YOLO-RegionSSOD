@@ -1,8 +1,3 @@
-from pathlib import Path
-import sys
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-
 from audit_candidate_retention import newly_retained, novel_indices, qualifies, quality
 from regionssod.data.annotations import Tile, YoloBox
 

@@ -14,7 +14,7 @@ import re
 from statistics import mean
 from zoneinfo import ZoneInfo
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 EVIDENCE = ROOT / "outputs/gate3_20261027"
 RUN = ROOT / "runs/partial10_p1_pilot30_s0"
 LOG = ROOT / "outputs/p1_pilot30_20261027.stdout.log"

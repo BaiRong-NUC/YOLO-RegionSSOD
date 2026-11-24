@@ -6,7 +6,7 @@ from types import SimpleNamespace
 import pytest
 
 spec = importlib.util.spec_from_file_location(
-    "audit_paper1_frozen", Path(__file__).resolve().parents[1] / "scripts/audit_paper1_frozen.py"
+    "audit_paper1_frozen", Path(__file__).resolve().parents[2] / "scripts/preservation/audit_paper1_frozen.py"
 )
 frozen = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(frozen)

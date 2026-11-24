@@ -1,9 +1,6 @@
-from pathlib import Path
-import sys
 
 import numpy as np
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from audit_paper1_gaps import REASONS, match_iou, miss_evidence, overlaps
 from regionssod.data.annotations import YoloBox
 

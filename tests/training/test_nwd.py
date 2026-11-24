@@ -1,6 +1,4 @@
 import math
-from pathlib import Path
-import sys
 
 import cv2
 import numpy as np
@@ -14,7 +12,6 @@ from regionssod.training.nwd import (
 from regionssod.training.p1 import P1DetectionLoss
 from test_p1 import loss_fixture
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from screen_p1_small_nwd import qualifies
 
 

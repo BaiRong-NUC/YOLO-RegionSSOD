@@ -30,4 +30,4 @@ regionssod combine-lists --inputs $labeled data/visdrone_area10/pseudo/p1_s030_m
 
 ## 正式训练与证据复核
 
-两份正式协议绑定当时的教师、伪标签、pilot 证据和配置。已有正式运行的机器可从[两 seed 验收报告](paper/results/p1_b2_seed1_full100_results.md)和[恢复记录](paper/paper1_p1_seed1_recovery.md)检查既有产物。表格复核使用 `python scripts/build_paper_tables.py --check`，工程测试使用 `python -m pytest`。公式、指标口径和局限见[方法](paper/manuscript/methods.md)与[正式结果](paper/manuscript/main_results.md)。
+两份正式协议绑定当时的教师、伪标签、pilot 证据和配置。已有正式运行的机器可从[两 seed 验收报告](paper/results/p1_b2_seed1_full100_results.md)和[恢复记录](paper/paper1_p1_seed1_recovery.md)检查既有产物。表格复核使用 `python scripts/reporting/build_paper_tables.py --check`，工程测试使用 `python -m pytest`。公式、指标口径和局限见[方法](paper/manuscript/methods.md)与[正式结果](paper/manuscript/main_results.md)。

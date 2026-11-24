@@ -1,10 +1,8 @@
 import json
 from pathlib import Path
-import sys
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 import run_paper1_seed1_full100 as repeat
 
 
