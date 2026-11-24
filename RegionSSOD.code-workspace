@@ -1,0 +1,32 @@
+{
+  "folders": [
+    { "path": "." }
+  ],
+  "settings": {
+    "explorer.fileNesting.enabled": true,
+    "explorer.fileNesting.expand": false,
+    "explorer.fileNesting.patterns": {
+      "bounded_retention.py": "bounded_retention_*.py",
+      "competitive_negative.py": "competitive_negative_v2.py",
+      "positive_quality_transport.py": "positive_quality_transport_v2.py, positive_quality_pipeline_check.py",
+      "run_paper1_full100.py": "run_paper1_seed1_full100.py, resume_paper1_p1_seed1.py, paper1_recovery.py, audit_paper1_*.py, preserve_paper1.py",
+      "run_p1_pilot.py": "watch_p1.py",
+      "run_p1_no_soft_weights.py": "audit_p1_no_soft_weights.py, run_no_soft_background.py, screen_p1_soft_weights.py",
+      "run_p1_scale_seed_pair.py": "audit_p1_scale_seed_pair.py, run_p1_global_t050.py, screen_p1_scale_threshold.py, scale_seed_tables.py",
+      "run_p1_small_nwd.py": "run_small_nwd*.py, audit_p1_small_nwd.py, audit_small_nwd_*.py, screen_p1_small_nwd.py",
+      "run_p1_coverage_guard.py": "run_coverage_guard_*.py, audit_p1_coverage_guard.py",
+      "run_p1_regression_confidence.py": "run_regression_confidence_background.py, audit_p1_regression_confidence.py, audit_regression_confidence*.py",
+      "run_bounded_retention_cached.py": "run_bounded_retention_continuous*.py, check_bounded_retention_*.py, audit_bounded_retention_*.py, diagnose_bounded_retention_*.py, evaluate_bounded_retention.py",
+      "run_p1_class_ambiguity.py": "check_class_ambiguity_engineering.py, evaluate_class_ambiguity_pair.py, diagnose_p1_class_ambiguity.py, export_p1_class_scores.py",
+      "run_positive_quality_transport.py": "run_positive_quality_transport_v2.py, validate_positive_quality_transport*.py, diagnose_positive_quality_transport.py, check_positive_quality_source.py",
+      "run_p1_competitive_negative.py": "diagnose_competitive_negative*.py, validate_competitive_negative_v2.py, run_p1_main_comparison*.py, diagnose_p1_v2_bottleneck.py",
+      "run_reliable_competitor_negative.py": "validate_reliable_competitor_negative.py",
+      "build_paper_tables.py": "main_seed_tables.py",
+      "test_bounded_retention.py": "test_bounded_retention_*.py",
+      "test_class_ambiguity.py": "test_class_ambiguity_*.py",
+      "test_competitive_negative.py": "test_competitive_negative_*.py",
+      "train_p1_10.yaml": "train_p1_10_seed1.yaml",
+      "train_naive_10.yaml": "train_naive_10_seed1.yaml"
+    }
+  }
+}

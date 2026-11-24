@@ -1,6 +1,26 @@
 # YOLO-RegionSSOD
 
-最新：**共享几何缓存版已通过零训练压力、真实生产接线和最终冻结预检；未启动训练。**
+## 从哪里看主方法
+
+用 VS Code 打开 [RegionSSOD.code-workspace](RegionSSOD.code-workspace)。在资源管理器中，正式 100 轮入口、各消融和后续候选分别归组。展开父文件左侧的箭头即可看到对应脚本。工作区直接打开仓库原文件。
+
+B2 和 P1 都采用 Ultralytics YOLO11s，推理时都经过相同的 Backbone（提取特征）、Neck（融合多尺度特征）和 Detect Head（输出类别和框）。P1 的改动在训练流程的两处：教师输出转成伪标签时，以及学生用检测头输出计算分类损失时。
+
+| 想看什么 | 代码或证据 |
+|---|---|
+| B2 对照怎样训练 | 同一 B1 教师产生伪框，统一取置信度 ≥ 0.50 的框，再训练 YOLO11s 学生。[伪标签](src/regionssod/pseudo/generator.py) · [训练入口](src/regionssod/training/runner.py) |
+| P1 怎样选框 | 按原始图块上的框面积分层，小框采用 0.30 的正阈值，中、大框采用 0.50。[筛选实现](src/regionssod/pseudo/scale.py) · [阈值配置](configs/pseudo_p1_10.yaml) |
+| P1 怎样用这些框 | `classification_factors` 用教师置信度给伪标签正位置的分类损失加权，并屏蔽不确定框内背景位置的分类损失。`P1DetectionLoss` 在检测头输出后应用这些权重。[损失实现](src/regionssod/training/p1.py) |
+| 正式实验的命令和数字 | [学生 seed 0 入口](scripts/run_paper1_full100.py) · [学生 seed 1 入口](scripts/run_paper1_seed1_full100.py) · [100 轮两 seed 配对结果](docs/paper/p1_b2_seed1_full100_results.md) |
+
+在 VisDrone 的固定 10% 面积标注划分上，P1 相对 B2 的两个学生 seed 平均提升 **2.2726 个百分点的小目标召回率**和 **0.1939 个百分点的 mAP50–95**。两组均在 548 张完整验证图上评测，小目标召回使用 conf 0.25、匹配 IoU 0.50。
+在该操作点，seed 0、1 分别净多检出 565、643 个小目标。覆盖收益伴随额外误检，例如 seed 1 的全尺寸未匹配预测增加了 1435 个。
+
+后续缓存版三臂也已各完成 30 轮。统一 val960 的 COCO 口径下，原 P1、候选和强控制的 AP 分别为 24.0457%、23.7844%、23.8341%，原 P1 仍是主方法。本机结果在 `outputs/bounded_retention_cached_three30_s0/evaluation/report.json`。
+
+## 历史实验命令
+
+以下为缓存版开训前的交付记录。该三臂实验已完成。
 使用academic-research-suite完成独立实现，保持连续目标、最强同界连续点DFL、全部锚点和数值上限；
 2310 tests通过，34压力case/102完整loss反向、6生产接线case及独立只读复核通过。
 真实3U候选初始/第9轮完整loss为80.71/81.52秒，均低于原120秒；不是性能改善证明。
@@ -13,7 +33,7 @@ Set-Location 'D:\Python\YOLO-RegionSSOD'
 ```
 
 按原P1→候选→强控制顺序，各全新完整30轮，CUDA设备0；完成后统一548图full-image val960及全部比较指标。
-输出`outputs/bounded_retention_cached_three30_s0/`，当前不存在；入口拒绝覆盖/重试/恢复。
+冻结输出目录为 `outputs/bounded_retention_cached_three30_s0/`，入口拒绝覆盖/重试/恢复。
 内置每30分钟临时监控随进程终态结束，无需另建计划任务。只读预检将`--train`改为`--check`。
 固定窗口机械外推约75小时纯计算，仅成本提示、非ETA，未含加载/优化器/评估且不覆盖权重漂移。
 本机freeze SHA为`5c15221d671cbcaa12270744b039b510a5edf0000478329dbf285c471282983e`；

@@ -1,6 +1,6 @@
 # Baseline 执行协议
 
-最新共享精确几何缓存版：**最终工程资格及冻结预检通过，未启动训练。**
+主线 YOLO11s 的 B2/P1 各有两个学生 seed 完成 100 轮，见[同协议配对结果](paper/p1_b2_seed1_full100_results.md)。后续共享几何缓存版三臂已完成 30 轮和最终评估。本机终态与重放审计分别在 `outputs/bounded_retention_cached_three30_s0/status.json` 和同目录的 `evaluation_audit.json`。以下是开训前的冻结协议与命令。
 继承原P1协议及[三臂科学合同](paper/candidates/bounded_retention/three_arm30_contract.md)，
 独立[cached生产合同](paper/candidates/bounded_retention/cached_training_contract.md)于9dedeb7先冻，
 实现739c130，全库2310 tests、34压力case/102完整loss反向、6真实生产接线case通过。
@@ -19,7 +19,7 @@ Set-Location 'D:\Python\YOLO-RegionSSOD'
 
 全新COCO初始化reference→candidate→control，各完整30轮，640/batch8/SGD/seed0/workers0/原生AMP，
 CUDA设备0，close_mosaic10；第9轮EMA只用于零训练诊断。输出
-`outputs/bounded_retention_cached_three30_s0/`当前不存在，禁止复用旧参考/恢复候选/覆盖目录。
+`outputs/bounded_retention_cached_three30_s0/` 已存放完成的实验，禁止复用旧参考/恢复候选/覆盖目录。
 不并行、自动重试或杀用户worker；30分钟内置临时监控只记录进展、终态退出。
 全部完成后统一548图full-image val960，保留原合同AP/AP_small/召回/同预测数/同FP/
 重复框/定位指标，完整30轮前不判断效果。约75小时仅固定窗口纯计算外推，非训练ETA。

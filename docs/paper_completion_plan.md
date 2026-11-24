@@ -1,6 +1,6 @@
 # 论文完成计划与项目交接
 
-> 最后更新：2026-11-06<br>
+> 最后更新：2026-11-24。缓存版三臂已完成，统一 val960 的总体 AP 和小目标 AP 均以原 P1 最高。论文主对照仍为 YOLO11s 上 P1 与 B2 的两 seed 正式 100 轮结果。下列 11 月 6 日及更早条目记录各自当时的状态。<br>
 > 最新交付：共享精确几何缓存保持同界求解及连续监督不变，原120秒/数值上限不变；2310 tests、真实3U/第9轮34压力case/102完整loss反向、6实际生产接线case及独立只读复核通过。最终24986项freeze及真实入口--check通过；原P1→候选→强控制各30轮命令已准备，按用户最新指令**只交付、未启动训练**。真实候选loss80.71/81.52秒，不是性能或原创性证明；数天成本仍可能存在。见3.95及[完整报告/命令](paper/candidates/bounded_retention/point_geometry_cache_results.md)。以下定位/压力/旧训练终态均为保留历史。<br>
 > 最新定位：固定保存预测中，候选/最强控制2590点请求及已记录证书字段完全一致；同一3U对象2233锚点的CPU精确几何求解约101–104秒。控制完整loss108.391秒，候选120秒截断于刚开始的第7次后验采样；积分约0.42秒，不支持点容量或CUDA等待主导的解释。120秒源自额外工程合同，整批口径很紧但未放宽，候选完成时间未知；2147tests通过。没有训练资格/开训，详见3.94及[定位报告](paper/candidates/bounded_retention/loss_timeout_diagnostic_results.md)。<br>
 > 最新压力门：真实3U/第9轮EMA零训练审查停止。恢复原生回调注册后两条1414批流及固定closed1316身份/张量SHA通过；原P1同批loss/反向通过，初始权重候选loss超过冻结120秒，父仅终止自有诊断worker。第9轮及32批未执行，独立资格复核STOP；不把timeout写成已确认点容量故障/机制无效。未接入新入口/冻结新三臂/启动训练，失败保留；见3.93及[压力报告](paper/candidates/bounded_retention/point_pressure_results.md)。<br>
@@ -3024,6 +3024,12 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 | 2026-11-06（120秒超时定位与合同审查） | 7e9686c/8612dd1/ccf2134/b45f95e先记录合同/包装修订/执行错误；本次中文实现与结果提交push | 保存预测、原P1逐位校准、同界候选/控制顺序trace；所有包装失败及误启动保留 | 第3.94节；paper/candidates/bounded_retention/loss_timeout_diagnostic_results.md；outputs/bounded_retention_timeout_20261106/ | 2147tests；两臂2590点输入/证书相同；3U2233锚点约101–104s/max15cells，控制loss108.391s；候选120s截断于第7次采样 | DIAGNOSTIC_ONLY：共享CPU精确几何为主成本，非点cap/显式CUDA主导；120s额外整批门很紧但不放宽，候选完成时间未知，无训练资格/开训，无新模型前向/反向/optimizer；旧源码和全部失败保留 |
 
 | 2026-11-06（共享精确几何缓存资格与训练指令交付） | 79fc3aa/2cbb638先冻；4c256ca/a83c1f4审计补充；9dedeb7生产合同；739c130实现已push；本次结果提交push | 完成同域精确缓存、保存预测等价、真实3U/第9轮压力、独立checker、真实生产接线及最终冻结预检 | 第3.95节；paper/candidates/bounded_retention/point_geometry_cache_results.md；outputs/bounded_retention_cache_20261106/；outputs/bounded_retention_cached_freeze_20261106/ | 2310tests；34压力case/102完整loss反向/255参数；6接线case逐位对齐/EMA隔离通过；候选loss80.71/81.52秒；24986项freeze与--check通过 | FINAL_THREE_ARM_30_FROZEN_NOT_STARTED；按最新指令只交付命令，未开训；旧失败/限额/强控制不变，数天成本仅外推，无性能/机制成立结论；用户执行后顺序各30轮，统一548图val960 |
+
+**2026-11-24　代码导航与成果核对**
+
+`RegionSSOD.code-workspace` 将 151 个文件归入 21 组。核对冻结清单后，`scripts/` 和 `src/regionssod/training/` 的 154 个 Python 文件均与原路径及 SHA-256 一致。README 已链接 B2/P1 的伪标签、分类损失及两 seed 正式 100 轮结果。论文表格检查通过，覆盖 137 个来源和 8 组召回评测。
+
+本机 `outputs/bounded_retention_cached_three30_s0/evaluation/report.json` 和 `evaluation_audit.json` 记录了后续三臂各 30 轮的 548 图评测与重放审计。原 P1、候选、控制的 COCO AP 依次为 24.0457%、23.7844%、23.8341%，AP_small 为 13.6792%、13.5163%、13.3714%。主结果保留原 P1。
 
 ## 11. 风险与退出条件
 
