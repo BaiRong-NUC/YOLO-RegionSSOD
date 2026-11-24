@@ -57,6 +57,9 @@ Never revert user or other-session changes without authorization.
   diagram tracing the original paper's inputs, modules, supervision and outputs.
   Show the detector stages and their connections, annotate what each module
   does, and expand the paper-specific modules at their actual points of use.
+  Follow `docs/paper/figures/s3od-architecture.svg` for the layout: a full-height
+  backbone on the left, a compact head and loss overview above the module
+  details, and layer-by-layer connections across the lower half.
   Record the paper version and distinguish reported results from local runs.
 
 - Use the existing `yolo` Conda environment.
