@@ -53,8 +53,10 @@ Never revert user or other-session changes without authorization.
 
 ## Working protocol
 
-- For each paper reproduction, start its reproduction card with a framework
-  diagram tracing the original paper's inputs, modules, supervision and outputs.
+- For each paper reproduction, start its reproduction card with an aligned
+  diagram of the paper's own baseline and proposed method. Trace both models'
+  inputs, modules, supervision and outputs. For each change, explain the
+  baseline failure it addresses and cite the paper's corresponding evidence.
   Show the detector stages and their connections, annotate what each module
   does, and expand the paper-specific modules at their actual points of use.
   Follow `docs/paper/figures/s3od-architecture.svg` for the layout: a full-height

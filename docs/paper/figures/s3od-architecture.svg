@@ -1,15 +1,48 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1430" viewBox="0 0 1400 1430" role="img" aria-labelledby="title desc">
-<title id="title">S³OD 检测器逐层结构与半监督训练模块</title>
-<desc id="desc">左侧为 ResNet-50 的全部四个阶段，右上为特征与损失总览，中部展开瓶颈、SAT、SLA、TNL 和 RoI 预测头，下部按尺度连接 FPN、RPN、RoIAlign 与旋转框输出。图中空间尺寸以 1024 方形输入举例。</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1940" viewBox="0 0 1400 1940" role="img" aria-labelledby="title desc">
+<title id="title">SSOD baseline 与 S³OD：两套训练结构、改进依据与逐层检测器</title>
+<desc id="desc">顶端并列对照基线和 S³OD 的师生路径，以及各自筛选伪框、分配正锚框和训练负样本的方式。数据为 2023 预印本表 III 的 DOTA-v1.5 单一 1% 划分。下方逐层展开检测器和论文模块。</desc>
 <defs>
   <marker id="end" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5.6" markerHeight="5.6" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#576775"/></marker>
   <linearGradient id="detect" x2="1" y2="1" gradientUnits="objectBoundingBox"><stop stop-color="#aaca8e"/><stop offset="1" stop-color="#ffdc65"/></linearGradient>
   <pattern id="airfield" patternUnits="userSpaceOnUse" width="184" height="90"><rect width="184" height="90" fill="#adb9a1"/><path d="M-4 5L186 61M-5 42L186 98" stroke="#788980" stroke-width="12"/><path d="M-4 5L186 61" stroke="#e6e4cf" stroke-width="1.3" stroke-dasharray="10 5"/><path d="M8 78l34-48m54 35 20-27" stroke="#d3cbb2" stroke-width="8"/><g fill="#eff0df" stroke="#46555a" stroke-width=".65"><path id="plane" d="M0-8l1.5 6 7 4v2L1 2v4l2.5 2v1L0 8l-3.5 1V8l2.5-2V2l-7.5 2V2l7-4z"/><use href="#plane" transform="translate(49 59) rotate(42)"/><use href="#plane" transform="translate(85 68) rotate(42)"/><use href="#plane" transform="translate(135 24) rotate(-32)"/></g></pattern>
 </defs>
 <style>text{font-family:"Microsoft YaHei",sans-serif;fill:#263644} .wire{fill:none;stroke:#71808a;stroke-width:1.35;stroke-linecap:round;stroke-linejoin:round}</style>
+<defs>
+  <g id="teacher-student">
+    <rect x="0" y="0" width="288" height="63" rx="5" fill="#d8e9f2" stroke="#94adbd"/>
+    <rect x="329" y="0" width="288" height="63" rx="5" fill="#e5efd8" stroke="#a2b58e"/>
+    <g font-size="18" text-anchor="middle" font-weight="650"><text x="144" y="25">弱增强 → 教师检测器</text><text x="473" y="25">强增强 → 学生检测器</text></g>
+    <g font-size="14" text-anchor="middle"><text x="144" y="48">预测旋转框、类别与置信度</text><text x="473" y="48">生成锚框与候选区域，计算损失</text></g>
+  </g>
+</defs>
+<rect width="1400" height="1940" fill="white"/>
+<text x="38" y="46" font-size="33" font-weight="700" style="fill:#09557e">同一张航拍裁片，两个模型怎样学？</text>
+<text x="40" y="76" font-size="17">共用检测器　ResNet-50 → FPN → RPN → RoIAlign → 分类与旋转框回归。左右同一行对应同一个训练位置。</text>
+<rect x="38" y="97" width="653" height="359" rx="11" fill="#f2f5f7" stroke="#c0cbd1"/>
+<rect x="709" y="97" width="653" height="359" rx="11" fill="#f1f6f2" stroke="#a4beb1"/>
+<g font-size="23" font-weight="700"><text x="56" y="131">基线　SSOD baseline</text><text x="727" y="131" style="fill:#1d634e">论文方法　S³OD</text></g>
+<use href="#teacher-student" x="56" y="149"/><use href="#teacher-student" x="727" y="149"/>
+<g font-size="16">
+  <text x="57" y="246" font-weight="700">教师选框</text><text x="165" y="246">大小目标共用 0.9 阈值，低分小目标容易漏选。</text>
+  <text x="57" y="290" font-weight="700">正锚框分配</text><text x="165" y="290">按 IoU 阈值匹配；小框略有偏移，重叠便可能不足。</text>
+  <text x="57" y="334" font-weight="700">负样本分类</text><text x="165" y="334">按常规匹配采样背景；候选里可能藏有漏标的小目标。</text>
+  <text x="728" y="246" font-weight="700" style="fill:#804e22">SAT · 筛框</text><text x="843" y="246">按大小分别估计阈值，保留更多可信小框。</text>
+  <text x="728" y="290" font-weight="700" style="fill:#315e83">SLA · 分配</text><text x="843" y="290">按几何距离选正锚框，再平衡大小目标的损失。</text>
+  <text x="728" y="334" font-weight="700" style="fill:#256e71">TNL · 背景</text><text x="843" y="334">教师复核负候选，再用加权困难负例学习易混背景。</text>
+</g>
+<g stroke="#c9d3d6"><path d="M56 261h617m-617 44h617m-617 45h617 M727 261h617m-617 44h617m-617 45h617"/></g>
+<g font-size="15">
+  <text x="57" y="379">有标注裁片另算监督损失。两路损失更新学生，学生通过 EMA 更新教师。</text>
+  <text x="728" y="379">三处改动作用于训练监督。同样合并两路损失，再由学生更新教师。</text>
+</g>
+<text x="57" y="429" font-size="23" font-weight="700">基线　36.0</text>
+<text x="728" y="429" font-size="23" font-weight="700" style="fill:#1d634e">完整 S³OD　41.9</text>
+<text x="996" y="429" font-size="17">单加 SAT 39.6　SLA 37.8　TNL 38.1</text>
+<text x="40" y="485" font-size="16" fill="#536570">作者报告 · 预印本表 III · DOTA-v1.5 验证集 · 1% 有标注裁片，单一划分 · 旋转框 mAP@0.50（%）</text>
+<g transform="translate(0 510)">
 <rect x="0" y="0" width="1400" height="1430" rx="0" fill="#fff" stroke="none" stroke-width="1"/>
 <text x="47" y="51" text-anchor="start" font-size="38" font-weight="700" style="fill:#0088d1">S³OD</text>
-<text x="171" y="50" text-anchor="start" font-size="22" font-weight="600" style="fill:#09557e">航拍旋转目标检测</text>
+<text x="171" y="50" text-anchor="start" font-size="22" font-weight="600" style="fill:#09557e">检测器逐层结构与训练模块展开</text>
 <text x="1351" y="49" text-anchor="end" font-size="17" font-weight="600" style="fill:#428abb">DOTA-v1.5   /   Rotated Faster R-CNN</text>
 <rect x="38" y="65" width="1324" height="1322" rx="17" fill="#ededed" stroke="#d7dadd" stroke-width="2.8"/>
 <path class="wire" d="M446 66V1386"/>
@@ -250,7 +283,7 @@
 <path class="wire" d="M877.5 486v16" marker-end="url(#end)"/>
 <rect x="798" y="505" width="159" height="46" rx="4" fill="#e6dff5" stroke="#8c9da6" stroke-width="1"/>
 <text x="877.5" y="526.0" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">组内估计阈值</text>
-<text x="877.5" y="543.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">10% 配置使用 GMM</text>
+<text x="877.5" y="543.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">预印本按组取百分位</text>
 <path class="wire" d="M877.5 551v16" marker-end="url(#end)"/>
 <rect x="798" y="570" width="159" height="46" rx="4" fill="#bee09c" stroke="#8c9da6" stroke-width="1"/>
 <text x="877.5" y="591.0" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">保留高分伪框</text>
@@ -423,4 +456,5 @@
 <text x="243" y="1373" text-anchor="middle" font-size="24" font-weight="700" style="fill:#09557e">Backbone</text>
 <text x="904" y="1373" text-anchor="middle" font-size="24" font-weight="700" style="fill:#09557e">Head</text>
 <text x="41" y="1410" text-anchor="start" font-size="13" font-weight="400" style="fill:#536570">依据：S³OD 预印本 §III 与作者 DOTA-v1.5 配置 d7806b7。训练使用多尺度输入；图中方形裁片用于读出各层尺寸。</text>
+</g>
 </svg>
