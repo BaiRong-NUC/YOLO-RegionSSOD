@@ -27,3 +27,9 @@ S³OD 研究航拍半监督检测中的尺度不平衡。作者基线使用在�
 作者代码固定在 `d7806b78947cdc403d525e67a28193a88a4f8598`。[启动脚本](../../../reproduce/s3od/upstream/tools/dist_train_partially.sh)引用 `s3od_dota1.5_1percent_test.py`，随后传入 `fold` 和 `percent`。训练前应核对实际载入的裁片划分。目前尚缺 DOTA-v1.5 数据和相应的 S³OD 检查点。
 
 [作者代码、环境说明和绘图脚本](../../../reproduce/s3od/)
+
+### 工程烟测：尺度分界
+
+作者训练入口使用的 1% 配置按 `宽 × 高 < 1024` 汇总小框分数。训练代码调用筛框函数时省略 `small_size`，函数默认按 `< 800` 选择小框阈值。因此面积在 `[800, 1024)` 的框参与小框阈值估计，筛框时却使用普通框阈值。[训练调用](../../../reproduce/s3od/upstream/s3od/models/s3od.py) · [筛框实现](../../../reproduce/s3od/upstream/s3od/models/utils/bbox_utils.py)
+
+在本机 `yolo` 环境运行 `python -m pytest tests/reproduce/s3od`。合成样例得到小框阈值 0.60、普通框阈值 0.90。同为 0.75 分时，28×28 框保留，30×30 和 32×32 框被滤掉；对照调用显式传入 1024 后，30×30 框也被保留。测试只执行固定提交中的 SAT 函数，尚未测量这一差异对真实目标召回或 mAP 的影响。[带中文注释的测试](../../../tests/reproduce/s3od/test_sat.py)
