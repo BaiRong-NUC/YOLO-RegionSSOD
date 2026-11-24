@@ -4,6 +4,21 @@ S³OD 已系统研究航拍半监督检测中的尺度阈值、正样本分配�
 
 ## 1 对照来源
 
+### 先看框架，再看复现结果
+
+![S³OD 检测器逐模块架构与训练细节](figures/s3od-architecture.png)
+
+[放大看矢量结构图](figures/s3od-architecture.svg) · [单独看教师与学生的数据流](figures/s3od-framework.svg)
+
+**读图顺序**　先沿上半图从左到右看一张裁片怎样变成旋转框。再看下半图的三个训练位置：SAT 筛教师预测，SLA 给学生 RPN 分配正锚框，TNL 在 RoI 分类阶段复核负样本。最下方是师生参数更新关系。模块动机来自预印本 III-A 至 III-D，通道数、检测头和 GMM 阈值按作者 DOTA-v1.5 实现标注，代码出处见第 3.4 节。
+
+| 第一步复现卡 | S³OD |
+|---|---|
+| 要验证的问题 | 在相同 DOTA-v1.5 标注裁片划分上，S³OD 的旋转框 mAP@0.50 是否高于 Soft Teacher？ |
+| 文献报告 | 2023 预印本表 I，10% 有标注裁片，五次划分。S³OD 为 60.24 ± 0.42，Soft Teacher 为 57.78 ± 0.32，均值相差 2.46 个百分点。 |
+| 作者实现 | `master` 的 `d7806b78947cdc403d525e67a28193a88a4f8598` 提供训练源码。README 的单卡示例每个 fold 执行 `bash tools/dist_train_partially.sh ${FOLD} 10 1`。启动脚本固定引用 `s3od_dota1.5_1percent_test.py` 再传 `fold`、`percent`，运行前需核对实际载入的划分。 |
+| 本机状态（2026-11-24） | 已核对框架、作者训练入口和环境。本项目 `data/` 未见 DOTA-v1.5，`weights/` 未见 S³OD 检查点，`yolo` 环境缺少 `mmcv`、`mmdet`、`mmrotate`。本机评测值及与原文的差值均待测。 |
+
 S³OD 的正式发表版本为 Zhang 等的 *S³OD: Size-unbiased semi-supervised object detection in aerial images*，发表于 *ISPRS Journal of Photogrammetry and Remote Sensing*，2025 年，第 221 卷，179–192 页，DOI：[10.1016/j.isprsjprs.2025.01.037](https://doi.org/10.1016/j.isprsjprs.2025.01.037)。[出版社页面](https://www.sciencedirect.com/science/article/pii/S0924271625000425)和 Crossref 元数据确认了题名、作者和卷页；期刊摘要确认 SAT/SLA/TNL 三项机制，并将实验扩展至 DOTA-v1.5 与 SODA-A。
 
 可完整阅读的早期版本是 *Rethinking Scale Imbalance in Semi-supervised Object Detection for Aerial Images*，arXiv:2310.14718v1，2023-10-23：[版本记录](https://arxiv.org/abs/2310.14718v1)、[全文 PDF](https://arxiv.org/pdf/2310.14718v1)、[全文 HTML](https://arxiv.org/html/2310.14718v1)。下表的段落、公式和页码均对应这份预印本，不将其百分位阈值或参数当作期刊版已逐项核验的设置。期刊全文在本次访问中不可用；公开代码提供了额外实现依据，见第 3.4 节。

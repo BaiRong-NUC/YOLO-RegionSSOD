@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1100" viewBox="0 0 1440 1100" role="img" aria-labelledby="title desc">
+  <title id="title">S³OD 航拍旋转目标检测架构与训练模块</title>
+  <desc id="desc">上半图从左到右展示 ResNet-50、五层 FPN、候选提取和 RoI 检测头；下半图按接入位置展开 SAT、SLA、TNL，再说明学生和教师怎样更新。</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#455969"/></marker>
+    <style>
+      text {font-family:"Microsoft YaHei",sans-serif;fill:#203746;font-size:18px}
+      .title {font-size:40px;font-weight:bold;fill:#10334c}
+      .section {font-size:24px;font-weight:bold;fill:#133b56}
+      .strong {font-size:20px;font-weight:bold}
+      .small {font-size:16px;fill:#405666}
+      .wire {fill:none;stroke:#455969;stroke-width:2;marker-end:url(#arrow)}
+      .bus {fill:none;stroke:#455969;stroke-width:2}
+      .panel {fill:#f4f7f8;stroke:#c1cdd3}
+      .blue {fill:#d1eaf9;stroke:#80adca}
+      .green {fill:#d7eddd;stroke:#88b99c}
+      .gold {fill:#fff0bf;stroke:#d4b356}
+      .pink {fill:#f4dbe4;stroke:#c795aa}
+      .violet {fill:#e6dff5;stroke:#a79ac8}
+    </style>
+  </defs>
+  <rect width="1440" height="1100" fill="white"/>
+  <text x="36" y="60" class="title">S³OD  ·  航拍旋转目标检测</text>
+  <text x="38" y="96">Rotated Faster R-CNN　/　DOTA-v1.5　/　教师与学生各有一套检测器，下面展开一次前向传播。</text>
+  <rect class="panel" x="30" y="128" width="345" height="461" rx="10"/>
+  <rect class="panel" x="390" y="128" width="330" height="461" rx="10"/>
+  <rect class="panel" x="735" y="128" width="675" height="461" rx="10"/>
+  <text class="section" x="53" y="166">Backbone  ·  ResNet-50</text>
+  <text class="small" x="53" y="194">从航拍裁片逐级提取图像特征</text>
+  <text class="section" x="411" y="166">Neck  ·  FPN</text>
+  <text class="small" x="411" y="194">融合细节与深层语义，输出 256 通道</text>
+  <text class="section" x="759" y="166">Head  ·  两阶段旋转框检测</text>
+  <text class="small" x="759" y="194">先找可能有物体的区域，再辨认类别、修正位置和朝向</text>
+  <rect class="blue" x="54" y="214" width="294" height="38" rx="6"/>
+  <text x="68" y="240">Stem　卷积、池化，降低分辨率</text>
+  <g class="blue">
+    <rect x="54" y="269" width="294" height="41" rx="6"/><rect x="54" y="327" width="294" height="41" rx="6"/>
+    <rect x="54" y="385" width="294" height="41" rx="6"/><rect x="54" y="443" width="294" height="41" rx="6"/>
+  </g>
+  <g class="wire">
+    <path d="M200 252v15"/><path d="M200 310v15"/><path d="M200 368v15"/><path d="M200 426v15"/>
+    <path d="M348 290h80"/><path d="M348 348h96"/><path d="M348 406h111"/><path d="M348 464h126"/>
+  </g>
+  <g>
+    <text x="69" y="296">C2　256 通道　·　步长 4</text><text x="69" y="354">C3　512 通道　·　步长 8</text>
+    <text x="69" y="412">C4　1024 通道　·　步长 16</text><text x="69" y="470">C5　2048 通道　·　步长 32</text>
+    <text class="small" x="54" y="526">C2 保留较细的空间位置。</text>
+    <text class="small" x="54" y="552">到 C5，每个位置能看到更大的范围。</text>
+  </g>
+  <text class="small" x="413" y="237">深层特征上采样，与浅层横向相加</text>
+  <g class="green">
+    <rect x="431" y="269" width="221" height="41" rx="6"/><rect x="446" y="327" width="206" height="41" rx="6"/>
+    <rect x="461" y="385" width="191" height="41" rx="6"/><rect x="476" y="443" width="176" height="41" rx="6"/>
+    <rect x="491" y="501" width="161" height="41" rx="6"/>
+  </g>
+  <g class="wire"><path d="M560 327v-15"/><path d="M560 385v-15"/><path d="M560 443v-15"/><path d="M560 484v15"/></g>
+  <text x="454" y="296">P2　步长 4</text><text x="469" y="354">P3　步长 8</text>
+  <text x="484" y="412">P4　步长 16</text><text x="499" y="470">P5　步长 32</text><text x="507" y="528">P6　步长 64</text>
+  <path class="bus" d="M652 290h39v232h-39 M652 348h39 M652 406h39 M652 464h39"/>
+  <path class="wire" d="M691 290h74"/>
+  <rect class="gold" x="768" y="250" width="254" height="83" rx="7"/>
+  <text class="strong" x="784" y="281">RPN　候选区域网络</text><text class="small" x="784" y="310">在 P2–P6 上打分、回归候选框</text>
+  <path class="wire" d="M1022 291h34"/>
+  <rect class="gold" x="1060" y="250" width="320" height="83" rx="7"/>
+  <text class="strong" x="1076" y="281">RoIAlign　提取局部特征</text><text class="small" x="1076" y="310">按候选框从 P2–P5 采样成 7×7</text>
+  <path class="wire" d="M1220 333v34"/>
+  <rect class="gold" x="1060" y="370" width="320" height="60" rx="7"/>
+  <text x="1076" y="407">两层全连接　汇总区域内的特征</text>
+  <path class="wire" d="M1220 430v17H926v23"/><path class="wire" d="M1220 447v23"/>
+  <rect class="blue" x="768" y="473" width="291" height="75" rx="7"/>
+  <text class="strong" x="784" y="503">分类分支　里面是什么？</text><text class="small" x="784" y="530">16 类目标与背景的分数</text>
+  <rect class="blue" x="1073" y="473" width="307" height="75" rx="7"/>
+  <text class="strong" x="1090" y="503">回归分支　在哪里？</text><text class="small" x="1090" y="530">中心、宽、高、角度 → 旋转框</text>
+  <text x="34" y="640" class="section">训练专用模块</text>
+  <text x="238" y="640">同一无标注裁片生成两种视图。教师看弱增强图，学生看强增强图。</text>
+  <rect class="green" x="30" y="666" width="444" height="250" rx="10"/>
+  <rect class="gold" x="498" y="666" width="444" height="250" rx="10"/>
+  <rect class="pink" x="966" y="666" width="444" height="250" rx="10"/>
+  <g>
+    <text class="section" x="52" y="704">SAT　哪些教师框值得学？</text>
+    <text x="52" y="741">输入　教师的旋转框与类别置信度</text>
+    <text x="52" y="778">按面积分组，为各组估计置信度阈值。</text>
+    <text x="52" y="807">小目标分数偏低，可用自己的阈值筛选。</text>
+    <text class="small" x="52" y="841">作者 10% 配置使用高斯混合模型估计阈值。</text>
+    <path d="M52 857h399" stroke="#9bbba6"/>
+    <text class="strong" x="52" y="891">输出　映射到学生视图的正伪框</text>
+    <text class="section" x="520" y="704">SLA　哪些锚框学这个目标？</text>
+    <text x="520" y="741">输入　目标框与学生 RPN 的锚框</text>
+    <text x="520" y="778">按位置、形状和朝向计算几何相似度，</text>
+    <text x="520" y="807">挑选正锚框，并平衡大小目标的损失。</text>
+    <text class="small" x="520" y="841">学生 RPN 的实现采用 GWD，top-k = 2。</text>
+    <path d="M520 857h400" stroke="#cab777"/>
+    <text class="strong" x="520" y="891">输出　正锚框分配与尺度权重</text>
+    <text class="section" x="988" y="704">TNL　哪些候选能当背景？</text>
+    <text x="988" y="741">输入　学生的候选区域与教师评分</text>
+    <text x="988" y="778">让教师复核候选，筛选可信背景，</text>
+    <text x="988" y="807">再用低置信度预测补充困难负样本。</text>
+    <text class="small" x="988" y="841">作用于 RoI 分类，降低漏标目标被误罚的风险。</text>
+    <path d="M988 857h399" stroke="#c8a2b1"/>
+    <text class="strong" x="988" y="891">输出　负样本及其分类权重</text>
+  </g>
+  <path class="wire" d="M474 878h21"/>
+  <rect class="panel" x="30" y="944" width="1380" height="122" rx="10"/>
+  <text class="section" x="52" y="978">参数怎样更新</text>
+  <rect class="blue" x="53" y="996" width="338" height="48" rx="6"/>
+  <text x="70" y="1027">有标注图 + 人工框 → 监督损失</text>
+  <text class="strong" x="405" y="1027">+</text>
+  <rect class="gold" x="438" y="996" width="315" height="48" rx="6"/>
+  <text x="454" y="1027">无标注图 + 教师 → 无标注损失</text>
+  <path class="wire" d="M754 1020h44"/>
+  <rect class="violet" x="802" y="996" width="214" height="48" rx="6"/>
+  <text x="822" y="1027">反向传播更新学生</text>
+  <path class="wire" d="M1017 1020h44"/>
+  <rect class="violet" x="1065" y="996" width="315" height="48" rx="6"/>
+  <text x="1081" y="1027">学生参数的滑动平均 → 新教师</text>
+  <text x="34" y="1090" class="small">依据　S³OD 预印本 §III、Fig. 3；作者 DOTA-v1.5 配置，提交 d7806b7。步长以输入图像的像素间距计。</text>
+</svg>

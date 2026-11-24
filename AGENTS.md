@@ -53,6 +53,12 @@ Never revert user or other-session changes without authorization.
 
 ## Working protocol
 
+- For each paper reproduction, start its reproduction card with a framework
+  diagram tracing the original paper's inputs, modules, supervision and outputs.
+  Show the detector stages and their connections, annotate what each module
+  does, and expand the paper-specific modules at their actual points of use.
+  Record the paper version and distinguish reported results from local runs.
+
 - Use the existing `yolo` Conda environment.
 - As of 2026-10-30, the user requires at least 30 complete paired epochs before
   performance decisions. Short runs are engineering checks only. Autonomous
