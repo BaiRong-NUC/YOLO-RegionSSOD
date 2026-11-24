@@ -13,7 +13,7 @@
 - 实际归档58,707个产物文件、4,507,658,156字节（约4.20 GiB，不含ZIP索引和source.zip）。
   包括原P1、B2、教师、历史消融及失败记录；四正式学生best/last均作必需文件检查。
 - 创建后重新读取归档，并与原件逐项SHA256比较通过。
-  [Git中的校验回执](preservation_receipt.json)固定manifest及两个ZIP的哈希。
+  [Git中的校验回执](../preservation_receipt.json)固定manifest及两个ZIP的哈希。
   本地manifest逐文件列出路径、长度和SHA256。
 
 这是独立文件副本，不是硬链接；代码后续变化不会改变归档内容。
@@ -46,9 +46,9 @@ python scripts/preserve_paper1.py --audit --compare-originals
 
 ## 哪些是已有成果，哪些还不是
 
-当前可保留的完整主结果见[正式结果正文](main_results.md)与
-[结构及证据地图](paper1_writeup_plan.md)。
-[代码分轨索引](research_tracks.md)记录历史消融、新评估工具和待验证候选。
+当前可保留的完整主结果见[正式结果正文](../manuscript/main_results.md)与
+[结构及证据地图](../manuscript/paper1_writeup_plan.md)。
+[代码分轨索引](../analysis/research_tracks.md)记录历史消融、新评估工具和待验证候选。
 候选采用独立命名和显式开关；未验证前不合并进原P1结果。
 本次新增程序仅用于成果保存，未修改P1训练实现、配置或执行任何训练。
 

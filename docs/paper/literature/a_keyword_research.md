@@ -15,7 +15,7 @@
 优先保留的研究问题是：**在不增加正伪框的情况下，跨视图几何稳定性是否能
 识别已有正伪框的定位质量，从而决定它们应承担多少回归监督？**
 该固定规则现已完成两组缓存诊断，分层样本不足，未通过继续线，
-见[定位诊断](positive_localization_analysis.md)，不进入训练。
+见[定位诊断](../analysis/positive_localization_analysis.md)，不进入训练。
 它不是已经成立的新方法或创新性结论。
 
 ## 2. 检索与阅读范围
@@ -55,7 +55,7 @@ SHA256清单保留在忽略目录`outputs/literature/a_paper_mechanisms_20261030
 - R12：<https://arxiv.org/abs/2301.12900v2>
 
 最近方法S³OD及Soft Teacher的公式、公开代码和与P1的重叠，沿用
-[已有差异对照](s3od_comparison.md)。本笔记不替代论文引用编号及最终BibTeX核对。
+[已有差异对照](../s3od_comparison.md)。本笔记不替代论文引用编号及最终BibTeX核对。
 
 ## 3. 六类关键词如何落到当前项目
 

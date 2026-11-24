@@ -9,10 +9,10 @@
 
 | 论文 | Zotero key | 本篇用途 | 阅读/核对范围 |
 |---|---|---|---|
-| S³OD: Size-unbiased semi-supervised object detection in aerial images (2025) | `MDFG3JPK` | 最近邻；约束尺度阈值/负学习的新颖性表述 | 本轮元数据/集合核对；既有[版本及代码对照](s3od_comparison.md)，不追加全文已读声明 |
+| S³OD: Size-unbiased semi-supervised object detection in aerial images (2025) | `MDFG3JPK` | 最近邻；约束尺度阈值/负学习的新颖性表述 | 本轮元数据/集合核对；既有[版本及代码对照](../s3od_comparison.md)，不追加全文已读声明 |
 | Humble Teachers Teach Better Students for Semi-Supervised Object Detection (CVPR2021) | `BKDRLGZS` | 类别分布/软伪标签先例；约束新候选创新说法 | 本轮arXiv v1摘要与Zotero元数据；已有PDF不代表本轮全文阅读 |
-| End-to-End Semi-Supervised Object Detection with Soft Teacher (ICCV2021) | `5C8LJIIE` | 教师信息在不同监督项的使用位置 | 本轮集合核对；既有[相关工作](related_work.md) |
-| Unbiased Teacher v2 (CVPR2022) | `R6AMZBIU` | 分类分数与回归质量不能互换 | 本轮集合核对；原局部阅读范围见[补评估文献报告](small_pr_literature.md) |
+| End-to-End Semi-Supervised Object Detection with Soft Teacher (ICCV2021) | `5C8LJIIE` | 教师信息在不同监督项的使用位置 | 本轮集合核对；既有[相关工作](../related_work.md) |
+| Unbiased Teacher v2 (CVPR2022) | `R6AMZBIU` | 分类分数与回归质量不能互换 | 本轮集合核对；原局部阅读范围见[补评估文献报告](../small_pr_literature.md) |
 | Calibrated Teacher for Sparsely Annotated Object Detection (2023预印本) | `KV74E49Y` | 区分置信度校准、分类loss权重与类别歧义 | 本轮arXiv v1摘要；既有局部阅读范围仍有效 |
 | Multivariate Confidence Calibration for Object Detection (2020) | `RQIKGRP9` | 尺度/位置条件校准已有先例 | 本轮集合核对；原局部阅读范围见补评估报告 |
 | On Calibration of Object Detectors: Pitfalls, Evaluation and Baselines (2024) | `K3VYDTZE` | 校准评测与留出划分；防止把开发集拟合当部署证据 | 本轮集合核对；原局部阅读范围见补评估报告 |

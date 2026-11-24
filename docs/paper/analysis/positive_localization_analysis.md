@@ -78,5 +78,5 @@ python scripts/audit_positive_localization.py --check
 逐正框`diagnostics.jsonl`和输入/输出哈希；诊断文件不得作为训练标签。
 不导出隐藏GT坐标、不修改正框类别/坐标/数量，不实现新回归损失。
 下一项需有新的可检验信息来源，不能为了凑样本反复调整当前分组阈值。
-最近工作与新颖性限制见[A关键词调研](a_keyword_research.md)及
-[S³OD对照](s3od_comparison.md)，不把定位一致性本身宣称为首创。
+最近工作与新颖性限制见[A关键词调研](../literature/a_keyword_research.md)及
+[S³OD对照](../s3od_comparison.md)，不把定位一致性本身宣称为首创。

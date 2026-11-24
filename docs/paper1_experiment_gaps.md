@@ -53,7 +53,7 @@ P1 的 0.30≤conf<0.50 small positive 有 7,400 个框，在完整 P1 联合匹
 3,165 个 matched predictions，precision 为 42.77%。这是 P1 内部条件统计，不是它们
 相对 B2 新增独立检出的比例；也不能与恢复分析中“锁定旧匹配后新增匹配/额外框”直接混用。
 
-随后已完成 [ignore 可恢复增量分析](paper/ignore_recovery_analysis.md)：入训 ignore 的
+随后已完成 [ignore 可恢复增量分析](paper/analysis/ignore_recovery_analysis.md)：入训 ignore 的
 普通一对一新增匹配 5,303、条件最大基数上界 5,315，新增 small 3,627；若直接保留全部
 52,117 框，新增独立匹配比例仅 10.18%。仅放宽 small 到 0.25 时也只有 27.12%。
 因此存在覆盖空间，但尚无值得扩训的可靠转正规则；下一步先验证无 GT 的可靠性线索。
@@ -160,7 +160,7 @@ C/B及树莓派部署均不属于当前执行目标。
 去软权重mAP50-95−0.1623pp、small recall+0.9143pp，未满足前述任一后续线。
 保留完整P1主配置和精度/覆盖取舍，当前不扩训。
 用户关键词的文献依据及消融之后的候选问题见
-[A关键词调研](paper/a_keyword_research.md)，不并行启动第二项训练。
+[A关键词调研](paper/literature/a_keyword_research.md)，不并行启动第二项训练。
 
 ## 6. 证据与边界
 

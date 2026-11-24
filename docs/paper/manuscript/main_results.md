@@ -1,9 +1,9 @@
 # 4 实验结果与分析
 
 本章是正式100轮结果的正文整理版。完整来源分别见
-[seed0报告](p1_b2_full100_results.md)、[seed1及两seed报告](p1_b2_seed1_full100_results.md)、
-[AP与PR补评估](small_pr_results.md)。原[实验记录](experiments.md)及
-[30轮表格](results_tables.md)继续保留，供消融和补充材料查阅。
+[seed0报告](../results/p1_b2_full100_results.md)、[seed1及两seed报告](../results/p1_b2_seed1_full100_results.md)、
+[AP与PR补评估](../small_pr_results.md)。原[实验记录](experiments.md)及
+[30轮表格](../results_tables.md)继续保留，供消融和补充材料查阅。
 
 ## 4.1 实验设置与评测口径
 
