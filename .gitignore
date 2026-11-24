@@ -61,6 +61,7 @@ desktop.ini
 
 # Local temporary files
 /cache/
+/reproduce/*/local/
 tmp/
 temp/
 *.tmp

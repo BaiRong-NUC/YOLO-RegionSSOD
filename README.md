@@ -1,31 +1,12 @@
-# YOLO-RegionSSOD
+# 航拍目标检测论文复现
 
-**研究问题**　在 VisDrone 航拍图像中，每张训练图只标注约 10% 的面积时，让更多可信的小目标参与 YOLO11s 学生训练，能否比统一置信度阈值找回更多小目标？本项目研究水平框图像检测。
+当前复现 [S³OD](docs/reproduce/s3od/)。已固定作者实现版本、整理作者基线和方法结构图，并核对预印本的评测协议。本机训练、权重评测和与论文值的差异仍待完成。
 
-## 按五步读仓库
-
-[外部论文复现代码](reproduce/)按论文分目录。[项目脚本](scripts/README.md)与[测试](tests/README.md)按功能查找。
-
-| 步骤 | 在这个项目里看什么 |
+| 内容 | 目录 |
 |---|---|
-| [01 复现最接近任务的工作](docs/paper/workflow/01-论文复现.md) | 从 S³OD 的两张架构图入手，看作者验证了什么，以及本机复现到哪一步。 |
-| [02 按功能拆解基线](docs/paper/workflow/02-基线拆解.md) | 从一张训练图走到 B2 的检测结果，定位数据、教师选框、学生训练和整图评测的代码。 |
-| [03 为同一功能找不同实现](docs/paper/workflow/03-方法设计.md) | 对照 B2 和 P1 的选框、分类加权与背景处理，找到每项改动对应的配置和实现。 |
-| [04 先验证能用，再检验为什么有效](docs/paper/workflow/04-实验验证.md) | 查正式 100 轮结果、30 轮单因素消融、误检代价和未保留的候选。 |
-| [05 按证据写论文故事](docs/paper/workflow/05-论文写作.md) | 阅读中文初稿，逐项核对结论、证据和仍待完成的对照。 |
+| 论文复现卡、基线图和方法图 | [docs/reproduce](docs/reproduce/) |
+| 作者源码、项目适配与绘图源码 | [reproduce](reproduce/) |
+| 本项目编写的运行和评测入口 | [scripts/reproduce](scripts/reproduce/) |
+| 本项目编写的论文专用测试 | [tests/reproduce](tests/reproduce/) |
 
-**当前结果**　在同一 10% 面积划分、同一教师下，B2 和 P1 各训练两个学生 seed、每次 100 轮。在 548 张完整验证图上，P1 相对 B2 平均提高 **2.2726 个百分点的小目标召回率**（conf 0.25，匹配 IoU 0.50），Ultralytics mAP50–95 平均提高 **0.1939 个百分点**。两个 seed 的全尺寸未匹配预测分别增加 1221 和 1435 个。[正式配对报告](docs/paper/results/p1_b2_seed1_full100_results.md)
-
-## 运行与复核
-
-在仓库根目录打开终端，使用现有的 `yolo` 环境：
-
-```powershell
-conda activate yolo
-python -m pip install -e . --no-deps
-regionssod --help
-```
-
-生成数据和运行 B0/B1/B2/P1 的命令见[执行协议](docs/baseline_protocol.md)。正式实验分别有[学生 seed 0 协议](docs/paper/paper1_full100_protocol.md)和[学生 seed 1 协议](docs/paper/paper1_seed1_full100_protocol.md)。已有权重与日志的机器可按[恢复与审计记录](docs/paper/paper1_p1_seed1_recovery.md)核查 seed 1；数据、权重和运行产物存放在本地。
-
-查主线命令可看[执行协议](docs/baseline_protocol.md)。停止的实验按原路径保存在本机 `cache/`，归档位置、可恢复的 Git 版本与比较结论见[项目进度日志](docs/paper_completion_plan.md)。[八周实验设计](docs/experiment_plan_8weeks.md)记录最初的协议。
+新克隆仓库后，在根目录执行 `git submodule update --init --recursive` 获取固定版本的作者代码。每新增一篇论文，在对应目录使用同一论文简称，分别记录作者版本、权重、数据划分、评测命令、论文值、本机值及差异。
