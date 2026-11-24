@@ -4,8 +4,6 @@
 
 ## 从哪里看主方法
 
-用 VS Code 打开 [RegionSSOD.code-workspace](RegionSSOD.code-workspace)。在资源管理器中，正式 100 轮入口、各消融和后续候选分别归组。展开父文件左侧的箭头即可看到对应脚本。工作区直接打开仓库原文件。
-
 B2 和 P1 都采用 Ultralytics YOLO11s，推理时都经过相同的 Backbone（提取特征）、Neck（融合多尺度特征）和 Detect Head（输出类别和框）。P1 的改动在训练流程的两处：教师输出转成伪标签时，以及学生用检测头输出计算分类损失时。
 
 | 想看什么 | 代码或证据 |
