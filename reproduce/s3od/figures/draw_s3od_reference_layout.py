@@ -2,7 +2,8 @@ from html import escape
 from pathlib import Path
 
 
-destination = Path("docs/paper/figures/s3od-architecture.svg")
+destination = Path("tmp/s3od-reference-layout.svg")
+destination.parent.mkdir(parents=True, exist_ok=True)
 svg = ['''<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1430" viewBox="0 0 1400 1430" role="img" aria-labelledby="title desc">
 <title id="title">S³OD 检测器逐层结构与半监督训练模块</title>
 <desc id="desc">左侧为 ResNet-50 的全部四个阶段，右上为特征与损失总览，中部展开瓶颈、SAT、SLA、TNL 和 RoI 预测头，下部按尺度连接 FPN、RPN、RoIAlign 与旋转框输出。图中空间尺寸以 1024 方形输入举例。</desc>
