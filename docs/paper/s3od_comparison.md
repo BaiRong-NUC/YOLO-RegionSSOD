@@ -6,13 +6,15 @@ S³OD 已系统研究航拍半监督检测中的尺度阈值、正样本分配�
 
 ### 先看框架，再看复现结果
 
-![SSOD baseline 与 S³OD 的训练结构对照及逐层检测器](figures/s3od-architecture.png)
+| 图 A · SSOD baseline | 图 B · S³OD |
+|---|---|
+| [![基线检测器逐层结构](figures/ssod-baseline-architecture.png)](figures/ssod-baseline-architecture.svg) | [![论文检测器逐层结构](figures/s3od-architecture.png)](figures/s3od-architecture.svg) |
 
-[放大查看基线与论文结构对照图](figures/s3od-architecture.svg)
+点击任一图可单独放大。两张图使用同一套层位置和连线。沿流程看 **1** 教师输出的伪框筛选、**2** 学生 RPN 的正锚框分配、**3** 学生 RoI 分类的负样本处理；中部同号卡片展开各处的具体做法。
 
 **基线模型**　作者用于消融的 SSOD baseline 是一套在线师生模型，教师和学生各用一个 Rotated Faster R-CNN。教师从弱增强裁片预测伪框，按固定阈值筛选后映射到强增强裁片；学生用这些伪框和另外一批人工标注学习，再用学生参数的指数移动平均（EMA）更新教师。检测器沿图中 ResNet-50 → FPN → RPN → RoIAlign → 分类与旋转框回归运行。公开基线配置对 RPN 和分类伪框使用 0.9，另设初筛和回归参数。[预印本 III-A、IV-C](https://arxiv.org/html/2310.14718v1#S3.SS1) · [作者的 1% 基线配置](https://github.com/ZhangRuixiang-WHU/S3OD/blob/d7806b78947cdc403d525e67a28193a88a4f8598/configs/dota1.5/ssod_baseline_dota1.5_1percent.py#L240-L259)
 
-**论文模型**　S³OD 在同一条师生训练路径的三个位置改变监督。沿图上半部逐行对照基线与 S³OD，再看下半部对应的 RPN、RoI 分类头及模块内部。下列数字均为预印本 DOTA-v1.5 验证集、1% 有标注裁片、同一划分的旋转框 mAP@0.50，单位为百分点。[原文表 III–VIII](https://arxiv.org/html/2310.14718v1#S4.SS4)
+**论文模型**　S³OD 在同一条师生训练路径的三个位置改变监督。下列消融数据来自预印本 DOTA-v1.5 验证集、1% 有标注裁片的同一划分，旋转框 mAP@0.50 以百分数表示。[原文表 III–VIII](https://arxiv.org/html/2310.14718v1#S4.SS4)
 
 | 训练位置 | 基线容易出现什么问题 | S³OD 怎样处理 | 原文实验支持到哪里 |
 |---|---|---|---|

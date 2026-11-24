@@ -53,8 +53,10 @@ Never revert user or other-session changes without authorization.
 
 ## Working protocol
 
-- For each paper reproduction, start its reproduction card with an aligned
-  diagram of the paper's own baseline and proposed method. Trace both models'
+- For each paper reproduction, start its reproduction card with two separate
+  diagrams of the paper's own baseline and proposed method. Use the same canvas,
+  layer coordinates and numbering for the changed training or inference sites.
+  Place each number at the actual site and on its detail panel. Trace both models'
   inputs, modules, supervision and outputs. For each change, explain the
   baseline failure it addresses and cite the paper's corresponding evidence.
   Show the detector stages and their connections, annotate what each module
