@@ -17,17 +17,18 @@ import torch
 from .evaluate_visdrone import LOCAL, ROOT, SHA256, UPSTREAM, WEIGHT, read_visdrone
 
 
-def prepare(source, target):
-    """按上游 data_prepare.py 输出 JPEG 和六位小数的 YOLO 标签。"""
-    images = target / "images"
-    labels = target / "labels"
+def prepare(source, target, *, split="val", paths=None, output_split="", on_prepared=None):
+    """按作者规则转换指定图片；默认仍准备完整的 548 张验证图。"""
+    images = target / "images" / output_split
+    labels = target / "labels" / output_split
     images.mkdir(exist_ok=True, parents=True)
     labels.mkdir(exist_ok=True, parents=True)
-    paths = sorted((source / "images/val").glob("*.jpg"))
-    if len(paths) != 548:
-        raise ValueError(f"预期 548 张验证图，实际 {len(paths)}")
+    if paths is None:
+        paths = sorted((source / "images" / split).glob("*.jpg"))
+        if split == "val" and len(paths) != 548:
+            raise ValueError(f"预期 548 张验证图，实际 {len(paths)}")
     for path in paths:
-        image, boxes, masked = read_visdrone(path, source / "original_annotations/val" / (path.stem + ".txt"))
+        image, boxes, masked = read_visdrone(path, source / "original_annotations" / split / (path.stem + ".txt"))
         height, width = image.shape[:2]
         rows = []
         for category, (left, top, box_w, box_h) in boxes:
@@ -39,7 +40,11 @@ def prepare(source, target):
                 raise OSError(f"写入失败 {stem}")
         else:
             shutil.copyfile(path, images / path.name)
-        (labels / (stem + ".txt")).write_text("\n".join(rows), encoding="ascii")
+        label_path = labels / (stem + ".txt")
+        label_path.write_text("\n".join(rows), encoding="ascii")
+        if on_prepared is not None:
+            # 复用已解码、已涂灰的原尺寸图，供训练数据入口生成监督热图。
+            on_prepared(label_path, image)
     return images
 
 

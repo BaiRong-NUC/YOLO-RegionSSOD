@@ -1,6 +1,6 @@
 # 航拍目标检测论文复现
 
-当前关注无人机航拍水平框小目标的检测精度与整图推理耗时。[ESOD](docs/reproduce/esod/) 已完成 VisDrone 验证集 548 张图的公开权重重评与同机测速。[S³OD](docs/reproduce/s3od/) 已完成 VisDrone 的 SAT 伪框离线评测，DOTA-v1.5 原协议待测。
+当前关注无人机航拍水平框小目标的检测精度与整图推理耗时。[ESOD](docs/reproduce/esod/) 已完成公开权重重评与本机双种子配对初筛。用 32 张图训练后，在 VisDrone 全部 548 张验证图上，ESOD 的小目标 AP 比普通 YOLOv5m 分别低 0.285、0.336 点。[S³OD](docs/reproduce/s3od/) 已完成 VisDrone 的 SAT 伪框离线评测，DOTA-v1.5 原协议待测。
 
 | 内容 | 目录 |
 |---|---|
