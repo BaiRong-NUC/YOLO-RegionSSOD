@@ -37,3 +37,7 @@
 ### 2026-11-24 外部复现与工程入口
 
 [外部论文代码](../reproduce/)按论文分目录。S³OD 已取得复现卡指定的作者提交，独立训练与权重评测仍待完成。[项目脚本](../scripts/README.md)将监控、表格和保存工具分组，[测试](../tests/README.md)将 22 个测试文件移入五个功能目录。历史实验哈希引用的文件继续使用原路径。
+
+各篇论文的基线和方法结构图归入 `docs/reproduce/<论文简称>/`。[S³OD 双图对照](reproduce/s3od/)沿用原版 SVG 和 PNG，原编辑器预览路径保留。
+
+复核 `scripts/` 中的 46 个 Python 文件和 `tests/` 中的 30 个测试文件，现有文件均服务于 RegionSSOD。后续外部论文专用入口与测试分别归入 `scripts/reproduce/<论文简称>/` 和 `tests/reproduce/<论文简称>/`。

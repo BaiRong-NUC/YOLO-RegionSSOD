@@ -8,7 +8,7 @@ S³OD 已系统研究航拍半监督检测中的尺度阈值、正样本分配�
 
 | 图 A · SSOD baseline | 图 B · S³OD |
 |---|---|
-| [![基线检测器逐层结构](figures/ssod-baseline-architecture.png)](figures/ssod-baseline-architecture.svg) | [![论文检测器逐层结构](figures/s3od-architecture.png)](figures/s3od-architecture.svg) |
+| [![基线检测器逐层结构](../reproduce/s3od/ssod-baseline-architecture.png)](../reproduce/s3od/ssod-baseline-architecture.svg) | [![论文检测器逐层结构](../reproduce/s3od/s3od-architecture.png)](../reproduce/s3od/s3od-architecture.svg) |
 
 点击任一图可单独放大。两张图使用同一套层位置和连线。沿流程看 **1** 教师输出的伪框筛选、**2** 学生 RPN 的正锚框分配、**3** 学生 RoI 分类的负样本处理；中部同号卡片展开各处的具体做法。
 

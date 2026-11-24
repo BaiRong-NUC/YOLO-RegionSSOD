@@ -9,4 +9,4 @@
 | 预印本表 I | 10% 有标注裁片、五划分均值，SSOD baseline 57.08%，S³OD 60.24%。 |
 | 本机值及差异 | 待按对应划分评测。 |
 
-[复现卡与两张框架图](../../docs/paper/s3od_comparison.md)记录预印本、期刊版本与公开实现的差异。[绘图源码](figures/)中 `build_s3od_pair_once.py` 生成当前成对 SVG，`draw_s3od_reference_layout.py` 是较早的单图版本。绘图脚本的工作目录均为项目根目录。
+[基线图与方法图](../../docs/reproduce/s3od/)可并排查看，[复现卡](../../docs/paper/s3od_comparison.md)记录预印本、期刊版本与公开实现的差异。[绘图源码](figures/)中 `build_s3od_pair_once.py` 将双图 SVG 写入 `docs/reproduce/s3od/`，`draw_s3od_reference_layout.py` 是较早的单图版本。绘图脚本的工作目录均为项目根目录。

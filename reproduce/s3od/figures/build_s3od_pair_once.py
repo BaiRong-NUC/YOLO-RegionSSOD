@@ -4,7 +4,7 @@ import re
 import subprocess
 
 
-folder = Path("docs/paper/figures")
+folder = Path("docs/reproduce/s3od")
 source = subprocess.check_output(["git", "show", "4b56b89:docs/paper/figures/s3od-architecture.svg"]).decode("utf-8")
 definitions = source[source.index("<defs>"):source.index("</style>") + len("</style>")]
 layers = source.split('<g transform="translate(0 510)">\n', 1)[1].rsplit("</g>", 1)[0]

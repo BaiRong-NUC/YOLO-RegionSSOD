@@ -52,7 +52,12 @@ Never revert user or other-session changes without authorization.
 
 ## Working protocol
 
-- For each paper reproduction, start its reproduction card with two separate
+- For each paper, put reproduction code in `reproduce/<paper>/` and its
+  baseline and method diagrams (SVG and PNG) in `docs/reproduce/<paper>/`.
+  Put project-authored external-paper launch and evaluation scripts in
+  `scripts/reproduce/<paper>/` and their tests in `tests/reproduce/<paper>/`.
+  Use the same paper slug across these directories.
+  Register each new paper in `docs/reproduce/README.md`. Start its card with two separate
   diagrams of the paper's own baseline and proposed method. Use the same canvas,
   layer coordinates and numbering for the changed training or inference sites.
   Place each number at the actual site and on its detail panel. Trace both models'
@@ -60,7 +65,7 @@ Never revert user or other-session changes without authorization.
   baseline failure it addresses and cite the paper's corresponding evidence.
   Show the detector stages and their connections, annotate what each module
   does, and expand the paper-specific modules at their actual points of use.
-  Follow `docs/paper/figures/s3od-architecture.svg` for the layout: a full-height
+  Follow `docs/reproduce/s3od/s3od-architecture.svg` for the layout: a full-height
   backbone on the left, a compact head and loss overview above the module
   details, and layer-by-layer connections across the lower half.
   Record the paper version and distinguish reported results from local runs.

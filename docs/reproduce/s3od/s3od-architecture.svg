@@ -1,0 +1,427 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1430" viewBox="0 0 1400 1430" role="img" aria-labelledby="title desc">
+<title id="title">S³OD 逐层结构与三处训练监督</title>
+<desc id="desc">1 标记教师输出的伪框筛选，2 标记学生 RPN 正样本分配，3 标记学生 RoI 分类负样本处理。对应编号在流程与模块细节中各出现一次。</desc>
+<defs>
+  <marker id="end" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5.6" markerHeight="5.6" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#576775"/></marker>
+  <linearGradient id="detect" x2="1" y2="1" gradientUnits="objectBoundingBox"><stop stop-color="#aaca8e"/><stop offset="1" stop-color="#ffdc65"/></linearGradient>
+  <pattern id="airfield" patternUnits="userSpaceOnUse" width="184" height="90"><rect width="184" height="90" fill="#adb9a1"/><path d="M-4 5L186 61M-5 42L186 98" stroke="#788980" stroke-width="12"/><path d="M-4 5L186 61" stroke="#e6e4cf" stroke-width="1.3" stroke-dasharray="10 5"/><path d="M8 78l34-48m54 35 20-27" stroke="#d3cbb2" stroke-width="8"/><g fill="#eff0df" stroke="#46555a" stroke-width=".65"><path id="plane" d="M0-8l1.5 6 7 4v2L1 2v4l2.5 2v1L0 8l-3.5 1V8l2.5-2V2l-7.5 2V2l7-4z"/><use href="#plane" transform="translate(49 59) rotate(42)"/><use href="#plane" transform="translate(85 68) rotate(42)"/><use href="#plane" transform="translate(135 24) rotate(-32)"/></g></pattern>
+</defs>
+<style>text{font-family:"Microsoft YaHei",sans-serif;fill:#263644} .wire{fill:none;stroke:#71808a;stroke-width:1.35;stroke-linecap:round;stroke-linejoin:round}</style>
+<rect x="0" y="0" width="1400" height="1430" rx="0" fill="#fff" stroke="none" stroke-width="1"/>
+<text x="47" y="51" text-anchor="start" font-size="38" font-weight="700" style="fill:#0088d1">S³OD</text>
+<text x="360" y="50" text-anchor="start" font-size="22" font-weight="600" style="fill:#09557e">论文模型 · 训练监督</text>
+<text x="1351" y="49" text-anchor="end" font-size="17" font-weight="600" style="fill:#428abb">DOTA-v1.5   /   Rotated Faster R-CNN</text>
+<rect x="38" y="65" width="1324" height="1322" rx="17" fill="#ededed" stroke="#d7dadd" stroke-width="2.8"/>
+<path class="wire" d="M446 66V1386"/>
+<path class="wire" d="M446 239H1361"/>
+<path class="wire" d="M446 827H1361"/>
+<path class="wire" d="M39 353H445"/>
+<text x="50" y="94" text-anchor="start" font-size="24" font-weight="700" style="fill:#09557e">Backbone</text>
+<text x="51" y="115" text-anchor="start" font-size="15" font-weight="500" style="fill:#09557e">ResNet-50</text>
+<text x="51" y="135" text-anchor="start" font-size="15" font-weight="500" style="fill:#09557e">四级特征</text>
+<text x="462" y="94" text-anchor="start" font-size="24" font-weight="700" style="fill:#09557e">Head</text>
+<text x="538" y="94" text-anchor="start" font-size="16" font-weight="500" style="fill:#09557e">FPN → RPN → RoI Head</text>
+<path d="M69 327l75 -75h262l-75 75z" fill="url(#airfield)" stroke="#4388bc"/>
+<path d="M69 327h262v15h-262z" fill="#fff" stroke="#4388bc"/><path d="M331 327l75 -75v15l-75 75z" fill="#c5d2de" stroke="#4388bc"/>
+<text x="200.0" y="338.8" text-anchor="middle" font-size="11.5" font-weight="650" style="fill:#263644">航拍输入示意</text>
+<path d="M92 273l56 -56h229l-56 56z" fill="#fff" stroke="#4388bc"/>
+<path d="M92 273h229v15h-229z" fill="#fff" stroke="#4388bc"/><path d="M321 273l56 -56v15l-56 56z" fill="#c5d2de" stroke="#4388bc"/>
+<text x="206.5" y="284.8" text-anchor="middle" font-size="11.5" font-weight="650" style="fill:#263644">C2</text>
+<path d="M111 230l48 -48h196l-48 48z" fill="#fff" stroke="#4388bc"/>
+<path d="M111 230h196v15h-196z" fill="#fff" stroke="#4388bc"/><path d="M307 230l48 -48v15l-48 48z" fill="#c5d2de" stroke="#4388bc"/>
+<text x="209.0" y="241.8" text-anchor="middle" font-size="11.5" font-weight="650" style="fill:#263644">C3</text>
+<path d="M135 190l39 -39h157l-39 39z" fill="#fff" stroke="#4388bc"/>
+<path d="M135 190h157v15h-157z" fill="#fff" stroke="#4388bc"/><path d="M292 190l39 -39v15l-39 39z" fill="#c5d2de" stroke="#4388bc"/>
+<text x="213.5" y="201.8" text-anchor="middle" font-size="11.5" font-weight="650" style="fill:#263644">C4</text>
+<path d="M155 151l30 -30h120l-30 30z" fill="#fff" stroke="#4388bc"/>
+<path d="M155 151h120v15h-120z" fill="#fff" stroke="#4388bc"/><path d="M275 151l30 -30v15l-30 30z" fill="#c5d2de" stroke="#4388bc"/>
+<text x="215.0" y="162.8" text-anchor="middle" font-size="11.5" font-weight="650" style="fill:#263644">C5</text>
+<path class="wire" d="M305 159H506V160H540" marker-end="url(#end)"/>
+<rect x="540" y="150" width="58" height="20" rx="4" fill="#ffe8a2" stroke="#8c9da6" stroke-width="1"/>
+<text x="569.0" y="164.08" text-anchor="middle" font-size="12" font-weight="650" style="fill:#263644">1×1</text>
+<path class="wire" d="M598 160H690" marker-end="url(#end)"/>
+<rect x="690" y="150" width="61" height="20" rx="4" fill="#85d9f1" stroke="#8c9da6" stroke-width="1"/>
+<text x="720.5" y="164.08" text-anchor="middle" font-size="12" font-weight="650" style="fill:#263644">FPN</text>
+<path class="wire" d="M751 160H816" marker-end="url(#end)"/>
+<path class="wire" d="M331 198H528V177H562" marker-end="url(#end)"/>
+<rect x="562" y="167" width="58" height="20" rx="4" fill="#ffe8a2" stroke="#8c9da6" stroke-width="1"/>
+<text x="591.0" y="181.08" text-anchor="middle" font-size="12" font-weight="650" style="fill:#263644">1×1</text>
+<path class="wire" d="M620 177H690" marker-end="url(#end)"/>
+<rect x="690" y="167" width="61" height="20" rx="4" fill="#85d9f1" stroke="#8c9da6" stroke-width="1"/>
+<text x="720.5" y="181.08" text-anchor="middle" font-size="12" font-weight="650" style="fill:#263644">FPN</text>
+<path class="wire" d="M751 177H816" marker-end="url(#end)"/>
+<path class="wire" d="M355 238H551V194H585" marker-end="url(#end)"/>
+<rect x="585" y="184" width="58" height="20" rx="4" fill="#ffe8a2" stroke="#8c9da6" stroke-width="1"/>
+<text x="614.0" y="198.08" text-anchor="middle" font-size="12" font-weight="650" style="fill:#263644">1×1</text>
+<path class="wire" d="M643 194H690" marker-end="url(#end)"/>
+<rect x="690" y="184" width="61" height="20" rx="4" fill="#85d9f1" stroke="#8c9da6" stroke-width="1"/>
+<text x="720.5" y="198.08" text-anchor="middle" font-size="12" font-weight="650" style="fill:#263644">FPN</text>
+<path class="wire" d="M751 194H816" marker-end="url(#end)"/>
+<path class="wire" d="M377 281H575V211H609" marker-end="url(#end)"/>
+<rect x="609" y="201" width="58" height="20" rx="4" fill="#ffe8a2" stroke="#8c9da6" stroke-width="1"/>
+<text x="638.0" y="215.08" text-anchor="middle" font-size="12" font-weight="650" style="fill:#263644">1×1</text>
+<path class="wire" d="M667 211H690" marker-end="url(#end)"/>
+<rect x="690" y="201" width="61" height="20" rx="4" fill="#85d9f1" stroke="#8c9da6" stroke-width="1"/>
+<text x="720.5" y="215.08" text-anchor="middle" font-size="12" font-weight="650" style="fill:#263644">FPN</text>
+<path class="wire" d="M751 211H816" marker-end="url(#end)"/>
+<path d="M799 204.0l23 -23h93l-23 23z" fill="#fff" stroke="#4388bc"/>
+<path d="M799 204.0h93v15h-93z" fill="#fff" stroke="#4388bc"/><path d="M892 204.0l23 -23v15l-23 23z" fill="#c5d2de" stroke="#4388bc"/>
+<text x="845.5" y="215.8" text-anchor="middle" font-size="11.5" font-weight="650" style="fill:#263644">P2</text>
+<path d="M803 187.5l23 -23h86l-23 23z" fill="#fff" stroke="#4388bc"/>
+<path d="M803 187.5h86v15h-86z" fill="#fff" stroke="#4388bc"/><path d="M889 187.5l23 -23v15l-23 23z" fill="#c5d2de" stroke="#4388bc"/>
+<text x="846.0" y="199.3" text-anchor="middle" font-size="11.5" font-weight="650" style="fill:#263644">P3</text>
+<path d="M807 171.0l23 -23h79l-23 23z" fill="#fff" stroke="#4388bc"/>
+<path d="M807 171.0h79v15h-79z" fill="#fff" stroke="#4388bc"/><path d="M886 171.0l23 -23v15l-23 23z" fill="#c5d2de" stroke="#4388bc"/>
+<text x="846.5" y="182.8" text-anchor="middle" font-size="11.5" font-weight="650" style="fill:#263644">P4</text>
+<path d="M811 154.5l23 -23h72l-23 23z" fill="#fff" stroke="#4388bc"/>
+<path d="M811 154.5h72v15h-72z" fill="#fff" stroke="#4388bc"/><path d="M883 154.5l23 -23v15l-23 23z" fill="#c5d2de" stroke="#4388bc"/>
+<text x="847.0" y="166.3" text-anchor="middle" font-size="11.5" font-weight="650" style="fill:#263644">P5</text>
+<path d="M815 138.0l23 -23h65l-23 23z" fill="#fff" stroke="#4388bc"/>
+<path d="M815 138.0h65v15h-65z" fill="#fff" stroke="#4388bc"/><path d="M880 138.0l23 -23v15l-23 23z" fill="#c5d2de" stroke="#4388bc"/>
+<text x="847.5" y="149.8" text-anchor="middle" font-size="11.5" font-weight="650" style="fill:#263644">P6</text>
+<path class="wire" d="M911 170H937" marker-end="url(#end)"/>
+<rect x="940" y="146" width="81" height="45" rx="4" fill="url(#detect)" stroke="#8c9da6" stroke-width="1"/>
+<text x="980.5" y="166.5" text-anchor="middle" font-size="16" font-weight="650" style="fill:#263644">RPN</text>
+<text x="980.5" y="183.5" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">候选框</text>
+<path class="wire" d="M1021 168H1037" marker-end="url(#end)"/>
+<rect x="1040" y="146" width="96" height="45" rx="4" fill="url(#detect)" stroke="#8c9da6" stroke-width="1"/>
+<text x="1088.0" y="166.5" text-anchor="middle" font-size="16" font-weight="650" style="fill:#263644">RoI Head</text>
+<text x="1088.0" y="183.5" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">分类与定位</text>
+<path class="wire" d="M1136 168h13v-40h21" marker-end="url(#end)"/>
+<path class="wire" d="M1149 168v26h21" marker-end="url(#end)"/>
+<rect x="1170" y="91" width="174" height="132" rx="10" fill="#cfdaeb" stroke="#8c9da6" stroke-width="1"/>
+<rect x="1182" y="107" width="80" height="38" rx="4" fill="#fff" stroke="#8c9da6" stroke-width="1"/>
+<text x="1222.0" y="130.76" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">BBox</text>
+<rect x="1182" y="176" width="80" height="35" rx="4" fill="#fff" stroke="#8c9da6" stroke-width="1"/>
+<text x="1222.0" y="198.26" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">Class</text>
+<text x="1268" y="129" text-anchor="start" font-size="12" font-weight="600" style="fill:#263644">Smooth L1</text>
+<text x="1270" y="198" text-anchor="start" font-size="13" font-weight="600" style="fill:#263644">CE</text>
+<text x="1256" y="162" text-anchor="middle" font-size="13" font-weight="650" style="fill:#09557e">RoI Loss</text>
+<text x="58" y="381" text-anchor="start" font-size="18" font-weight="700" style="fill:#09557e">输入裁片</text>
+<text x="168" y="380" text-anchor="start" font-size="14" font-weight="400" style="fill:#263644">1024 × 1024 × 3（尺寸示例）</text>
+<path class="wire" d="M231 354V361 M231 387V405" marker-end="url(#end)"/>
+<rect x="120" y="407" width="223" height="47" rx="5" fill="#85d9f1" stroke="#8c9da6" stroke-width="1"/>
+<path class="wire" d="M301 407v47"/>
+<text x="130" y="426" text-anchor="start" font-size="16" font-weight="700" style="fill:#263644">Conv1</text>
+<text x="130" y="445" text-anchor="start" font-size="13" font-weight="400" style="fill:#263644">7×7，s=2；BN + ReLU</text>
+<text x="322" y="435" text-anchor="middle" font-size="13" font-weight="650" style="fill:#263644">Stem</text>
+<path class="wire" d="M230 454V483" marker-end="url(#end)"/>
+<text x="240" y="473" text-anchor="start" font-size="12.5" font-weight="400" style="fill:#263644">512 × 512 × 64</text>
+<rect x="120" y="485" width="223" height="47" rx="5" fill="#c1d6f6" stroke="#8c9da6" stroke-width="1"/>
+<path class="wire" d="M301 485v47"/>
+<text x="130" y="504" text-anchor="start" font-size="16" font-weight="700" style="fill:#263644">MaxPool</text>
+<text x="130" y="523" text-anchor="start" font-size="13" font-weight="400" style="fill:#263644">3×3，s=2；下采样</text>
+<text x="322" y="513" text-anchor="middle" font-size="13" font-weight="650" style="fill:#263644">Stem</text>
+<path class="wire" d="M230 532V561" marker-end="url(#end)"/>
+<text x="240" y="551" text-anchor="start" font-size="12.5" font-weight="400" style="fill:#263644">256 × 256 × 64</text>
+<rect x="120" y="563" width="223" height="47" rx="5" fill="#ffe8a2" stroke="#8c9da6" stroke-width="1"/>
+<path class="wire" d="M301 563v47"/>
+<text x="130" y="582" text-anchor="start" font-size="16" font-weight="700" style="fill:#263644">Bottleneck ×1</text>
+<text x="130" y="601" text-anchor="start" font-size="13" font-weight="400" style="fill:#263644">投影捷径，扩张通道</text>
+<text x="322" y="591" text-anchor="middle" font-size="13" font-weight="650" style="fill:#263644">C2</text>
+<path class="wire" d="M230 610V654" marker-end="url(#end)"/>
+<text x="240" y="629" text-anchor="start" font-size="12.5" font-weight="400" style="fill:#263644">256 × 256 × 256</text>
+<rect x="120" y="656" width="223" height="47" rx="5" fill="#ffe8a2" stroke="#8c9da6" stroke-width="1"/>
+<path class="wire" d="M301 656v47"/>
+<text x="130" y="675" text-anchor="start" font-size="16" font-weight="700" style="fill:#263644">Bottleneck ×2</text>
+<text x="130" y="694" text-anchor="start" font-size="13" font-weight="400" style="fill:#263644">恒等捷径，保留细节</text>
+<text x="322" y="684" text-anchor="middle" font-size="13" font-weight="650" style="fill:#263644">C2</text>
+<path class="wire" d="M230 703V752" marker-end="url(#end)"/>
+<text x="240" y="722" text-anchor="start" font-size="12.5" font-weight="400" style="fill:#263644">256 × 256 × 256</text>
+<rect x="120" y="754" width="223" height="47" rx="5" fill="#ffe8a2" stroke="#8c9da6" stroke-width="1"/>
+<path class="wire" d="M301 754v47"/>
+<text x="130" y="773" text-anchor="start" font-size="16" font-weight="700" style="fill:#263644">Bottleneck ×1</text>
+<text x="130" y="792" text-anchor="start" font-size="13" font-weight="400" style="fill:#263644">投影捷径，s=2</text>
+<text x="322" y="782" text-anchor="middle" font-size="13" font-weight="650" style="fill:#263644">C3</text>
+<path class="wire" d="M230 801V848" marker-end="url(#end)"/>
+<text x="240" y="820" text-anchor="start" font-size="12.5" font-weight="400" style="fill:#263644">128 × 128 × 512</text>
+<rect x="120" y="850" width="223" height="47" rx="5" fill="#ffe8a2" stroke="#8c9da6" stroke-width="1"/>
+<path class="wire" d="M301 850v47"/>
+<text x="130" y="869" text-anchor="start" font-size="16" font-weight="700" style="fill:#263644">Bottleneck ×3</text>
+<text x="130" y="888" text-anchor="start" font-size="13" font-weight="400" style="fill:#263644">恒等捷径，细化特征</text>
+<text x="322" y="878" text-anchor="middle" font-size="13" font-weight="650" style="fill:#263644">C3</text>
+<path class="wire" d="M230 897V951" marker-end="url(#end)"/>
+<text x="240" y="916" text-anchor="start" font-size="12.5" font-weight="400" style="fill:#263644">128 × 128 × 512</text>
+<rect x="120" y="953" width="223" height="47" rx="5" fill="#ffe8a2" stroke="#8c9da6" stroke-width="1"/>
+<path class="wire" d="M301 953v47"/>
+<text x="130" y="972" text-anchor="start" font-size="16" font-weight="700" style="fill:#263644">Bottleneck ×1</text>
+<text x="130" y="991" text-anchor="start" font-size="13" font-weight="400" style="fill:#263644">投影捷径，s=2</text>
+<text x="322" y="981" text-anchor="middle" font-size="13" font-weight="650" style="fill:#263644">C4</text>
+<path class="wire" d="M230 1000V1052" marker-end="url(#end)"/>
+<text x="240" y="1019" text-anchor="start" font-size="12.5" font-weight="400" style="fill:#263644">64 × 64 × 1024</text>
+<rect x="120" y="1054" width="223" height="47" rx="5" fill="#ffe8a2" stroke="#8c9da6" stroke-width="1"/>
+<path class="wire" d="M301 1054v47"/>
+<text x="130" y="1073" text-anchor="start" font-size="16" font-weight="700" style="fill:#263644">Bottleneck ×5</text>
+<text x="130" y="1092" text-anchor="start" font-size="13" font-weight="400" style="fill:#263644">恒等捷径，累积上下文</text>
+<text x="322" y="1082" text-anchor="middle" font-size="13" font-weight="650" style="fill:#263644">C4</text>
+<path class="wire" d="M230 1101V1153" marker-end="url(#end)"/>
+<text x="240" y="1120" text-anchor="start" font-size="12.5" font-weight="400" style="fill:#263644">64 × 64 × 1024</text>
+<rect x="120" y="1155" width="223" height="47" rx="5" fill="#ffe8a2" stroke="#8c9da6" stroke-width="1"/>
+<path class="wire" d="M301 1155v47"/>
+<text x="130" y="1174" text-anchor="start" font-size="16" font-weight="700" style="fill:#263644">Bottleneck ×1</text>
+<text x="130" y="1193" text-anchor="start" font-size="13" font-weight="400" style="fill:#263644">投影捷径，s=2</text>
+<text x="322" y="1183" text-anchor="middle" font-size="13" font-weight="650" style="fill:#263644">C5</text>
+<path class="wire" d="M230 1202V1250" marker-end="url(#end)"/>
+<text x="240" y="1221" text-anchor="start" font-size="12.5" font-weight="400" style="fill:#263644">32 × 32 × 2048</text>
+<rect x="120" y="1252" width="223" height="47" rx="5" fill="#ffe8a2" stroke="#8c9da6" stroke-width="1"/>
+<path class="wire" d="M301 1252v47"/>
+<text x="130" y="1271" text-anchor="start" font-size="16" font-weight="700" style="fill:#263644">Bottleneck ×2</text>
+<text x="130" y="1290" text-anchor="start" font-size="13" font-weight="400" style="fill:#263644">恒等捷径，输出深层语义</text>
+<text x="322" y="1280" text-anchor="middle" font-size="13" font-weight="650" style="fill:#263644">C5</text>
+<text x="240" y="1318" text-anchor="start" font-size="12.5" font-weight="400" style="fill:#263644">32 × 32 × 2048</text>
+<text x="457" y="267" text-anchor="start" font-size="24" font-weight="700" style="fill:#09557e">Details</text>
+<rect x="455" y="278" width="321" height="537" rx="4" fill="#ffe8a2" stroke="#8c9da6" stroke-width="1"/>
+<text x="465" y="301" text-anchor="start" font-size="19" font-weight="700" style="fill:#263644">Bottleneck</text>
+<text x="465" y="322" text-anchor="start" font-size="13.5" font-weight="400" style="fill:#263644">三层卷积与一条捷径构成残差单元</text>
+<text x="570" y="359" text-anchor="middle" font-size="15" font-weight="650" style="fill:#263644">输入特征  x</text>
+<path class="wire" d="M570 367v24" marker-end="url(#end)"/>
+<rect x="482" y="392" width="177" height="51" rx="4" fill="#85d9f1" stroke="#8c9da6" stroke-width="1"/>
+<text x="570.5" y="415.5" text-anchor="middle" font-size="16" font-weight="650" style="fill:#263644">1×1 Conv</text>
+<text x="570.5" y="432.5" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">压缩通道；首块可下采样</text>
+<path class="wire" d="M570 443v25" marker-end="url(#end)"/>
+<rect x="482" y="470" width="177" height="51" rx="4" fill="#85d9f1" stroke="#8c9da6" stroke-width="1"/>
+<text x="570.5" y="493.5" text-anchor="middle" font-size="16" font-weight="650" style="fill:#263644">3×3 Conv</text>
+<text x="570.5" y="510.5" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">提取局部空间特征</text>
+<path class="wire" d="M570 521v25" marker-end="url(#end)"/>
+<rect x="482" y="548" width="177" height="51" rx="4" fill="#85d9f1" stroke="#8c9da6" stroke-width="1"/>
+<text x="570.5" y="571.5" text-anchor="middle" font-size="16" font-weight="650" style="fill:#263644">1×1 Conv</text>
+<text x="570.5" y="588.5" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">恢复到 4 倍中间通道</text>
+<path class="wire" d="M570 373H712V480" marker-end="url(#end)"/>
+<rect x="670" y="482" width="91" height="67" rx="4" fill="#f6cba6" stroke="#8c9da6" stroke-width="1"/>
+<text x="715.5" y="513.5" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">Shortcut</text>
+<text x="715.5" y="530.5" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">恒等 / 投影</text>
+<path class="wire" d="M712 549V631H590" marker-end="url(#end)"/>
+<path class="wire" d="M570 599v15" marker-end="url(#end)"/>
+<circle cx="570" cy="631" r="15" fill="#fff8e2" stroke="#ae9e62"/>
+<text x="570" y="637" text-anchor="middle" font-size="20" font-weight="600" style="fill:#263644">+</text>
+<path class="wire" d="M570 646v22" marker-end="url(#end)"/>
+<rect x="507" y="670" width="126" height="36" rx="4" fill="#b9eeea" stroke="#8c9da6" stroke-width="1"/>
+<text x="570.0" y="693.44" text-anchor="middle" font-size="16" font-weight="650" style="fill:#263644">ReLU</text>
+<path class="wire" d="M570 706v19" marker-end="url(#end)"/>
+<text x="570" y="748" text-anchor="middle" font-size="16" font-weight="650" style="fill:#263644">输出特征  y</text>
+<text x="467" y="779" text-anchor="start" font-size="13" font-weight="400" style="fill:#263644">同尺寸时直接相加；尺寸或通道改变时，</text>
+<text x="467" y="799" text-anchor="start" font-size="13" font-weight="400" style="fill:#263644">捷径用 1×1 卷积对齐。</text>
+<rect x="787" y="278" width="138" height="23" rx="0" fill="#dfeaf4" stroke="#aebed0" stroke-width="0.8"/>
+<text x="856.0" y="294" text-anchor="middle" font-size="13" font-weight="650" style="fill:#263644">主干阶段</text>
+<rect x="925" y="278" width="116" height="23" rx="0" fill="#dfeaf4" stroke="#aebed0" stroke-width="0.8"/>
+<text x="983.0" y="294" text-anchor="middle" font-size="13" font-weight="650" style="fill:#263644">C2</text>
+<rect x="1041" y="278" width="113" height="23" rx="0" fill="#dfeaf4" stroke="#aebed0" stroke-width="0.8"/>
+<text x="1097.5" y="294" text-anchor="middle" font-size="13" font-weight="650" style="fill:#263644">C3</text>
+<rect x="1154" y="278" width="99" height="23" rx="0" fill="#dfeaf4" stroke="#aebed0" stroke-width="0.8"/>
+<text x="1203.5" y="294" text-anchor="middle" font-size="13" font-weight="650" style="fill:#263644">C4</text>
+<rect x="1253" y="278" width="96" height="23" rx="0" fill="#dfeaf4" stroke="#aebed0" stroke-width="0.8"/>
+<text x="1301.0" y="294" text-anchor="middle" font-size="13" font-weight="650" style="fill:#263644">C5</text>
+<rect x="787" y="301" width="138" height="23" rx="0" fill="#f3f3f3" stroke="#aebed0" stroke-width="0.8"/>
+<text x="856.0" y="317" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">瓶颈重复数</text>
+<rect x="925" y="301" width="116" height="23" rx="0" fill="#f3f3f3" stroke="#aebed0" stroke-width="0.8"/>
+<text x="983.0" y="317" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">3</text>
+<rect x="1041" y="301" width="113" height="23" rx="0" fill="#f3f3f3" stroke="#aebed0" stroke-width="0.8"/>
+<text x="1097.5" y="317" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">4</text>
+<rect x="1154" y="301" width="99" height="23" rx="0" fill="#f3f3f3" stroke="#aebed0" stroke-width="0.8"/>
+<text x="1203.5" y="317" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">6</text>
+<rect x="1253" y="301" width="96" height="23" rx="0" fill="#f3f3f3" stroke="#aebed0" stroke-width="0.8"/>
+<text x="1301.0" y="317" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">3</text>
+<rect x="787" y="324" width="138" height="23" rx="0" fill="#f3f3f3" stroke="#aebed0" stroke-width="0.8"/>
+<text x="856.0" y="340" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">输出通道</text>
+<rect x="925" y="324" width="116" height="23" rx="0" fill="#f3f3f3" stroke="#aebed0" stroke-width="0.8"/>
+<text x="983.0" y="340" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">256</text>
+<rect x="1041" y="324" width="113" height="23" rx="0" fill="#f3f3f3" stroke="#aebed0" stroke-width="0.8"/>
+<text x="1097.5" y="340" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">512</text>
+<rect x="1154" y="324" width="99" height="23" rx="0" fill="#f3f3f3" stroke="#aebed0" stroke-width="0.8"/>
+<text x="1203.5" y="340" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">1024</text>
+<rect x="1253" y="324" width="96" height="23" rx="0" fill="#f3f3f3" stroke="#aebed0" stroke-width="0.8"/>
+<text x="1301.0" y="340" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">2048</text>
+<rect x="787" y="347" width="138" height="23" rx="0" fill="#f3f3f3" stroke="#aebed0" stroke-width="0.8"/>
+<text x="856.0" y="363" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">输入步长</text>
+<rect x="925" y="347" width="116" height="23" rx="0" fill="#f3f3f3" stroke="#aebed0" stroke-width="0.8"/>
+<text x="983.0" y="363" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">4</text>
+<rect x="1041" y="347" width="113" height="23" rx="0" fill="#f3f3f3" stroke="#aebed0" stroke-width="0.8"/>
+<text x="1097.5" y="363" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">8</text>
+<rect x="1154" y="347" width="99" height="23" rx="0" fill="#f3f3f3" stroke="#aebed0" stroke-width="0.8"/>
+<text x="1203.5" y="363" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">16</text>
+<rect x="1253" y="347" width="96" height="23" rx="0" fill="#f3f3f3" stroke="#aebed0" stroke-width="0.8"/>
+<text x="1301.0" y="363" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">32</text>
+<rect x="787" y="381" width="181" height="272" rx="4" fill="#f5cda9" stroke="#8c9da6" stroke-width="1"/>
+<text x="797" y="404" text-anchor="start" font-size="19" font-weight="700" style="fill:#263644">SAT</text>
+<text x="797" y="425" text-anchor="start" font-size="13.5" font-weight="400" style="fill:#263644">按目标大小筛伪框</text>
+<rect x="798" y="440" width="159" height="46" rx="4" fill="#85d9f1" stroke="#8c9da6" stroke-width="1"/>
+<text x="877.5" y="461.0" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">教师框 + 分数</text>
+<text x="877.5" y="478.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">框面积划分尺度组</text>
+<path class="wire" d="M877.5 486v16" marker-end="url(#end)"/>
+<rect x="798" y="505" width="159" height="46" rx="4" fill="#e6dff5" stroke="#8c9da6" stroke-width="1"/>
+<text x="877.5" y="526.0" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">组内估计阈值</text>
+<text x="877.5" y="543.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">预印本按组取百分位</text>
+<path class="wire" d="M877.5 551v16" marker-end="url(#end)"/>
+<rect x="798" y="570" width="159" height="46" rx="4" fill="#bee09c" stroke="#8c9da6" stroke-width="1"/>
+<text x="877.5" y="591.0" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">保留高分伪框</text>
+<text x="877.5" y="608.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">坐标转到强增强视图</text>
+<text x="877.5" y="636" text-anchor="middle" font-size="12.5" font-weight="600" style="fill:#263644">教师预测后筛选伪框</text>
+<rect x="976" y="381" width="183" height="272" rx="4" fill="#9dc7ed" stroke="#8c9da6" stroke-width="1"/>
+<text x="986" y="404" text-anchor="start" font-size="19" font-weight="700" style="fill:#263644">SLA</text>
+<text x="986" y="425" text-anchor="start" font-size="13.5" font-weight="400" style="fill:#263644">给小目标分配正锚框</text>
+<rect x="987" y="440" width="161" height="46" rx="4" fill="#b9eeea" stroke="#8c9da6" stroke-width="1"/>
+<text x="1067.5" y="461.0" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">框 → 二维高斯</text>
+<text x="1067.5" y="478.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">编码中心、形状和朝向</text>
+<path class="wire" d="M1067.5 486v16" marker-end="url(#end)"/>
+<rect x="987" y="505" width="161" height="46" rx="4" fill="#ffe8a2" stroke="#8c9da6" stroke-width="1"/>
+<text x="1067.5" y="526.0" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">GWD 匹配</text>
+<text x="1067.5" y="543.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">每个目标选 Top-2</text>
+<path class="wire" d="M1067.5 551v16" marker-end="url(#end)"/>
+<rect x="987" y="570" width="161" height="46" rx="4" fill="#bee09c" stroke="#8c9da6" stroke-width="1"/>
+<text x="1067.5" y="591.0" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">按尺度重加权</text>
+<text x="1067.5" y="608.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">平衡两组正样本损失</text>
+<text x="1067.5" y="636" text-anchor="middle" font-size="12.5" font-weight="600" style="fill:#263644">学生 RPN 正锚框与损失</text>
+<rect x="1167" y="381" width="182" height="272" rx="4" fill="#aaebf3" stroke="#8c9da6" stroke-width="1"/>
+<text x="1177" y="404" text-anchor="start" font-size="19" font-weight="700" style="fill:#263644">TNL</text>
+<text x="1177" y="425" text-anchor="start" font-size="13.5" font-weight="400" style="fill:#263644">复核学生负候选</text>
+<rect x="1178" y="440" width="160" height="46" rx="4" fill="#85d9f1" stroke="#8c9da6" stroke-width="1"/>
+<text x="1258.0" y="461.0" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">教师复评候选</text>
+<text x="1258.0" y="478.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">读取背景置信度</text>
+<path class="wire" d="M1258.0 486v16" marker-end="url(#end)"/>
+<rect x="1178" y="505" width="160" height="46" rx="4" fill="#bee09c" stroke="#8c9da6" stroke-width="1"/>
+<text x="1258.0" y="526.0" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">筛可信背景</text>
+<text x="1258.0" y="543.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">教师背景分数 &gt; 0.7</text>
+<path class="wire" d="M1258.0 551v16" marker-end="url(#end)"/>
+<rect x="1178" y="570" width="160" height="46" rx="4" fill="#f6cba6" stroke="#8c9da6" stroke-width="1"/>
+<text x="1258.0" y="591.0" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">补充困难负样本</text>
+<text x="1258.0" y="608.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">按置信度加权</text>
+<text x="1258.0" y="636" text-anchor="middle" font-size="12.5" font-weight="600" style="fill:#263644">学生 RoI 负类损失</text>
+<rect x="933" y="389" width="25" height="24" rx="5" fill="#9e4d1b"/><text x="945.5" y="406" font-size="14" font-weight="700" text-anchor="middle" style="fill:white">1</text><rect x="1124" y="389" width="25" height="24" rx="5" fill="#266294"/><text x="1136.5" y="406" font-size="14" font-weight="700" text-anchor="middle" style="fill:white">2</text><rect x="1314" y="389" width="25" height="24" rx="5" fill="#146d72"/><text x="1326.5" y="406" font-size="14" font-weight="700" text-anchor="middle" style="fill:white">3</text><rect x="787" y="662" width="562" height="153" rx="4" fill="#d5dfa1" stroke="#8c9da6" stroke-width="1"/>
+<text x="797" y="685" text-anchor="start" font-size="19" font-weight="700" style="fill:#263644">RoI Head</text>
+<text x="797" y="706" text-anchor="start" font-size="13.5" font-weight="400" style="fill:#263644">每个候选区域单独分类和回归</text>
+<rect x="798" y="729" width="99" height="55" rx="4" fill="#85d9f1" stroke="#8c9da6" stroke-width="1"/>
+<text x="847.5" y="754.5" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">RoIAlign</text>
+<text x="847.5" y="771.5" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">7×7×256</text>
+<path class="wire" d="M897 756h15" marker-end="url(#end)"/>
+<rect x="915" y="729" width="105" height="55" rx="4" fill="#85d9f1" stroke="#8c9da6" stroke-width="1"/>
+<text x="967.5" y="754.5" text-anchor="middle" font-size="15" font-weight="650" style="fill:#263644">FC ×2</text>
+<text x="967.5" y="771.5" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">各 1024 维</text>
+<path class="wire" d="M1020 756h13v-29h16" marker-end="url(#end)"/>
+<path class="wire" d="M1033 756v27h16" marker-end="url(#end)"/>
+<rect x="1051" y="710" width="130" height="33" rx="4" fill="#b9eeea" stroke="#8c9da6" stroke-width="1"/>
+<text x="1116.0" y="730.92" text-anchor="middle" font-size="13" font-weight="650" style="fill:#263644">Cls · 17 个分数</text>
+<rect x="1051" y="767" width="130" height="33" rx="4" fill="#f6cba6" stroke="#8c9da6" stroke-width="1"/>
+<text x="1116.0" y="787.92" text-anchor="middle" font-size="13" font-weight="650" style="fill:#263644">Reg · 16×5</text>
+<path class="wire" d="M1181 727h16" marker-end="url(#end)"/>
+<path class="wire" d="M1181 784h16" marker-end="url(#end)"/>
+<rect x="1200" y="710" width="137" height="33" rx="4" fill="#e6dff5" stroke="#8c9da6" stroke-width="1"/>
+<text x="1268.5" y="730.92" text-anchor="middle" font-size="13" font-weight="650" style="fill:#263644">类别 + 背景</text>
+<rect x="1200" y="767" width="137" height="33" rx="4" fill="#e6dff5" stroke="#8c9da6" stroke-width="1"/>
+<text x="1268.5" y="787.92" text-anchor="middle" font-size="13" font-weight="650" style="fill:#263644">各类旋转框偏移</text>
+<text x="457" y="854" text-anchor="start" font-size="20" font-weight="700" style="fill:#09557e">FPN</text>
+<text x="512" y="853" text-anchor="start" font-size="14" font-weight="400" style="fill:#263644">横向 1×1 → 自顶向下相加 → 3×3 平滑</text>
+<text x="928" y="854" text-anchor="start" font-size="19" font-weight="700" style="fill:#09557e">RPN  /  RoI Head</text>
+<path class="wire" d="M343 679H368V890H465" marker-end="url(#end)"/>
+<rect x="467" y="873" width="107" height="34" rx="4" fill="#85d9f1" stroke="#8c9da6" stroke-width="1"/>
+<text x="520.5" y="895.1" text-anchor="middle" font-size="15" font-weight="650" style="fill:#263644">1×1 Conv</text>
+<path class="wire" d="M574 890h29" marker-end="url(#end)"/>
+<rect x="606" y="873" width="88" height="34" rx="4" fill="#ffcf3e" stroke="#8c9da6" stroke-width="1"/>
+<text x="650.0" y="894.76" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">Add</text>
+<path class="wire" d="M694 890h36" marker-end="url(#end)"/>
+<rect x="733" y="870" width="120" height="40" rx="4" fill="#85d9f1" stroke="#8c9da6" stroke-width="1"/>
+<text x="793.0" y="888.0" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">3×3 Conv</text>
+<text x="793.0" y="905.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">P2 · 256² × 256</text>
+<path class="wire" d="M853 890h27"/>
+<circle cx="880" cy="890" r="2.7" fill="#6a7c88"/>
+<path class="wire" d="M343 873H381V1000H465" marker-end="url(#end)"/>
+<rect x="467" y="983" width="107" height="34" rx="4" fill="#85d9f1" stroke="#8c9da6" stroke-width="1"/>
+<text x="520.5" y="1005.1" text-anchor="middle" font-size="15" font-weight="650" style="fill:#263644">1×1 Conv</text>
+<path class="wire" d="M574 1000h29" marker-end="url(#end)"/>
+<rect x="606" y="983" width="88" height="34" rx="4" fill="#ffcf3e" stroke="#8c9da6" stroke-width="1"/>
+<text x="650.0" y="1004.76" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">Add</text>
+<path class="wire" d="M694 1000h36" marker-end="url(#end)"/>
+<rect x="733" y="980" width="120" height="40" rx="4" fill="#85d9f1" stroke="#8c9da6" stroke-width="1"/>
+<text x="793.0" y="998.0" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">3×3 Conv</text>
+<text x="793.0" y="1015.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">P3 · 128² × 256</text>
+<path class="wire" d="M705 1000v-26h-56v-8" marker-end="url(#end)"/>
+<rect x="594" y="930" width="111" height="34" rx="4" fill="#bee09c" stroke="#8c9da6" stroke-width="1"/>
+<text x="649.5" y="951.42" text-anchor="middle" font-size="13" font-weight="650" style="fill:#263644">Upsample ×2</text>
+<path class="wire" d="M649 930v-21" marker-end="url(#end)"/>
+<path class="wire" d="M853 1000h27"/>
+<circle cx="880" cy="1000" r="2.7" fill="#6a7c88"/>
+<path class="wire" d="M343 1077H394V1110H465" marker-end="url(#end)"/>
+<rect x="467" y="1093" width="107" height="34" rx="4" fill="#85d9f1" stroke="#8c9da6" stroke-width="1"/>
+<text x="520.5" y="1115.1" text-anchor="middle" font-size="15" font-weight="650" style="fill:#263644">1×1 Conv</text>
+<path class="wire" d="M574 1110h29" marker-end="url(#end)"/>
+<rect x="606" y="1093" width="88" height="34" rx="4" fill="#ffcf3e" stroke="#8c9da6" stroke-width="1"/>
+<text x="650.0" y="1114.76" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">Add</text>
+<path class="wire" d="M694 1110h36" marker-end="url(#end)"/>
+<rect x="733" y="1090" width="120" height="40" rx="4" fill="#85d9f1" stroke="#8c9da6" stroke-width="1"/>
+<text x="793.0" y="1108.0" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">3×3 Conv</text>
+<text x="793.0" y="1125.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">P4 · 64² × 256</text>
+<path class="wire" d="M705 1110v-26h-56v-8" marker-end="url(#end)"/>
+<rect x="594" y="1040" width="111" height="34" rx="4" fill="#bee09c" stroke="#8c9da6" stroke-width="1"/>
+<text x="649.5" y="1061.42" text-anchor="middle" font-size="13" font-weight="650" style="fill:#263644">Upsample ×2</text>
+<path class="wire" d="M649 1040v-21" marker-end="url(#end)"/>
+<path class="wire" d="M853 1110h27"/>
+<circle cx="880" cy="1110" r="2.7" fill="#6a7c88"/>
+<path class="wire" d="M343 1275H408V1220H465" marker-end="url(#end)"/>
+<rect x="467" y="1203" width="107" height="34" rx="4" fill="#85d9f1" stroke="#8c9da6" stroke-width="1"/>
+<text x="520.5" y="1225.1" text-anchor="middle" font-size="15" font-weight="650" style="fill:#263644">1×1 Conv</text>
+<path class="wire" d="M574 1220h29" marker-end="url(#end)"/>
+<rect x="606" y="1203" width="88" height="34" rx="4" fill="#ffe8a2" stroke="#8c9da6" stroke-width="1"/>
+<text x="650.0" y="1224.76" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">横向输入</text>
+<path class="wire" d="M694 1220h36" marker-end="url(#end)"/>
+<rect x="733" y="1200" width="120" height="40" rx="4" fill="#85d9f1" stroke="#8c9da6" stroke-width="1"/>
+<text x="793.0" y="1218.0" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">3×3 Conv</text>
+<text x="793.0" y="1235.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">P5 · 32² × 256</text>
+<path class="wire" d="M705 1220v-26h-56v-8" marker-end="url(#end)"/>
+<rect x="594" y="1150" width="111" height="34" rx="4" fill="#bee09c" stroke="#8c9da6" stroke-width="1"/>
+<text x="649.5" y="1171.42" text-anchor="middle" font-size="13" font-weight="650" style="fill:#263644">Upsample ×2</text>
+<path class="wire" d="M649 1150v-21" marker-end="url(#end)"/>
+<path class="wire" d="M853 1220h27"/>
+<circle cx="880" cy="1220" r="2.7" fill="#6a7c88"/>
+<path class="wire" d="M793 1240v40" marker-end="url(#end)"/>
+<rect x="733" y="1282" width="120" height="40" rx="4" fill="#e6dff5" stroke="#8c9da6" stroke-width="1"/>
+<text x="793.0" y="1300.0" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">MaxPool</text>
+<text x="793.0" y="1317.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">P6 · 16² × 256</text>
+<path class="wire" d="M853 1302h27V890"/>
+<path class="wire" d="M880 891h48" marker-end="url(#end)"/>
+<rect x="931" y="870" width="158" height="46" rx="4" fill="url(#detect)" stroke="#8c9da6" stroke-width="1"/>
+<text x="1010.0" y="891.0" text-anchor="middle" font-size="16" font-weight="650" style="fill:#263644">共享 RPN</text>
+<text x="1010.0" y="908.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">P2–P6 生成候选</text>
+<path class="wire" d="M1089 893h43" marker-end="url(#end)"/>
+<rect x="1135" y="870" width="198" height="46" rx="4" fill="#e6def2" stroke="#8c9da6" stroke-width="1"/>
+<text x="1234.0" y="891.0" text-anchor="middle" font-size="16" font-weight="650" style="fill:#263644">NMS</text>
+<text x="1234.0" y="908.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">去除重复的水平候选框</text>
+<path class="wire" d="M1234 916v45" marker-end="url(#end)"/>
+<rect x="1135" y="964" width="198" height="50" rx="4" fill="#85d9f1" stroke="#8c9da6" stroke-width="1"/>
+<text x="1234.0" y="987.0" text-anchor="middle" font-size="16" font-weight="650" style="fill:#263644">RoIAlign</text>
+<text x="1234.0" y="1004.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">按区域从 P2–P5 取特征</text>
+<path class="wire" d="M854 1004h52v-16h226" marker-end="url(#end)" stroke-dasharray="5 4"/>
+<text x="930" y="981" text-anchor="start" font-size="12" font-weight="400" style="fill:#263644">P2–P5 特征</text>
+<path class="wire" d="M1234 1014v37" marker-end="url(#end)"/>
+<rect x="1135" y="1054" width="198" height="48" rx="4" fill="#ffe8a2" stroke="#8c9da6" stroke-width="1"/>
+<text x="1234.0" y="1076.0" text-anchor="middle" font-size="16" font-weight="650" style="fill:#263644">Shared 2FC</text>
+<text x="1234.0" y="1093.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">汇总候选区域的特征</text>
+<path class="wire" d="M1234 1102v26h-98v25" marker-end="url(#end)"/>
+<path class="wire" d="M1234 1128h55v25" marker-end="url(#end)"/>
+<rect x="1066" y="1155" width="137" height="49" rx="4" fill="#b9eeea" stroke="#8c9da6" stroke-width="1"/>
+<text x="1134.5" y="1177.5" text-anchor="middle" font-size="16" font-weight="650" style="fill:#263644">分类</text>
+<text x="1134.5" y="1194.5" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">16 类 + 背景</text>
+<rect x="1212" y="1155" width="137" height="49" rx="4" fill="#f6cba6" stroke="#8c9da6" stroke-width="1"/>
+<text x="1280.5" y="1177.5" text-anchor="middle" font-size="16" font-weight="650" style="fill:#263644">回归</text>
+<text x="1280.5" y="1194.5" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">中心、宽高、角度</text>
+<path class="wire" d="M1135 1204v24h68v15" marker-end="url(#end)"/>
+<path class="wire" d="M1281 1204v24h-78"/>
+<rect x="1092" y="1245" width="221" height="48" rx="4" fill="url(#detect)" stroke="#8c9da6" stroke-width="1"/>
+<text x="1202.5" y="1267.0" text-anchor="middle" font-size="16" font-weight="650" style="fill:#263644">旋转 NMS</text>
+<text x="1202.5" y="1284.0" text-anchor="middle" font-size="13" font-weight="400" style="fill:#263644">输出类别、分数、旋转框</text>
+<text x="916" y="1051" text-anchor="start" font-size="15" font-weight="700" style="fill:#09557e">训练时的监督来源</text>
+<text x="916" y="1077" text-anchor="start" font-size="13" font-weight="400" style="fill:#263644">有标签：人工旋转框</text>
+<text x="916" y="1098" text-anchor="start" font-size="13" font-weight="400" style="fill:#263644">无标签：弱增强教师</text>
+<text x="916" y="1119" text-anchor="start" font-size="13" font-weight="400" style="fill:#263644">指导强增强学生</text>
+<text x="916" y="1203" text-anchor="start" font-size="14" font-weight="650" style="fill:#09557e">更新学生参数</text>
+<path class="wire" d="M970 1212v21" marker-end="url(#end)"/>
+<rect x="914" y="1235" width="115" height="35" rx="4" fill="#e6dff5" stroke="#8c9da6" stroke-width="1"/>
+<text x="971.5" y="1257.26" text-anchor="middle" font-size="14" font-weight="650" style="fill:#263644">EMA</text>
+<path class="wire" d="M970 1270v19" marker-end="url(#end)"/>
+<text x="970" y="1307" text-anchor="middle" font-size="13" font-weight="600" style="fill:#263644">更新教师参数</text>
+<text x="471" y="1306" text-anchor="start" font-size="13" font-weight="400" style="fill:#263644">P6 由 P5 下采样</text>
+<text x="471" y="1329" text-anchor="start" font-size="13" font-weight="400" style="fill:#263644">P2–P6 输出均为 256 通道</text>
+<text x="56" y="1348" text-anchor="start" font-size="13" font-weight="400" style="fill:#536570">尺寸标注：高 × 宽 × 通道；s 为步长。</text>
+<text x="243" y="1373" text-anchor="middle" font-size="24" font-weight="700" style="fill:#09557e">Backbone</text>
+<text x="904" y="1373" text-anchor="middle" font-size="24" font-weight="700" style="fill:#09557e">Head</text>
+<text x="41" y="1410" text-anchor="start" font-size="13" font-weight="400" style="fill:#536570">作者报告 · DOTA-v1.5 · 1% 单划分 · mAP@0.50 = 41.9（预印本表 III）。结构依据公开配置 d7806b7。编号 1–3 对应训练位置。</text>
+<path class="wire" d="M1185 1293v16" stroke-dasharray="3 2"/><path class="wire" d="M1009 916v11" stroke-dasharray="3 2"/><path class="wire" d="M1058 1152v27h7" stroke-dasharray="3 2"/><rect x="1105" y="1309" width="160" height="24" rx="5" fill="#9e4d1b"/><text x="1185.0" y="1326" font-size="14" font-weight="700" text-anchor="middle" style="fill:white">1　SAT 尺度阈值</text><rect x="929" y="927" width="160" height="24" rx="5" fill="#266294"/><text x="1009.0" y="944" font-size="14" font-weight="700" text-anchor="middle" style="fill:white">2　SLA 锚框分配</text><rect x="906" y="1128" width="160" height="24" rx="5" fill="#146d72"/><text x="986.0" y="1145" font-size="14" font-weight="700" text-anchor="middle" style="fill:white">3　TNL 负学习</text>
+</svg>

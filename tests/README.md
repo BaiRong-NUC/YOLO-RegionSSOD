@@ -2,6 +2,7 @@
 
 | 目录 | 测试内容 |
 |---|---|
+| [reproduce](reproduce/) | 外部论文专用测试，按论文简称分目录 |
 | [data](data/) | 伪标签一致性、候选保留、忽略区域恢复、定位质量 |
 | [training](training/) | P1 损失与梯度、NWD、配对种子、消融判定 |
 | [evaluation](evaluation/) | 检测案例、误检诊断、精确率与召回率、操作点 |
