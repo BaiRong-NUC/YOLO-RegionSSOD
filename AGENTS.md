@@ -65,6 +65,8 @@ Never revert user or other-session changes without authorization.
   backbone on the left, a compact head and loss overview above the module
   details, and layer-by-layer connections across the lower half.
   Record the paper version and distinguish reported results from local runs.
+  Keep superseded figure versions in `tmp/`. Preserve paths already used by
+  the editor for local previews and drawing scripts when organizing these files.
 
 - Use the existing `yolo` Conda environment.
 - As of 2026-10-30, the user requires at least 30 complete paired epochs before
