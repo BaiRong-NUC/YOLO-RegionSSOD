@@ -3031,6 +3031,10 @@ P1 第一轮只做一次离线自训练。只有 P1 明确优于 B2，才考虑�
 
 本机 `outputs/bounded_retention_cached_three30_s0/evaluation/report.json` 和 `evaluation_audit.json` 记录了后续三臂各 30 轮的 548 图评测与重放审计。原 P1、候选、控制的 COCO AP 依次为 24.0457%、23.7844%、23.8341%，AP_small 为 13.6792%、13.5163%、13.3714%。主结果保留原 P1。
 
+**2026-11-24　P1 方法图**
+
+按本机 YOLO11s 配置绘制原始结构与 P1 训练图，标明 0–23 层连接、B2 对照与三个训练改动。图注对应 S³OD、Soft Teacher、STAC 和 SparseDet。[高清图、矢量图及文献对照](paper/figures/README.md)
+
 ## 11. 风险与退出条件
 
 | 风险 | 触发信号 | 处理 |
