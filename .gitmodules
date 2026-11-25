@@ -4,3 +4,6 @@
 [submodule "reproduce/esod/upstream"]
 	path = reproduce/esod/upstream
 	url = https://github.com/alibaba/esod.git
+[submodule "reproduce/sahi/upstream"]
+	path = reproduce/sahi/upstream
+	url = https://github.com/obss/sahi.git

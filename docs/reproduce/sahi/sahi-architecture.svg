@@ -1,0 +1,135 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1430" viewBox="0 0 1400 1430" role="img" aria-labelledby="title">
+<title id="title">SAHI · VisDrone 水平框检测</title>
+<defs><marker id="end" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 1L9 5L0 9Z" fill="#738993"/></marker></defs>
+<g font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">
+<rect x="0" y="0" width="1400" height="1430" rx="0" fill="#fff" stroke="none"/>
+<text x="47" y="51" font-size="38" font-weight="700" fill="#0088d1" text-anchor="start">SAHI</text>
+<text x="360" y="50" font-size="22" font-weight="600" fill="#09557e" text-anchor="start">论文方法 · 切片推理与微调</text>
+<text x="1351" y="49" font-size="17" font-weight="600" fill="#428abb" text-anchor="end">VisDrone  /  水平框  /  本机 YOLO11s</text>
+<rect x="38" y="65" width="1324" height="1322" rx="17" fill="#ededed" stroke="#d7dadd"/>
+<path d="M446 66V1386" fill="none" stroke="#738993" stroke-width="1.5"/>
+<path d="M446 239H1361" fill="none" stroke="#738993" stroke-width="1.5"/>
+<path d="M446 827H1361" fill="none" stroke="#738993" stroke-width="1.5"/>
+<path d="M39 353H445" fill="none" stroke="#738993" stroke-width="1.5"/>
+<text x="50" y="94" font-size="24" font-weight="700" fill="#09557e" text-anchor="start">Backbone</text>
+<text x="51" y="120" font-size="15" font-weight="500" fill="#09557e" text-anchor="start">同一检测器 · YOLO11s</text>
+<text x="462" y="96" font-size="24" font-weight="700" fill="#09557e" text-anchor="start">Head</text>
+<text x="539" y="95" font-size="16" font-weight="500" fill="#09557e" text-anchor="start">P3 / P4 / P5 → FPN + PAN → Detect</text>
+<path d="M83 307l34 -34h240l-34 34z M83 307h240v15h-240z" fill="#fff" stroke="#4388bc"/>
+<text x="203.0" y="319" font-size="13" font-weight="700" fill="#09557e" text-anchor="middle">RGB 输入</text>
+<path d="M99 257l34 -34h213l-34 34z M99 257h213v15h-213z" fill="#fff" stroke="#4388bc"/>
+<text x="205.5" y="269" font-size="13" font-weight="700" fill="#09557e" text-anchor="middle">P3 · stride 8</text>
+<path d="M329 240H434V174H550" fill="none" stroke="#738993" stroke-width="1.5" marker-end="url(#end)"/>
+<rect x="552" y="162" width="132" height="24" rx="6" fill="#85d9f1" stroke="#8c9da6"/>
+<text x="618.0" y="180.0" font-size="17" font-weight="700" fill="#09557e" text-anchor="middle">P3</text>
+<path d="M115 207l34 -34h186l-34 34z M115 207h186v15h-186z" fill="#fff" stroke="#4388bc"/>
+<text x="208.0" y="219" font-size="13" font-weight="700" fill="#09557e" text-anchor="middle">P4 · stride 16</text>
+<path d="M318 190H458V146H550" fill="none" stroke="#738993" stroke-width="1.5" marker-end="url(#end)"/>
+<rect x="552" y="134" width="132" height="24" rx="6" fill="#85d9f1" stroke="#8c9da6"/>
+<text x="618.0" y="152.0" font-size="17" font-weight="700" fill="#09557e" text-anchor="middle">P4</text>
+<path d="M131 157l34 -34h159l-34 34z M131 157h159v15h-159z" fill="#fff" stroke="#4388bc"/>
+<text x="210.5" y="169" font-size="13" font-weight="700" fill="#09557e" text-anchor="middle">P5 · stride 32</text>
+<path d="M307 140H482V118H550" fill="none" stroke="#738993" stroke-width="1.5" marker-end="url(#end)"/>
+<rect x="552" y="106" width="132" height="24" rx="6" fill="#85d9f1" stroke="#8c9da6"/>
+<text x="618.0" y="124.0" font-size="17" font-weight="700" fill="#09557e" text-anchor="middle">P5</text>
+<path d="M684 174h33v-2h14" fill="none" stroke="#738993" stroke-width="1.5" marker-end="url(#end)"/>
+<path d="M684 146h33v-2h14" fill="none" stroke="#738993" stroke-width="1.5" marker-end="url(#end)"/>
+<path d="M684 118h33v-2h14" fill="none" stroke="#738993" stroke-width="1.5" marker-end="url(#end)"/>
+<rect x="732" y="112" width="235" height="82" rx="6" fill="#bee09c" stroke="#8c9da6"/>
+<text x="849.5" y="149.0" font-size="17" font-weight="700" fill="#09557e" text-anchor="middle">FPN + PAN</text>
+<text x="849.5" y="172.0" font-size="14" font-weight="400" fill="#263644" text-anchor="middle">对齐并融合三个尺度</text>
+<path d="M967 153H1000" fill="none" stroke="#738993" stroke-width="1.5" marker-end="url(#end)"/>
+<rect x="1002" y="112" width="153" height="82" rx="6" fill="#85d9f1" stroke="#8c9da6"/>
+<text x="1078.5" y="149.0" font-size="17" font-weight="700" fill="#09557e" text-anchor="middle">检测头</text>
+<text x="1078.5" y="172.0" font-size="14" font-weight="400" fill="#263644" text-anchor="middle">分类 + 边框回归</text>
+<path d="M1155 153H1187" fill="none" stroke="#738993" stroke-width="1.5" marker-end="url(#end)"/>
+<rect x="1189" y="112" width="151" height="82" rx="6" fill="#cfdaeb" stroke="#8c9da6"/>
+<text x="1264.5" y="149.0" font-size="17" font-weight="700" fill="#09557e" text-anchor="middle">视图内检测</text>
+<text x="1264.5" y="172.0" font-size="14" font-weight="400" fill="#263644" text-anchor="middle">BBox + Class</text>
+<text x="53" y="382" font-size="20" font-weight="700" fill="#09557e" text-anchor="start">整图输入 → 视图 → 网络</text>
+<rect x="106" y="405" width="248" height="74" rx="6" fill="#fff" stroke="#8c9da6"/>
+<text x="230.0" y="438.0" font-size="17" font-weight="700" fill="#09557e" text-anchor="middle">原始航拍图</text>
+<text x="230.0" y="461.0" font-size="14" font-weight="400" fill="#263644" text-anchor="middle">VisDrone val · 原图坐标</text>
+<path d="M230 479V537" fill="none" stroke="#738993" stroke-width="1.5" marker-end="url(#end)"/>
+<rect x="106" y="539" width="248" height="74" rx="6" fill="#f6cba6" stroke="#8c9da6"/>
+<text x="230.0" y="572.0" font-size="17" font-weight="700" fill="#09557e" text-anchor="middle">① 重叠切片</text>
+<text x="230.0" y="595.0" font-size="14" font-weight="400" fill="#263644" text-anchor="middle">640×640 · 重叠 25%</text>
+<path d="M230 613V671" fill="none" stroke="#738993" stroke-width="1.5" marker-end="url(#end)"/>
+<rect x="106" y="673" width="248" height="74" rx="6" fill="#ffe8a2" stroke="#8c9da6"/>
+<text x="230.0" y="706.0" font-size="17" font-weight="700" fill="#09557e" text-anchor="middle">Letterbox</text>
+<text x="230.0" y="729.0" font-size="14" font-weight="400" fill="#263644" text-anchor="middle">单次输入张量 640×640</text>
+<path d="M230 747V805" fill="none" stroke="#738993" stroke-width="1.5" marker-end="url(#end)"/>
+<rect x="106" y="807" width="248" height="74" rx="6" fill="#85d9f1" stroke="#8c9da6"/>
+<text x="230.0" y="840.0" font-size="17" font-weight="700" fill="#09557e" text-anchor="middle">共享 YOLO11s</text>
+<text x="230.0" y="863.0" font-size="14" font-weight="400" fill="#263644" text-anchor="middle">卷积主干与多尺度特征</text>
+<path d="M230 881V939" fill="none" stroke="#738993" stroke-width="1.5" marker-end="url(#end)"/>
+<rect x="106" y="941" width="248" height="74" rx="6" fill="#bee09c" stroke="#8c9da6"/>
+<text x="230.0" y="974.0" font-size="17" font-weight="700" fill="#09557e" text-anchor="middle">FPN / PAN</text>
+<text x="230.0" y="997.0" font-size="14" font-weight="400" fill="#263644" text-anchor="middle">P3、P4、P5 双向融合</text>
+<path d="M230 1015V1073" fill="none" stroke="#738993" stroke-width="1.5" marker-end="url(#end)"/>
+<rect x="106" y="1075" width="248" height="74" rx="6" fill="#85d9f1" stroke="#8c9da6"/>
+<text x="230.0" y="1108.0" font-size="17" font-weight="700" fill="#09557e" text-anchor="middle">Detect</text>
+<text x="230.0" y="1131.0" font-size="14" font-weight="400" fill="#263644" text-anchor="middle">回归水平框与类别分数</text>
+<path d="M230 1149V1207" fill="none" stroke="#738993" stroke-width="1.5" marker-end="url(#end)"/>
+<rect x="106" y="1209" width="248" height="74" rx="6" fill="#e6dff5" stroke="#8c9da6"/>
+<text x="230.0" y="1242.0" font-size="17" font-weight="700" fill="#09557e" text-anchor="middle">视图内 NMS</text>
+<text x="230.0" y="1265.0" font-size="14" font-weight="400" fill="#263644" text-anchor="middle">IoU 0.7 · conf 0.001</text>
+<path d="M106 442H71V708H105" fill="none" stroke="#738993" stroke-width="1.5" marker-end="url(#end)" stroke-dasharray="6 5"/>
+<text x="61" y="520" font-size="13" font-weight="700" fill="#09557e" text-anchor="start">整图分支</text>
+<text x="461" y="270" font-size="24" font-weight="700" fill="#09557e" text-anchor="start">Details</text>
+<rect x="455" y="283" width="323" height="522" rx="6" fill="#ffe8a2" stroke="#8c9da6"/>
+<text x="470" y="315" font-size="22" font-weight="700" fill="#09557e" text-anchor="start">① 输入视图</text>
+<rect x="481" y="354" width="269" height="257" rx="2" fill="#cfdaeb" stroke="#8c9da6"/>
+<rect x="511" y="393" width="12" height="9" rx="1" fill="#fff" stroke="#5b788a"/>
+<rect x="583" y="428" width="18" height="9" rx="1" fill="#fff" stroke="#5b788a"/>
+<rect x="673" y="400" width="14" height="9" rx="1" fill="#fff" stroke="#5b788a"/>
+<rect x="536" y="542" width="20" height="9" rx="1" fill="#fff" stroke="#5b788a"/>
+<rect x="644" y="523" width="12" height="9" rx="1" fill="#fff" stroke="#5b788a"/>
+<rect x="698" y="575" width="19" height="9" rx="1" fill="#fff" stroke="#5b788a"/>
+<rect x="484" y="358" width="150" height="142" fill="none" stroke="#a9532b" stroke-width="2" stroke-dasharray="6 3"/>
+<rect x="597" y="358" width="150" height="142" fill="none" stroke="#a9532b" stroke-width="2" stroke-dasharray="6 3"/>
+<rect x="484" y="465" width="150" height="142" fill="none" stroke="#a9532b" stroke-width="2" stroke-dasharray="6 3"/>
+<rect x="597" y="465" width="150" height="142" fill="none" stroke="#a9532b" stroke-width="2" stroke-dasharray="6 3"/>
+<text x="470" y="656" font-size="15" font-weight="400" fill="#263644" text-anchor="start">切片放大目标的相对像素面积。</text>
+<text x="470" y="686" font-size="15" font-weight="400" fill="#263644" text-anchor="start">每个切片独立检测，并保留原点。</text>
+<text x="470" y="740" font-size="15" font-weight="400" fill="#263644" text-anchor="start">同时追加一次整图前向。</text>
+<rect x="787" y="283" width="559" height="522" rx="6" fill="#e2e8ec" stroke="#8c9da6"/>
+<text x="800" y="315" font-size="22" font-weight="700" fill="#09557e" text-anchor="start">训练与监督</text>
+<rect x="816" y="358" width="500" height="74" rx="6" fill="#fff" stroke="#8c9da6"/>
+<text x="1066.0" y="391.0" font-size="17" font-weight="700" fill="#09557e" text-anchor="middle">图像与水平框标注</text>
+<text x="1066.0" y="414.0" font-size="14" font-weight="400" fill="#263644" text-anchor="middle">基础检测器的有监督训练</text>
+<path d="M1066 432v32" fill="none" stroke="#738993" stroke-width="1.5" marker-end="url(#end)"/>
+<rect x="816" y="466" width="500" height="74" rx="6" fill="#f6cba6" stroke="#8c9da6"/>
+<text x="1066.0" y="499.0" font-size="17" font-weight="700" fill="#09557e" text-anchor="middle">③ 切片微调（论文 SF）</text>
+<text x="1066.0" y="522.0" font-size="14" font-weight="400" fill="#263644" text-anchor="middle">用裁片及对应裁剪框增广训练集</text>
+<path d="M1066 540v32" fill="none" stroke="#738993" stroke-width="1.5" marker-end="url(#end)"/>
+<rect x="816" y="574" width="500" height="74" rx="6" fill="#b9eeea" stroke="#8c9da6"/>
+<text x="1066.0" y="607.0" font-size="17" font-weight="700" fill="#09557e" text-anchor="middle">检测损失更新权重</text>
+<text x="1066.0" y="630.0" font-size="14" font-weight="400" fill="#263644" text-anchor="middle">分类与边框监督由具体检测器提供</text>
+<text x="813" y="705" font-size="17" font-weight="700" fill="#09557e" text-anchor="start">本机配对直接加载同一份 YOLO11s 权重。</text>
+<text x="813" y="736" font-size="15" font-weight="400" fill="#263644" text-anchor="start">权重来源和数据划分见复现卡。</text>
+<text x="810" y="776" font-size="15" font-weight="400" fill="#263644" text-anchor="start">③ 本机切片推理实验未执行微调。</text>
+<text x="461" y="857" font-size="23" font-weight="700" fill="#09557e" text-anchor="start">② 输出坐标与合并</text>
+<path d="M354 1246H414V951H478" fill="none" stroke="#738993" stroke-width="1.5" marker-end="url(#end)"/>
+<rect x="480" y="911" width="265" height="80" rx="6" fill="#85d9f1" stroke="#8c9da6"/>
+<text x="612.5" y="947.0" font-size="17" font-weight="700" fill="#09557e" text-anchor="middle">视图坐标还原</text>
+<text x="612.5" y="970.0" font-size="14" font-weight="400" fill="#263644" text-anchor="middle">去除缩放和平移填充</text>
+<path d="M745 951H772" fill="none" stroke="#738993" stroke-width="1.5" marker-end="url(#end)"/>
+<rect x="774" y="911" width="265" height="80" rx="6" fill="#b9eeea" stroke="#8c9da6"/>
+<text x="906.5" y="947.0" font-size="17" font-weight="700" fill="#09557e" text-anchor="middle">叠加切片原点</text>
+<text x="906.5" y="970.0" font-size="14" font-weight="400" fill="#263644" text-anchor="middle">加回切片左上角的偏移</text>
+<path d="M1039 951H1066" fill="none" stroke="#738993" stroke-width="1.5" marker-end="url(#end)"/>
+<rect x="1068" y="911" width="265" height="80" rx="6" fill="#e6dff5" stroke="#8c9da6"/>
+<text x="1200.5" y="947.0" font-size="17" font-weight="700" fill="#09557e" text-anchor="middle">按类别跨视图 NMS</text>
+<text x="1200.5" y="970.0" font-size="14" font-weight="400" fill="#263644" text-anchor="middle">IoU 0.5 去重</text>
+<path d="M1200 991v54H906v41" fill="none" stroke="#738993" stroke-width="1.5" marker-end="url(#end)"/>
+<rect x="667" y="1088" width="478" height="94" rx="6" fill="#bee09c" stroke="#8c9da6"/>
+<text x="906.0" y="1131.0" font-size="17" font-weight="700" fill="#09557e" text-anchor="middle">整图水平框输出</text>
+<text x="906.0" y="1154.0" font-size="14" font-weight="400" fill="#263644" text-anchor="middle">保留前 500 框 · xywh / 类别 / 置信度</text>
+<path d="M906 1182v39" fill="none" stroke="#738993" stroke-width="1.5" marker-end="url(#end)"/>
+<rect x="667" y="1223" width="478" height="85" rx="6" fill="#ffe8a2" stroke="#8c9da6"/>
+<text x="906.0" y="1261.5" font-size="17" font-weight="700" fill="#09557e" text-anchor="middle">统一 COCOeval</text>
+<text x="906.0" y="1284.5" font-size="14" font-weight="400" fill="#263644" text-anchor="middle">AP、AP50、AP_small、AP50_small</text>
+<text x="905" y="1350" font-size="16" font-weight="500" fill="#09557e" text-anchor="middle">测速包含预处理、检测、坐标转换与合并，排除图像读盘。</text>
+<text x="40" y="1410" font-size="15" font-weight="400" fill="#263644" text-anchor="start">论文依据  Fig. 2 / Table 1 · 作者 SAHI 0.11.36 · 本机实验仅切换推理流程</text>
+</g></svg>
