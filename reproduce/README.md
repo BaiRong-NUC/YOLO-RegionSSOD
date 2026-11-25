@@ -16,5 +16,6 @@
 | [WBF](wbf/upstream/) | 相同双视图，坐标融合使两个种子的小目标 AP 均降 | [卡片](../docs/reproduce/wbf/) |
 | [RemDet](remdet/upstream/) | 作者 Tiny 权重已重评；双种子 64 图独立训练的骨干替换均下降 | [卡片](../docs/reproduce/remdet/) |
 | [NWD](nwd/upstream/) | 同一 YOLOv8s 迁移回归损失，双种子结果一升一降 | [卡片](../docs/reproduce/nwd/) |
+| [Focal Loss / Detectron](focal/upstream/) | RetinaNet 表 1b 的两套分类损失，64 图双种子小目标 AP 均略降且接近零 | [卡片](../docs/reproduce/focal/) |
 
 新克隆仓库后，在仓库根目录执行 `git submodule update --init --recursive` 即可获取登记的作者版本。新增论文时，在同级目录登记作者来源、精确版本、权重来源、评测协议、论文报告值、本机值和差异。

@@ -8,6 +8,8 @@
 
 在两份 YOLO11s 权重上，本机 VisDrone val 的小目标 AP 同向提升出现在三个推理改动上：SAHI 切片、[SNIP 三尺度筛框](docs/reproduce/snip/)（+0.606 / +0.614 点）、[Soft-NMS 重叠降分](docs/reproduce/softnms/)（+0.154 / +0.123 点）。Soft-NMS 保持设置换到 test-dev 也得到 +0.083 / +0.079 点。其余对照中，[WBF](docs/reproduce/wbf/) 双视图融合与 [RemDet](docs/reproduce/remdet/) 小样本骨干替换两次都下降，[NWD](docs/reproduce/nwd/) 回归损失一升一降。按阶段与耗时解读详见[结果总览](docs/reproduce/README.md)。
 
+[Focal Loss](docs/reproduce/focal/) 也已完成 RetinaNet 的 64 图、30 轮双种子配对。两臂小目标 AP 都接近零，方法比平衡交叉熵低 0.00645 / 0.00581 点。
+
 | 内容 | 目录 |
 |---|---|
 | 论文复现卡、基线图和方法图 | [docs/reproduce](docs/reproduce/) |

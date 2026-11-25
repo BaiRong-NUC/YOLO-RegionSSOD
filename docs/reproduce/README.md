@@ -14,6 +14,16 @@
 | [WBF](wbf/README.md) | 原图+镜像硬去重 → 加权平均坐标 | −0.464 / −0.364 | 两次小目标 AP 都下降，融合更慢 |
 | [RemDet](remdet/README.md) | YOLOv8s 骨干 → RemNet | −0.031 / −0.168 | 64 图、30 轮独立训练。另有作者 Tiny 权重重评 |
 | [NWD](nwd/README.md) | YOLOv8s 的 CIoU 回归 → NWD 回归 | +0.024 / −0.064 | 64 图、30 轮独立训练，收益方向不一致 |
+| [Focal Loss](focal/README.md) | RetinaNet 平衡交叉熵 → 聚焦损失 | −0.00645 / −0.00581 | 64 图、30 轮独立训练，两组小目标 AP 都接近零 |
+
+## 这些论文在选题中的位置
+
+| 用途 | 对应论文 | 如何用于本项目 |
+|---|---|---|
+| 直接比较的航拍方法 | [SAHI](sahi/)、[YOLC](yolc/)、[ESOD](esod/)、[RemDet](remdet/) | 都涉及高分辨率或航拍小目标。在 VisDrone 十类水平框上，分别比较额外保留细节、挑选局部、稀疏计算和骨干替换带来的精度与整图时间。 |
+| 可迁移的单项思想 | [SNIP](snip/)、[Soft-NMS](softnms/)、[WBF](wbf/)、[NWD](nwd/)、[Focal Loss](focal/) | 分别检验多尺度合并、重叠降分、坐标融合、框损失和分类损失。每次保留各自的本机配对基线。 |
+| 训练监督的背景工作 | [S³OD](s3od/) | 原论文使用 DOTA 旋转框和半监督训练。当前保留其伪框筛选研究作为思想来源。 |
+| 检测器与数据基线 | 整图 YOLO11s、作者配置 YOLOv8s、RetinaNet-R50-FPN、VisDrone2019-DET | YOLO11s 是这组推理实验的载体，其他检测器用于各自的骨干与损失对照。最终论文的统一检测器基线尚待选定。[VisDrone 挑战报告](https://openaccess.thecvf.com/content_ICCVW_2019/html/VISDrone/Du_VisDrone-DET2019_The_Vision_Meets_Drone_Object_Detection_in_Image_Challenge_ICCVW_2019_paper.html) |
 
 ## 三种推理改动分别解决什么问题？
 
