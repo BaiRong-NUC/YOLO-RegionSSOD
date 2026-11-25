@@ -6,6 +6,8 @@
 
 [YOLC](docs/reproduce/yolc/) 在 VisDrone 验证集全部 548 张图上，作者权重开启局部放大后小目标 AP 提高 2.81 点。用 16 张原图独立训练 30 轮后，两个种子的小目标 AP 分别变化 −0.01685、+0.00013 点，精度收益未稳定复现。两组召回率略升，每张原图都多花约 140 毫秒。
 
+在两份 YOLO11s 权重上，本机 VisDrone val 的小目标 AP 同向提升出现在三个推理改动上：SAHI 切片、[SNIP 三尺度筛框](docs/reproduce/snip/)（+0.606 / +0.614 点）、[Soft-NMS 重叠降分](docs/reproduce/softnms/)（+0.154 / +0.123 点）。Soft-NMS 保持设置换到 test-dev 也得到 +0.083 / +0.079 点。其余对照中，[WBF](docs/reproduce/wbf/) 双视图融合与 [RemDet](docs/reproduce/remdet/) 小样本骨干替换两次都下降，[NWD](docs/reproduce/nwd/) 回归损失一升一降。按阶段与耗时解读详见[结果总览](docs/reproduce/README.md)。
+
 | 内容 | 目录 |
 |---|---|
 | 论文复现卡、基线图和方法图 | [docs/reproduce](docs/reproduce/) |

@@ -29,12 +29,13 @@ MAX_DET = 500
 CONFIDENCE = 0.001
 
 
-def read_validation(data, limit):
+def read_validation(data, limit, split='val', *, rgb=True):
     """复用 ESOD 的忽略区协议，预解码后在内存配对测速。"""
-    records = sorted((data / "images/val").glob("*.jpg"))
-    annotation_dir = data / "original_annotations/val"
-    if len(records) != 548 or {p.stem for p in records} != {p.stem for p in annotation_dir.glob("*.txt")}:
-        raise ValueError("需要完整的 VisDrone val 图像和原始标注")
+    records = sorted((data / 'images' / split).glob('*.jpg'))
+    annotation_dir = data / 'original_annotations' / split
+    expected_count = {'val': 548, 'test': 1610}[split]
+    if len(records) != expected_count or {p.stem for p in records} != {p.stem for p in annotation_dir.glob('*.txt')}:
+        raise ValueError(f'需要完整的 VisDrone {split} 图像和原始标注')
     gt = COCO()
     gt.dataset = {"info": {}, "images": [], "annotations": [], "categories": [
         {"id": index, "name": name} for index, name in enumerate(VISDRONE_NAMES, 1)
@@ -43,7 +44,7 @@ def read_validation(data, limit):
     for image_id, path in enumerate(tqdm(records[:limit], desc="准备验证图"), 1):
         image, boxes = prepare_image(path, annotation_dir / f"{path.stem}.txt")
         height, width = image.shape[:2]
-        images.append(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+        images.append(cv2.cvtColor(image, cv2.COLOR_BGR2RGB) if rgb else image)
         gt.dataset["images"].append({"id": image_id, "file_name": path.name, "width": width, "height": height})
         for category, box in boxes:
             gt.dataset["annotations"].append({

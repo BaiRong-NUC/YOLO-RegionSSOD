@@ -9,4 +9,12 @@
 | [SAHI](sahi/) | [切片推理 / VisDrone](sahi/upstream/) | 同图同权重比较整图与切片推理，两份 YOLO11s 权重的小目标 AP 分别提高 11.88、11.53 点，整图耗时增加。[复现卡](../docs/reproduce/sahi/) |
 | [YOLC](yolc/) | [CenterNet / VisDrone](yolc/upstream/) | 548 图本机对照，作者权重的小目标 AP 提高 2.81 点。16 图双种子独立训练 30 轮，小目标 AP 变化 −0.01685 / +0.00013 点，召回率略升，单图耗时增加。[复现卡](../docs/reproduce/yolc/) |
 
+| 新增论文与作者源码 | 本机对照 | 记录 |
+|---|---|---|
+| [SNIP / SNIPER](snip/upstream/) | 三尺度等前向预算，加入尺度有效范围后两份权重 AP_small 均升 | [卡片](../docs/reproduce/snip/) |
+| [Soft-NMS](softnms/upstream/) | 同一批候选改用高斯降分，两个划分两份权重的小目标 AP 均升 | [卡片](../docs/reproduce/softnms/) |
+| [WBF](wbf/upstream/) | 相同双视图，坐标融合使两个种子的小目标 AP 均降 | [卡片](../docs/reproduce/wbf/) |
+| [RemDet](remdet/upstream/) | 作者 Tiny 权重已重评；双种子 64 图独立训练的骨干替换均下降 | [卡片](../docs/reproduce/remdet/) |
+| [NWD](nwd/upstream/) | 同一 YOLOv8s 迁移回归损失，双种子结果一升一降 | [卡片](../docs/reproduce/nwd/) |
+
 新克隆仓库后，在仓库根目录执行 `git submodule update --init --recursive` 即可获取登记的作者版本。新增论文时，在同级目录登记作者来源、精确版本、权重来源、评测协议、论文报告值、本机值和差异。

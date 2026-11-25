@@ -10,3 +10,21 @@
 [submodule "reproduce/yolc/upstream"]
 	path = reproduce/yolc/upstream
 	url = https://github.com/dawn-ech/YOLC.git
+[submodule "reproduce/remdet/upstream"]
+	path = reproduce/remdet/upstream
+	url = https://github.com/HZAI-ZJNU/RemDet.git
+[submodule "reproduce/wbf/upstream"]
+	path = reproduce/wbf/upstream
+	url = https://github.com/ZFTurbo/Weighted-Boxes-Fusion.git
+[submodule "reproduce/softnms/upstream"]
+	path = reproduce/softnms/upstream
+	url = https://github.com/bharatsingh430/soft-nms.git
+[submodule "reproduce/nwd/upstream"]
+	path = reproduce/nwd/upstream
+	url = https://github.com/jwwangchn/NWD.git
+[submodule "reproduce/snip/upstream"]
+	path = reproduce/snip/upstream
+	url = https://github.com/mahyarnajibi/SNIPER.git
+[submodule "reproduce/focal/upstream"]
+	path = reproduce/focal/upstream
+	url = https://github.com/facebookresearch/Detectron.git
