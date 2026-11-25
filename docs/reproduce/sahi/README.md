@@ -3,7 +3,6 @@
 | 论文基线 Full Inference（本机以 YOLO11s 实例化） | 论文方法 SAHI（本机验证切片推理） |
 |---|---|
 | ![整图推理结构](full-inference-architecture.svg) | ![SAHI 切片推理结构](sahi-architecture.svg) |
-| [PNG](full-inference-architecture.png) | [PNG](sahi-architecture.png) |
 
 ## 本机结论
 
@@ -56,7 +55,7 @@ git submodule update --init reproduce/sahi/upstream
 $python = "$env:USERPROFILE/.conda/envs/yolo/python.exe"
 & $python -m venv --system-site-packages reproduce/sahi/local/env
 $sahiPython = "reproduce/sahi/local/env/Scripts/python.exe"
-& $sahiPython -m pip install sahi==0.11.36 resvg-py==0.5.0
+& $sahiPython -m pip install sahi==0.11.36
 $env:YOLO_CONFIG_DIR = (Resolve-Path reproduce/sahi/local).Path
 $weights = 0,1 | ForEach-Object { "cache/2026-11-24-RegionSSOD/worktree/runs/partial10_b2_formal100_s$_/weights/best.pt" }
 & $sahiPython -m scripts.reproduce.sahi.evaluate_visdrone --weights @weights --output reproduce/sahi/local/val-pair.json

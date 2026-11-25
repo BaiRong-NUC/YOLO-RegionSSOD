@@ -3,9 +3,6 @@
 from html import escape
 from pathlib import Path
 
-from resvg_py import svg_to_bytes
-
-
 DOCS = Path(__file__).resolve().parents[3] / "docs/reproduce/sahi"
 INK, BLUE, YELLOW, GREEN = "#09557e", "#85d9f1", "#ffe8a2", "#bee09c"
 ORANGE, PURPLE, AQUA = "#f6cba6", "#e6dff5", "#b9eeea"
@@ -134,4 +131,3 @@ if __name__ == "__main__":
     for name, sliced in (("full-inference-architecture", False), ("sahi-architecture", True)):
         svg = draw(sliced)
         (DOCS / f"{name}.svg").write_text(svg, encoding="utf-8")
-        (DOCS / f"{name}.png").write_bytes(svg_to_bytes(svg_string=svg))
