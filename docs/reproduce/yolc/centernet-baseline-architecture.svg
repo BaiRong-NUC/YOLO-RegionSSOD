@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 1430" width="1400" height="1430">
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10" fill="#547685"/></marker></defs>
+<rect width="1400" height="1430" fill="white"/><g font-family="Microsoft YaHei, sans-serif">
+<text x="47" y="51" font-size="38" fill="#09557e">CenterNet</text>
+<text x="360" y="50" font-size="24" fill="#09557e">论文基线 · 整图中心点检测</text>
+<text x="1050" y="50" font-size="20" fill="#09557e">VisDrone  /  十类水平框</text>
+<rect x="38" y="65" width="1324" height="1322" rx="17" fill="#ededed" stroke="#c8ced1"/><path d="M446 65V1387 M446 239H1362 M446 827H1362 M38 353H446" fill="none" stroke="#a8b4ba"/>
+<text x="50" y="98" font-size="26" fill="#09557e">Backbone · HRNet</text>
+<text x="462" y="98" font-size="26" fill="#09557e">Head · 预测水平框</text>
+<path d="M72 300l20 -18h195l-20 18z" fill="white" stroke="#478db9"/>
+<text x="114" y="297" font-size="14" fill="#09557e">高分辨率分支</text>
+<path d="M279 290H368V160H480" fill="none" stroke="#547685" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M90 247l20 -18h195l-20 18z" fill="white" stroke="#478db9"/>
+<text x="132" y="244" font-size="14" fill="#09557e">中分辨率分支</text>
+<path d="M297 237H383V166H480" fill="none" stroke="#547685" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M108 194l20 -18h195l-20 18z" fill="white" stroke="#478db9"/>
+<text x="150" y="191" font-size="14" fill="#09557e">低分辨率分支</text>
+<path d="M315 184H398V172H480" fill="none" stroke="#547685" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M126 141l20 -18h195l-20 18z" fill="white" stroke="#478db9"/>
+<text x="168" y="138" font-size="14" fill="#09557e">最深层分支</text>
+<path d="M333 131H413V178H480" fill="none" stroke="#547685" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="482" y="120" width="235" height="80" rx="6" fill="#bee09c" stroke="#9cabb2"/>
+<text x="497" y="149" font-size="20" fill="#09557e">多尺度特征</text>
+<text x="497" y="175" font-size="16" fill="#09557e">融合到高分辨率特征图</text>
+<path d="M717 160H756" fill="none" stroke="#547685" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="758" y="120" width="265" height="80" rx="6" fill="#85d9f1" stroke="#9cabb2"/>
+<text x="773" y="149" font-size="20" fill="#09557e">检测头</text>
+<text x="773" y="175" font-size="16" fill="#09557e">中心点、宽高与偏移</text>
+<path d="M1023 160H1064" fill="none" stroke="#547685" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="1066" y="120" width="263" height="80" rx="6" fill="#cfdaeb" stroke="#9cabb2"/>
+<text x="1081" y="149" font-size="20" fill="#09557e">单个视图的检测</text>
+<text x="1081" y="175" font-size="16" fill="#09557e">中心与边界 → 类别、框</text>
+<text x="54" y="387" font-size="23" fill="#09557e">从输入到检测结果</text>
+<rect x="85" y="405" width="311" height="74" rx="6" fill="#cfdaeb" stroke="#9cabb2"/>
+<text x="100" y="434" font-size="20" fill="#09557e">原始航拍图</text>
+<text x="100" y="460" font-size="16" fill="#09557e">以完整图像为单位</text>
+<path d="M241 479v58" fill="none" stroke="#547685" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="85" y="539" width="311" height="74" rx="6" fill="#cfdaeb" stroke="#9cabb2"/>
+<text x="100" y="568" font-size="20" fill="#09557e">整图输入</text>
+<text x="100" y="594" font-size="16" fill="#09557e">保留全图上下文</text>
+<path d="M241 613v58" fill="none" stroke="#547685" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="85" y="673" width="311" height="74" rx="6" fill="#cfdaeb" stroke="#9cabb2"/>
+<text x="100" y="702" font-size="20" fill="#09557e">HRNet 特征提取</text>
+<text x="100" y="728" font-size="16" fill="#09557e">并行分支交换空间信息</text>
+<path d="M241 747v58" fill="none" stroke="#547685" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="85" y="807" width="311" height="74" rx="6" fill="#cfdaeb" stroke="#9cabb2"/>
+<text x="100" y="836" font-size="20" fill="#09557e">估计中心与边界</text>
+<text x="100" y="862" font-size="16" fill="#09557e">输出中心热图与候选框</text>
+<path d="M241 881v58" fill="none" stroke="#547685" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="85" y="941" width="311" height="74" rx="6" fill="#cfdaeb" stroke="#9cabb2"/>
+<text x="100" y="970" font-size="20" fill="#09557e">解码整图预测</text>
+<text x="100" y="996" font-size="16" fill="#09557e">从热图峰值获得中心点</text>
+<path d="M241 1015v58" fill="none" stroke="#547685" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="85" y="1075" width="311" height="74" rx="6" fill="#cfdaeb" stroke="#9cabb2"/>
+<text x="100" y="1104" font-size="20" fill="#09557e">水平框还原</text>
+<text x="100" y="1130" font-size="16" fill="#09557e">将边界映射回原图</text>
+<path d="M241 1149v58" fill="none" stroke="#547685" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="85" y="1209" width="311" height="74" rx="6" fill="#cfdaeb" stroke="#9cabb2"/>
+<text x="100" y="1238" font-size="20" fill="#09557e">汇集整图预测</text>
+<text x="100" y="1264" font-size="16" fill="#09557e">每张图只检测一次</text>
+<text x="461" y="274" font-size="25" fill="#09557e">Details · 为什么这样做</text>
+<rect x="475" y="315" width="834" height="81" rx="6" fill="#ffe8a2" stroke="#9cabb2"/>
+<text x="490" y="344" font-size="20" fill="#09557e">整图检测的困难</text>
+<text x="490" y="370" font-size="16" fill="#09557e">拥挤处的小车只占少量像素，整图只给模型一次区分相邻目标的机会。</text>
+<path d="M894 396v65" fill="none" stroke="#547685" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="475" y="463" width="834" height="81" rx="6" fill="#f6cba6" stroke="#9cabb2"/>
+<text x="490" y="492" font-size="20" fill="#09557e">训练监督</text>
+<text x="490" y="518" font-size="16" fill="#09557e">根据水平框生成中心点热图，用真值框约束宽高与中心偏移。</text>
+<path d="M894 544v65" fill="none" stroke="#547685" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="475" y="611" width="834" height="81" rx="6" fill="#b9eeea" stroke="#9cabb2"/>
+<text x="490" y="640" font-size="20" fill="#09557e">论文对照范围</text>
+<text x="490" y="666" font-size="16" fill="#09557e">表 I 的原始 CenterNet 是整模型基线；本机配对使用同一 YOLC 权重。</text>
+<text x="474" y="762" font-size="19" fill="#09557e">本机实验只切换局部重检，两组共享网络结构和权重。</text>
+<text x="461" y="869" font-size="25" fill="#09557e">输出与评测</text>
+<path d="M396 1246H422V960H489" fill="none" stroke="#547685" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="492" y="919" width="813" height="82" rx="6" fill="#bee09c" stroke="#9cabb2"/>
+<text x="507" y="948" font-size="20" fill="#09557e">整图水平框输出</text>
+<text x="507" y="974" font-size="16" fill="#09557e">每个框记录位置、类别与置信度</text>
+<path d="M899 1001v82" fill="none" stroke="#547685" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="492" y="1086" width="813" height="82" rx="6" fill="#ffe8a2" stroke="#9cabb2"/>
+<text x="507" y="1115" font-size="20" fill="#09557e">同机比较精度与耗时</text>
+<text x="507" y="1141" font-size="16" fill="#09557e">在同一批图上比较小目标 AP、召回率与平均毫秒数</text>
+<text x="492" y="1273" font-size="17" fill="#09557e">论文依据：表 I，VisDrone val；作者代码：configs/yolc.py、eval_yolc.py。</text>
+</g></svg>

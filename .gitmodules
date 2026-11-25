@@ -7,3 +7,6 @@
 [submodule "reproduce/sahi/upstream"]
 	path = reproduce/sahi/upstream
 	url = https://github.com/obss/sahi.git
+[submodule "reproduce/yolc/upstream"]
+	path = reproduce/yolc/upstream
+	url = https://github.com/dawn-ech/YOLC.git

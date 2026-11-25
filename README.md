@@ -4,6 +4,8 @@
 
 [SAHI](docs/reproduce/sahi/) 的切片推理在两份裁片训练的 YOLO11s 权重上提高了小目标 AP（+11.88、+11.53 点），代价是整图推理时间增加。复现卡收录了本机对照及 RemDet、YOLC 的公开复现条件。
 
+[YOLC](docs/reproduce/yolc/) 在 VisDrone 验证集全部 548 张图上使用同一份作者权重，额外放大最多两个密集区后，小目标 AP 提高 2.81 点，平均单图耗时增加。
+
 | 内容 | 目录 |
 |---|---|
 | 论文复现卡、基线图和方法图 | [docs/reproduce](docs/reproduce/) |
