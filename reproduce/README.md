@@ -11,7 +11,7 @@
 
 | 新增论文与作者源码 | 本机对照 | 记录 |
 |---|---|---|
-| [SNIP / SNIPER](snip/upstream/) | 三尺度等前向预算，加入尺度有效范围后两份权重 AP_small 均升 | [卡片](../docs/reproduce/snip/) |
+| [SNIP / SNIPER](snip/upstream/) | 三尺度等前向预算，val 与 test-dev 两个划分、两份权重的 AP_small 均升 | [卡片](../docs/reproduce/snip/) |
 | [Soft-NMS](softnms/upstream/) | 同一批候选改用高斯降分，两个划分两份权重的小目标 AP 均升 | [卡片](../docs/reproduce/softnms/) |
 | [WBF](wbf/upstream/) | 相同双视图，坐标融合使两个种子的小目标 AP 均降 | [卡片](../docs/reproduce/wbf/) |
 | [RemDet](remdet/upstream/) | 作者 Tiny 权重已重评；双种子 64 图独立训练的骨干替换均下降 | [卡片](../docs/reproduce/remdet/) |
