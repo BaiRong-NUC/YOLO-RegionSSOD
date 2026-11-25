@@ -1,4 +1,4 @@
-"""固定作者 YOLC 权重，在 VisDrone 上配对比较整图与局部放大。"""
+"""固定一份 YOLC 权重，在 VisDrone 上配对比较整图与局部放大。"""
 
 import argparse
 import json
@@ -18,6 +18,7 @@ LOCAL = AUTHOR.parent / 'local'
 sys.path.insert(0, str(AUTHOR))
 
 from eval_yolc import inference, init_detector
+import eval_yolc
 
 
 def score(truth, detections, image_ids):
@@ -44,13 +45,26 @@ def run_arm(model, truth, images, image_ids, crops):
         detect(image_id)
     durations = []
     predictions = []
+    crop_calls = 0
+    images_with_crops = 0
+    local_detector = eval_yolc.inference_detector
+
+    def count_local_call(*args, **kwargs):
+        # 只统计真正执行的局部检测，排除预热与被面积阈值过滤的候选区。
+        nonlocal crop_calls
+        crop_calls += 1
+        return local_detector(*args, **kwargs)
+
     category_ids = truth.getCatIds()
     for index, image_id in enumerate(image_ids, start=1):
         torch.cuda.synchronize()
         start = perf_counter()
-        results = detect(image_id)
+        before = crop_calls
+        with patch.object(eval_yolc, 'inference_detector', count_local_call):
+            results = detect(image_id)
         torch.cuda.synchronize()
         durations.append(1000 * (perf_counter() - start))
+        images_with_crops += int(crop_calls > before)
         for category_id, boxes in zip(category_ids, results):
             for left, top, right, bottom, confidence in boxes:
                 # 跳过作者为避免空数组加入的全零占位框。
@@ -60,7 +74,8 @@ def run_arm(model, truth, images, image_ids, crops):
                                                 left, top, right - left, bottom - top)))))
         if index % 100 == 0:
             print(f'k={crops}  {index}/{len(image_ids)}', flush=True)
-    return dict(crops=crops, images=len(image_ids), **score(truth, predictions, image_ids),
+    return dict(crops=crops, images=len(image_ids), crop_calls=crop_calls, images_with_crops=images_with_crops,
+                **score(truth, predictions, image_ids),
                 mean_ms=float(np.mean(durations)), p95_ms=float(np.percentile(durations, 95)))
 
 

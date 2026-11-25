@@ -5,7 +5,7 @@
 | [S³OD](s3od/README.md) | [SSOD baseline](s3od/ssod-baseline-architecture.svg) | [S³OD](s3od/s3od-architecture.svg) | VisDrone SAT 双种子离线评测已完成，DOTA-v1.5 原协议待测 |
 | [ESOD](esod/README.md) | [YOLOv5m](esod/yolov5m-baseline-architecture.svg) | [ESOD-YOLOv5m](esod/esod-architecture.svg) | **论文主要效果未稳定复现**。32 图双种子训练、548 图同机评测，整图处理提速，前向变慢，小目标 AP 差值 −0.285 / −0.336 点。全量训练待测。 |
 | [SAHI](sahi/README.md) | [整图推理](sahi/full-inference-architecture.svg) | [切片推理](sahi/sahi-architecture.svg) | **切片推理的精度收益在两份裁片训练的 YOLO11s 权重上复现**。VisDrone val 全 548 张，小目标 AP 增加 11.88 / 11.53 点，单图耗时上升。切片微调待验证。 |
-| [YOLC](yolc/README.md) | [CenterNet](yolc/centernet-baseline-architecture.svg) | [YOLC](yolc/yolc-architecture.svg) | 同一作者权重、548 张图，局部放大相对整图的小目标 AP 提高 2.81 点，小目标 AR 提高 4.63 点，平均单图耗时增加。 |
+| [YOLC](yolc/README.md) | [CenterNet](yolc/centernet-baseline-architecture.svg) | [YOLC](yolc/yolc-architecture.svg) | 548 图本机对照，作者权重的小目标 AP 提高 2.81 点。16 图双种子独立训练 30 轮，小目标 AP 变化 −0.01685 / +0.00013 点，精度收益未稳定复现。两组召回率略升，单图耗时增加。 |
 
 ## YOLC 为什么要挑地方放大？
 
