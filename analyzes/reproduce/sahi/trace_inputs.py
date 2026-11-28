@@ -91,7 +91,9 @@ def main():
     <rect width="100%" height="100%" fill="white"/><g fill="#17384b" font-size="15" font-family="Microsoft YaHei, sans-serif">
     <g transform="translate(24,8)">{full_panel}</g><g transform="translate(304,8)">{tile_panel}</g>
     <text x="24" y="371">两栏各取 48 × 48 个输入像素，同倍率放大。黄框为人工标注。</text></g></svg>'''
-    (HERE / 'inputs.svg').write_text(svg, encoding='utf-8')
+    # 正式图放在 svgs 下，同时更新旧对话链接指向的同名文件。
+    for destination in (HERE / 'svgs/inputs.svg', HERE / 'inputs.svg'):
+        destination.write_text(svg, encoding='utf-8')
 
 
 if __name__ == '__main__':
