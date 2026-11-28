@@ -14,4 +14,11 @@ reproduce/sahi/local/env/Scripts/python.exe -m pytest tests/reproduce/asanms
 reproduce/sahi/local/env/Scripts/python.exe -m scripts.reproduce.asanms.evaluate
 ```
 
-逐臂结果与权重摘要写到 `reproduce/asanms/local/val-548.json`。
+**本机结论：相对硬 NMS，两份权重的小目标 AP 均略降。** VisDrone val 全部 548 张原图，AP 以点计；每行两臂共用同一份权重。
+
+| YOLO11s 权重 | 总体 AP（硬 NMS → ASA） | 小目标 AP（硬 NMS → ASA） | 小目标 AP 差 | 平均 ms/原图（硬 NMS → ASA） |
+|---|---:|---:|---:|---:|
+| 0 | 16.093 → 16.051 | 6.784 → 6.768 | −0.016 | 17.06 → 15.83 |
+| 1 | 16.392 → 16.338 | 6.903 → 6.847 | −0.057 | 15.56 → 15.32 |
+
+本次两组计时均略短，但每个权重每臂只有一轮计时，不能据此断言稳定提速。结果只检验默认抑制规则在本机检测器上的迁移，不是否定作者在其他检测器上的结果。逐臂结果与权重摘要见 `reproduce/asanms/local/val-548.json`。

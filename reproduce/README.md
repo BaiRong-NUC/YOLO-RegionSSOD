@@ -10,7 +10,7 @@
 | [DAASD 密度分档](daasd/) | 相对固定切片小目标 AP 均升，整体更慢 | [DAASD](../docs/reproduce/daasd/) |
 | [ASAHI 分辨率网格](asahi/) | 相对固定块小目标 AP 均升，速度方向不一 | [ASAHI](../docs/reproduce/asahi/) |
 | [BUTR 作者解码器](butr/upstream/) | test-dev 两尺度均比固定 250 查询精度高；比固定 500 查询少、精度略低，未提速 | [BUTR](../docs/reproduce/butr/) |
-| [ASA-NMS 作者后处理](asanms/upstream/) | 类内空间抑制与同候选硬 NMS 对照 | [ASA-NMS](../docs/reproduce/asanms/) |
+| [ASA-NMS 作者后处理](asanms/upstream/) | 相对同候选硬 NMS，两份权重的小目标 AP 各低 0.016 / 0.057 点 | [ASA-NMS](../docs/reproduce/asanms/) |
 
 ## 历史复现
 
