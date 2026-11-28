@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1000" viewBox="0 0 900 1000" role="img" aria-labelledby="title desc" lang="zh-CN">
+  <title id="title">SAHI 接在 YOLO11s 逐层图的哪里？</title>
+  <desc id="desc">橙色标出 SAHI 在第 00 层之前从原图添加八个切片，在第 23 层及每个视图的常规后处理之后，把各视图的预测映回原图并合并。整图与切片分别经过同一套第 00 至 23 层。</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 9 5 0 10Z" fill="#506977"/></marker>
+    <marker id="orange" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 9 5 0 10Z" fill="#b34a14"/></marker>
+    <style>
+      text { font-family: 'Microsoft YaHei','PingFang SC',sans-serif; fill: #17384b }
+      .title { font-size: 36px; font-weight: 700 }
+      .heading { font-size: 23px; font-weight: 700 }
+      .body { font-size: 18px }
+      .small { font-size: 16px }
+      .ink { fill: #9d4013 }
+      .line,.added { fill: none; stroke: #506977; stroke-width: 2.5; stroke-linejoin: round; marker-end: url(#arrow) }
+      .added { stroke: #b34a14; marker-end: url(#orange) }
+    </style>
+  </defs>
+  <rect width="900" height="1000" fill="#fafaf7"/>
+  <text x="44" y="65" class="title">SAHI 接在逐层图的哪里？</text>
+  <text x="45" y="101" class="body">沿箭头读。橙色标出本次推理加的两步，层号对应你图里的 00 Conv 到 23 Detect。</text>
+
+  <!-- 整图和切片都直接取自高分辨率原图，再分别送入同一份权重。 -->
+  <rect x="300" y="129" width="300" height="48" rx="24" fill="#e5eaef"/>
+  <text x="450" y="160" text-anchor="middle" class="body">同一张航拍原图　1920 × 1080</text>
+  <path class="line" d="M450 177 V193 H220 V213"/>
+  <path class="added" d="M450 193 H647 V213"/>
+  <rect x="44" y="217" width="350" height="126" rx="12" fill="#edf1f4" stroke="#bac9d1"/>
+  <text x="64" y="252" class="heading">原有的整图输入</text>
+  <text x="64" y="288" class="body">等比缩放、填边到 640 × 640。</text>
+  <text x="64" y="318" class="body">1 个视图，车宽约 8.33 像素。</text>
+  <rect x="432" y="217" width="424" height="126" rx="12" fill="#fff0df" stroke="#c45b24" stroke-width="2"/>
+  <text x="452" y="252" class="heading ink">① 第 00 层之前 · 添加切片</text>
+  <text x="452" y="288" class="body">从原图裁出 8 个重叠的 640 × 640 块。</text>
+  <text x="452" y="318" class="body">覆盖这辆车的块，保留了 25 像素车宽。</text>
+  <path class="line" d="M219 343 V361 H450 V381"/>
+  <path d="M644 343 V361 H450" fill="none" stroke="#b34a14" stroke-width="2.5"/>
+
+  <!-- 颜色和层号沿用原逐层图；特征融合层与检测头具有多路输入。 -->
+  <rect x="44" y="385" width="812" height="314" rx="14" fill="white" stroke="#96aeba" stroke-width="2"/>
+  <text x="65" y="423" class="heading">你的逐层图 · 每个视图各走一遍同一个 YOLO11s</text>
+  <text x="66" y="451" class="small">本例共跑 9 次（1 张整图 + 8 个切片），每次共用同一份权重。下表按原层号分组。</text>
+  <rect x="62" y="468" width="776" height="61" rx="6" fill="#e4eff9"/>
+  <text x="79" y="505" class="heading">00–10　骨干</text>
+  <text x="300" y="505" class="body">00 Conv 接收 640 × 640 输入，逐层提取特征。</text>
+  <rect x="62" y="535" width="776" height="74" rx="6" fill="#e1f1ec"/>
+  <text x="79" y="580" class="heading">11–22　融合</text>
+  <text x="300" y="565" class="body">16 层 P3（80 × 80）　19 层 P4（40 × 40）</text>
+  <text x="300" y="591" class="body">22 层 P5（20 × 20）　这三路一起送进第 23 层。</text>
+  <rect x="62" y="615" width="776" height="65" rx="6" fill="#fff2dc"/>
+  <text x="79" y="655" class="heading">23　Detect</text>
+  <text x="300" y="654" class="body">为当前视图输出 8400 个候选框及其类别分数。</text>
+  <path class="line" d="M450 699 V723"/>
+  <rect x="152" y="727" width="596" height="48" rx="24" fill="#e5eaef"/>
+  <text x="450" y="757" text-anchor="middle" class="body">每个视图先各自筛分数、同类去重，得到各自的检测框。</text>
+  <path class="added" d="M450 775 V799"/>
+
+  <!-- 用本例实际切片原点说明跨视图去重前的坐标转换。 -->
+  <rect x="44" y="803" width="812" height="102" rx="12" fill="#fff0df" stroke="#c45b24" stroke-width="2"/>
+  <text x="65" y="838" class="heading ink">② 第 23 层和视图内去重之后 · 映回原图，跨视图去重</text>
+  <text x="66" y="868" class="body">这块的左上角在原图 (480, 0)，块内车框的横坐标加 480，纵坐标加 0。</text>
+  <text x="66" y="893" class="body">把各块和整图的框放到同一张图上，按类别合并重复框。</text>
+  <path class="line" d="M450 905 V928"/>
+  <rect x="161" y="932" width="578" height="44" rx="22" fill="#dceee8"/>
+  <text x="450" y="960" text-anchor="middle" class="body">最终整图结果 · 这辆车被保留，和人工框的 IoU 为 0.8057。</text>
+</svg>

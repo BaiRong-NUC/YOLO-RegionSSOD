@@ -8,6 +8,8 @@
 
 ## 带着一个问题读论文
 
+[对照原逐层图看 SAHI 加在哪里（SVG）](svgs/layer-map.svg)。先找第 00 层前的切片，再沿同一套 YOLO11s 走到第 23 层，看各视图的框怎样映回原图并合并。
+
 读 SAHI 原文 **Fig. 2**，先顺着切片推理那条线走。高分辨率原图先切成有重叠的小块，每块交给同一个检测器。小车在局部输入中占的像素更多。检测框加上块的左上角坐标，就能放回原图；相邻块和附加的整图视图可能多次报出同一辆车，最后按类别去重。图中还有用裁片微调权重的训练路径，本例只开关推理视图，两路都用同一份 `best.pt`。[论文 Fig. 2 和 Table 1](https://arxiv.org/pdf/2202.06934v5) · [整图结构图](../../../docs/reproduce/sahi/full-inference-architecture.svg) · [切片结构图](../../../docs/reproduce/sahi/sahi-architecture.svg)
 
 再读 **Table 1** 中普通训练的 TOOD 行。作者在 VisDrone **test-dev** 上，将整图 FI 换成 SAHI+FI+PO，小目标 **AP50** 从 **18.1 升到 23.8**。这支持沿着输入尺度排查。表中的汇总指标无法告诉我们某辆车的候选消失在哪一步，因此下面回到本机 YOLO11s、VisDrone **val** 的同一张图逐框核对。[原文及本机评测协议](../../../docs/reproduce/sahi/README.md)
