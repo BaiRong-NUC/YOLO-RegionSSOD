@@ -9,6 +9,7 @@
 | [SCAHI 作者融合](scahi/upstream/) | 相同视图，F2 优于 F0，两份权重小目标 AP 都升 | [SCAHI](../docs/reproduce/scahi/) |
 | [DAASD 密度分档](daasd/) | 相对固定切片小目标 AP 均升，整体更慢 | [DAASD](../docs/reproduce/daasd/) |
 | [ASAHI 分辨率网格](asahi/) | 相对固定块小目标 AP 均升，速度方向不一 | [ASAHI](../docs/reproduce/asahi/) |
+| [YOLC 密集区选窗](yolc/regions.py) | YOLO11s 等预算下，密集区比随机位置的小目标 AP 高 7.723 / 7.666 点；独立于历史 CenterNet 训练对照 | [YOLC](../docs/reproduce/yolc/#yolo11s-上的等预算选区对照) |
 | [BUTR 作者解码器](butr/upstream/) | test-dev 两尺度均比固定 250 查询精度高；比固定 500 查询少、精度略低，未提速 | [BUTR](../docs/reproduce/butr/) |
 | [ASA-NMS 作者后处理](asanms/upstream/) | 相对同候选硬 NMS，两份权重的小目标 AP 各低 0.016 / 0.057 点 | [ASA-NMS](../docs/reproduce/asanms/) |
 

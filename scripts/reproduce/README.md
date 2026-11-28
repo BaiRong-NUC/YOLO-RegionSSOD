@@ -8,4 +8,6 @@
 
 [SAHI 评测](sahi/evaluate_visdrone.py)比较 YOLO11s 的整图与切片推理。[YOLC 小样本训练](yolc/train_pilot.py)使用固定训练子集和指定种子。[YOLC 评测](yolc/evaluate.py)可载入作者权重或本机训练权重，在 VisDrone 验证集比较整图与密集区局部重检。
 
+[YOLC 选区迁移对照](yolc/evaluate_regions.py)另用两份 YOLO11s 权重，比整图、随机重检、密集区重检；后两组逐图匹配裁片数量及尺寸。
+
 [SNIP](snip/evaluate.py)、[Soft-NMS](softnms/evaluate.py)、[WBF](wbf/evaluate.py) 使用同一套[配对计时与评测](paired_inference.py)，默认完整 val，`--split test` 对应有标签的 test-dev。[RemDet](remdet/pair.py)、[NWD](nwd/pair.py) 和 [Focal Loss](focal/pair.py) 使用同一 64 张训练图及 548 张验证图。各篇复现卡列出所需环境、权重与命令。
