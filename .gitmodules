@@ -28,3 +28,12 @@
 [submodule "reproduce/focal/upstream"]
 	path = reproduce/focal/upstream
 	url = https://github.com/facebookresearch/Detectron.git
+[submodule "reproduce/scahi/upstream"]
+	path = reproduce/scahi/upstream
+	url = https://github.com/beckerio/scahi.git
+[submodule "reproduce/butr/upstream"]
+	path = reproduce/butr/upstream
+	url = https://github.com/zhangyi-magic/BUTR.git
+[submodule "reproduce/asanms/upstream"]
+	path = reproduce/asanms/upstream
+	url = https://github.com/JOU-UIP/ASA-NMS.git

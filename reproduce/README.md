@@ -2,6 +2,18 @@
 
 每篇论文使用一个独立子目录。`upstream/` 保存固定版本的作者代码，同篇目录保存适配实现和绘图源码。项目编写的训练与评测入口放在 [scripts/reproduce](../scripts/reproduce/)，对应测试放在 [tests/reproduce](../tests/reproduce/)，基线图和方法图放在 [docs/reproduce](../docs/reproduce/)。各处使用相同的论文简称。
 
+**本轮第一步：近年航拍水平框检测。** 实验与旧论文分列；不把多组权重重复计作多篇论文。
+
+| 实现 | 本机配对结论 | 复现卡 |
+|---|---|---|
+| [SCAHI 作者融合](scahi/upstream/) | 相同视图，F2 优于 F0，两份权重小目标 AP 都升 | [SCAHI](../docs/reproduce/scahi/) |
+| [DAASD 密度分档](daasd/) | 相对固定切片小目标 AP 均升，整体更慢 | [DAASD](../docs/reproduce/daasd/) |
+| [ASAHI 分辨率网格](asahi/) | 相对固定块小目标 AP 均升，速度方向不一 | [ASAHI](../docs/reproduce/asahi/) |
+| [BUTR 作者解码器](butr/upstream/) | 作者权重，固定/动态查询预算 test-dev 对照 | [BUTR](../docs/reproduce/butr/) |
+| [ASA-NMS 作者后处理](asanms/upstream/) | 类内空间抑制与同候选硬 NMS 对照 | [ASA-NMS](../docs/reproduce/asanms/) |
+
+## 历史复现
+
 | 论文 | 作者代码 | 复现进度 |
 |---|---|---|
 | [S³OD](s3od/) | [Rotated Faster R-CNN / DOTA-v1.5](s3od/upstream/) | 已在 VisDrone 上完成两个种子的伪框筛选离线评测，DOTA-v1.5 完整检测指标待测。[复现卡](../docs/reproduce/s3od/) |

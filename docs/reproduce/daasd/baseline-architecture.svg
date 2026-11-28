@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1430" viewBox="0 0 1400 1430" role="img">
+<title>DAASD · 固定 640 / 重叠 20% · VisDrone 本机配对</title>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10" fill="#527480"/></marker></defs>
+<rect width="1400" height="1430" fill="white"/><g font-family="Microsoft YaHei, sans-serif">
+<text x="47" y="51" font-size="38" fill="#114d6b">DAASD</text>
+<text x="360" y="50" font-size="26" fill="#114d6b">本机配对 · 固定 640 / 重叠 20%</text>
+<text x="1050" y="50" font-size="22" fill="#114d6b">VisDrone  /  十类水平框</text>
+<rect x="38" y="65" width="1324" height="1322" rx="17" fill="#ededed" stroke="#c8ced1"/><path d="M446 65V1387 M446 239H1362 M446 827H1362 M38 353H446" fill="none" stroke="#a8b4ba"/>
+<text x="52" y="104" font-size="22" fill="#114d6b">Backbone · YOLO11s</text>
+<text x="462" y="104" font-size="22" fill="#114d6b">Neck / Head · 多尺度预测</text>
+<path d="M80 297l18 -19h165l-18 19z" fill="white" stroke="#478db9"/>
+<text x="116" y="293" font-size="15" fill="#114d6b">浅层特征</text>
+<path d="M264 285H365V165H483" fill="none" stroke="#527480" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M112 243l18 -19h165l-18 19z" fill="white" stroke="#478db9"/>
+<text x="148" y="239" font-size="15" fill="#114d6b">中层特征</text>
+<path d="M296 231H386V170H483" fill="none" stroke="#527480" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M144 189l18 -19h165l-18 19z" fill="white" stroke="#478db9"/>
+<text x="180" y="185" font-size="15" fill="#114d6b">深层特征</text>
+<path d="M328 177H407V175H483" fill="none" stroke="#527480" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="485" y="130" width="230" height="78" rx="7" fill="#c2e4be" stroke="#8ea2aa"/>
+<text x="499" y="160" font-size="22" fill="#114d6b">特征融合</text>
+<text x="499" y="189" font-size="18" fill="#114d6b">融合不同分辨率</text>
+<path d="M715 169h70" fill="none" stroke="#527480" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="790" y="130" width="230" height="78" rx="7" fill="#c2e4be" stroke="#8ea2aa"/>
+<text x="804" y="160" font-size="22" fill="#114d6b">检测头</text>
+<text x="804" y="189" font-size="18" fill="#114d6b">分类与边框回归</text>
+<path d="M1020 169h70" fill="none" stroke="#527480" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="1095" y="130" width="230" height="78" rx="7" fill="#c2e4be" stroke="#8ea2aa"/>
+<text x="1109" y="160" font-size="22" fill="#114d6b">解码</text>
+<text x="1109" y="189" font-size="18" fill="#114d6b">候选框与分数</text>
+<text x="54" y="394" font-size="22" fill="#114d6b">整图检测路径</text>
+<text x="468" y="790" font-size="19" fill="#114d6b">训练监督：已有水平框检测器权重；本实验仅推理，不反传。</text>
+<rect x="75" y="423" width="326" height="80" rx="7" fill="#d4e4f1" stroke="#8ea2aa"/>
+<text x="89" y="453" font-size="22" fill="#114d6b">输入</text>
+<text x="89" y="482" font-size="18" fill="#114d6b">VisDrone 航拍图</text>
+<path d="M238 503v47" fill="none" stroke="#527480" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="75" y="553" width="326" height="80" rx="7" fill="#ffe5a0" stroke="#8ea2aa"/>
+<text x="89" y="583" font-size="22" fill="#114d6b">① 构造视图</text>
+<text x="89" y="612" font-size="18" fill="#114d6b">固定 640 / 重叠 20%</text>
+<path d="M238 633v47" fill="none" stroke="#527480" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="75" y="683" width="326" height="80" rx="7" fill="#d4e4f1" stroke="#8ea2aa"/>
+<text x="89" y="713" font-size="22" fill="#114d6b">骨干网络</text>
+<text x="89" y="742" font-size="18" fill="#114d6b">YOLO11s</text>
+<path d="M238 763v47" fill="none" stroke="#527480" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="75" y="813" width="326" height="80" rx="7" fill="#d4e4f1" stroke="#8ea2aa"/>
+<text x="89" y="843" font-size="22" fill="#114d6b">融合与预测</text>
+<text x="89" y="872" font-size="18" fill="#114d6b">多层特征 → 类别和坐标</text>
+<path d="M238 893v47" fill="none" stroke="#527480" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="75" y="943" width="326" height="80" rx="7" fill="#d4e4f1" stroke="#8ea2aa"/>
+<text x="89" y="973" font-size="22" fill="#114d6b">检测头输出</text>
+<text x="89" y="1002" font-size="18" fill="#114d6b">各位置的类别与坐标</text>
+<path d="M238 1023v47" fill="none" stroke="#527480" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="75" y="1073" width="326" height="80" rx="7" fill="#d4e4f1" stroke="#8ea2aa"/>
+<text x="89" y="1103" font-size="22" fill="#114d6b">输出候选</text>
+<text x="89" y="1132" font-size="18" fill="#114d6b">映射回原图，按类别处理</text>
+<path d="M238 1153v47" fill="none" stroke="#527480" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="75" y="1203" width="326" height="80" rx="7" fill="#d4e4f1" stroke="#8ea2aa"/>
+<text x="89" y="1233" font-size="22" fill="#114d6b">输出水平框</text>
+<text x="89" y="1262" font-size="18" fill="#114d6b">坐标、类别、置信度</text>
+<path d="M401 593H425V445H478" fill="none" stroke="#527480" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="469" y="289" font-size="22" fill="#114d6b">Details · 对照变量</text>
+<rect x="481" y="337" width="839" height="82" rx="7" fill="#d5e7f1" stroke="#8ea2aa"/>
+<text x="495" y="367" font-size="22" fill="#114d6b">原论文观察的问题</text>
+<text x="495" y="396" font-size="18" fill="#114d6b">固定切片可能在稀疏图上浪费前向，在拥挤图上又看不清。</text>
+<rect x="481" y="445" width="839" height="82" rx="7" fill="#ffe5a0" stroke="#8ea2aa"/>
+<text x="495" y="475" font-size="22" fill="#114d6b">① 固定 640 / 重叠 20%</text>
+<text x="495" y="504" font-size="18" fill="#114d6b">每张图都用相同的切片尺寸和重叠比例。</text>
+<rect x="481" y="559" width="839" height="82" rx="7" fill="#bae3dc" stroke="#8ea2aa"/>
+<text x="495" y="589" font-size="22" fill="#114d6b">固定条件</text>
+<text x="495" y="618" font-size="18" fill="#114d6b">仅合并切片框，密度扫描框不输出；跨片类内 NMS IoU 0.5。</text>
+<rect x="481" y="674" width="839" height="82" rx="7" fill="#d8d1ea" stroke="#8ea2aa"/>
+<text x="495" y="704" font-size="22" fill="#114d6b">原论文检测器</text>
+<text x="495" y="733" font-size="18" fill="#114d6b">YOLO26n（表 4）</text>
+<text x="469" y="880" font-size="22" fill="#114d6b">输出与评测</text>
+<path d="M401 1243H448V992H478" fill="none" stroke="#527480" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="481" y="954" width="839" height="82" rx="7" fill="#c2e4be" stroke="#8ea2aa"/>
+<text x="495" y="984" font-size="22" fill="#114d6b">十个类别的整图水平框</text>
+<text x="495" y="1013" font-size="18" fill="#114d6b">经过类内去重并限制每张图的预测数量。</text>
+<path d="M898 1036v68" fill="none" stroke="#527480" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="481" y="1108" width="839" height="82" rx="7" fill="#ffe5a0" stroke="#8ea2aa"/>
+<text x="495" y="1138" font-size="22" fill="#114d6b">同机配对评测</text>
+<text x="495" y="1167" font-size="18" fill="#114d6b">按原图面积计算 AP_small，在相同图像上记录整图毫秒数。</text>
+</g></svg>

@@ -2,10 +2,26 @@
 
 from html import escape
 from pathlib import Path
+import sys
 
 
 # 名称、论文检测器、本机骨干、输入、两组改动，以及用于解释改动的训练或推理细节。
 PAPERS = {
+    'scahi': ('SCAHI', 'YOLO11s（扩展实验）', 'YOLO11s', '整图 1280 + 重叠切片 1024', 'F0 · 框级融合', 'F2 · 稠密融合',
+              '逐视图得到候选框，再按 IOS 阈值 0.8 去重。', '先按覆盖与边界给稠密证据加权，再在尺度空间取峰并输出框。',
+              '先把每个视图变成单独的框，会损失跨视图的互补证据。', '相同整图、切片、权重与前向次数；用作者冻结配置，不在 val 调参。'),
+    'daasd': ('DAASD', 'YOLO26n（表 4）', 'YOLO11s', '局部切片 → 640 × 640', '固定 640 / 重叠 20%', '按密度选切片',
+              '每张图都用相同的切片尺寸和重叠比例。', '整图扫一次，用 4×3 网格计数；按密度选 480 / 640 / 800。',
+              '固定切片可能在稀疏图上浪费前向，在拥挤图上又看不清。', '仅合并切片框，密度扫描框不输出；跨片类内 NMS IoU 0.5。'),
+    'asahi': ('ASAHI', 'TPH-YOLOv5', 'YOLO11s', '整图与切片 → 512 × 512', '固定 512 像素切片', '按分辨率选网格',
+              '固定边长，步长推进到边缘时可能多看一列或一行。', '长边不超过 1818 像素用 6 块，否则用 12 块；反推块的宽高。',
+              '固定步长与图像尺寸不整除会增加冗余覆盖。', '重叠目标 15%，都保留整图，都用普通 NMS；仅比较网格策略。'),
+    'butr': ('BUTR', 'BUTR-S / L · HGNetv2', 'HGNetv2', '整图 → 800 × 800', '固定解码查询预算', '动态解码查询预算',
+             '每张图恒用 250 或 500 个查询进入同一个解码器。', '根据编码器类别置信度估计目标数，在 250～500 之间取整数。',
+             '固定预算在稀疏图上可能浪费计算，在密集图上却不够。', '作者 train+val 权重，仅测 test-dev；同一尺度内配对，不对比 S 与 L 的绝对 AP。'),
+    'asanms': ('ASA-NMS', '作者独立后处理函数', 'YOLO11s', '整图 → 640 × 640', 'IoU 硬 NMS', 'ASA 空间抑制',
+               '按同类框的交并比抑制，阈值固定为 0.7。', '用两个角点的距离、最高分框的对角长度与置信度判定是否重复。',
+               '密集布局中，同类邻居与重复框都可能互相重叠。', '两臂共享单视图和原始候选；分数阈值 0.001，每图最多 500 框。'),
     'softnms': ('Soft-NMS', 'R-FCN 等', 'YOLO11s', '整图 → 640 × 640', '硬 NMS', '高斯 Soft-NMS',
                 '同类框 IoU 超过 0.7 时移除低分框。', '按 exp(−IoU² / 0.5) 降分，重新选最高分框。',
                 '拥挤时，相邻车辆的两个真框也可能重叠。', '单次前向，同一批原始候选。'),
@@ -30,7 +46,7 @@ PAPERS = {
 def render(paper, method):
     title, original, backbone, view, base, change, base_detail, detail, problem, protocol = PAPERS[paper]
     choice = change if method else base
-    stage = 2 if paper == 'remdet' else 4 if paper in ('focal', 'nwd') else 5
+    stage = 1 if paper in ('asahi', 'daasd') else 3 if paper == 'butr' else 2 if paper == 'remdet' else 4 if paper in ('focal', 'nwd') else 5
     backbone_label = choice if paper == 'remdet' else backbone
     elements = ['<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1430" viewBox="0 0 1400 1430" role="img">',
                 f'<title>{title} · {choice} · VisDrone 本机配对</title>',
@@ -59,7 +75,12 @@ def render(paper, method):
         elements.append(f'<path d="M{left} {top}l18 -19h165l-18 19z" fill="white" stroke="#478db9"/>')
         text(left+36, top-4, level+'特征', 15)
         link(f'M{left+184} {top-12}H{365+index*21}V{165+index*5}H483')
-    for left, heading, body in [(485, '特征融合', '融合不同分辨率'), (790, '检测头', '分类与边框回归'), (1095, '解码', '候选框与分数')]:
+    stages = [('特征融合', '融合不同分辨率'), ('检测头', '分类与边框回归'), ('解码', '候选框与分数')]
+    if paper == 'scahi':
+        stages[-1] = ('稠密头输出', '类别概率与边框分布')
+    elif paper == 'butr':
+        stages = [('多尺度编码', '4 层特征'), ('预算 → top-k', '选择解码查询'), ('查询解码', '坐标与类别分数')]
+    for left, (heading, body) in zip((485, 790, 1095), stages):
         box(left, 130, 230, 78, heading, body, '#c2e4be')
         if left < 1095:
             link(f'M{left+230} 169h70')
@@ -67,6 +88,9 @@ def render(paper, method):
     steps = [('输入', 'VisDrone 航拍图'), ('构造视图', view), ('骨干网络', backbone_label),
              ('融合与预测', '多层特征 → 类别和坐标'), ('训练监督', '水平框类别与位置' if paper in ('focal','nwd','remdet') else '固定检测器权重'),
              ('输出候选', '映射回原图，按类别处理'), ('输出水平框', '坐标、类别、置信度')]
+    if paper in ('scahi', 'daasd', 'asahi', 'butr', 'asanms'):
+        steps[4] = ('解码查询', '输出类别和位置') if paper == 'butr' else ('检测头输出', '稠密类别与边框分布' if paper == 'scahi' else '各位置的类别与坐标')
+        text(468, 790, '训练监督：已有水平框检测器权重；本实验仅推理，不反传。', 19)
     for index, (heading, body) in enumerate(steps):
         top = 423+index*130
         box(75, top, 326, 80, '① '+heading if index == stage else heading, choice if index == stage else body,
@@ -81,7 +105,8 @@ def render(paper, method):
     box(481, 674, 839, 82, '原论文检测器', original, '#d8d1ea')
     text(469, 880, '输出与评测')
     link('M401 1243H448V992H478')
-    box(481, 954, 839, 82, '十个类别的整图水平框', '经过类内去重并限制每张图的预测数量。', '#c2e4be')
+    output = '从融合后的峰值读取目标框，按分数最多保留 500 框。' if paper == 'scahi' and method else '按查询解码并筛出类别 1–10，无切片、无 NMS。' if paper == 'butr' else '经过类内去重并限制每张图的预测数量。'
+    box(481, 954, 839, 82, '十个类别的整图水平框', output, '#c2e4be')
     link('M898 1036v68')
     box(481, 1108, 839, 82, '同机配对评测', '按原图面积计算 AP_small，在相同图像上记录整图毫秒数。', '#ffe5a0')
     return '\n'.join([*elements, '</g></svg>', ''])
@@ -89,7 +114,7 @@ def render(paper, method):
 
 if __name__ == '__main__':
     root = Path(__file__).resolve().parents[1] / 'docs/reproduce'
-    for paper in PAPERS:
+    for paper in (sys.argv[1:] or PAPERS):
         folder = root / paper
         folder.mkdir(exist_ok=True)
         for method in (False, True):
