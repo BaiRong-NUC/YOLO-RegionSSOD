@@ -1,65 +1,241 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1000" viewBox="0 0 900 1000" role="img" aria-labelledby="title desc" lang="zh-CN">
-  <title id="title">SAHI 接在 YOLO11s 逐层图的哪里？</title>
-  <desc id="desc">橙色标出 SAHI 在第 00 层之前从原图添加八个切片，在第 23 层及每个视图的常规后处理之后，把各视图的预测映回原图并合并。整图与切片分别经过同一套第 00 至 23 层。</desc>
-  <defs>
-    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 9 5 0 10Z" fill="#506977"/></marker>
-    <marker id="orange" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 9 5 0 10Z" fill="#b34a14"/></marker>
-    <style>
-      text { font-family: 'Microsoft YaHei','PingFang SC',sans-serif; fill: #17384b }
-      .title { font-size: 36px; font-weight: 700 }
-      .heading { font-size: 23px; font-weight: 700 }
-      .body { font-size: 18px }
-      .small { font-size: 16px }
-      .ink { fill: #9d4013 }
-      .line,.added { fill: none; stroke: #506977; stroke-width: 2.5; stroke-linejoin: round; marker-end: url(#arrow) }
-      .added { stroke: #b34a14; marker-end: url(#orange) }
-    </style>
-  </defs>
-  <rect width="900" height="1000" fill="#fafaf7"/>
-  <text x="44" y="65" class="title">SAHI 接在逐层图的哪里？</text>
-  <text x="45" y="101" class="body">沿箭头读。橙色标出本次推理加的两步，层号对应你图里的 00 Conv 到 23 Detect。</text>
-
-  <!-- 整图和切片都直接取自高分辨率原图，再分别送入同一份权重。 -->
-  <rect x="300" y="129" width="300" height="48" rx="24" fill="#e5eaef"/>
-  <text x="450" y="160" text-anchor="middle" class="body">同一张航拍原图　1920 × 1080</text>
-  <path class="line" d="M450 177 V193 H220 V213"/>
-  <path class="added" d="M450 193 H647 V213"/>
-  <rect x="44" y="217" width="350" height="126" rx="12" fill="#edf1f4" stroke="#bac9d1"/>
-  <text x="64" y="252" class="heading">原有的整图输入</text>
-  <text x="64" y="288" class="body">等比缩放、填边到 640 × 640。</text>
-  <text x="64" y="318" class="body">1 个视图，车宽约 8.33 像素。</text>
-  <rect x="432" y="217" width="424" height="126" rx="12" fill="#fff0df" stroke="#c45b24" stroke-width="2"/>
-  <text x="452" y="252" class="heading ink">① 第 00 层之前 · 添加切片</text>
-  <text x="452" y="288" class="body">从原图裁出 8 个重叠的 640 × 640 块。</text>
-  <text x="452" y="318" class="body">覆盖这辆车的块，保留了 25 像素车宽。</text>
-  <path class="line" d="M219 343 V361 H450 V381"/>
-  <path d="M644 343 V361 H450" fill="none" stroke="#b34a14" stroke-width="2.5"/>
-
-  <!-- 颜色和层号沿用原逐层图；特征融合层与检测头具有多路输入。 -->
-  <rect x="44" y="385" width="812" height="314" rx="14" fill="white" stroke="#96aeba" stroke-width="2"/>
-  <text x="65" y="423" class="heading">你的逐层图 · 每个视图各走一遍同一个 YOLO11s</text>
-  <text x="66" y="451" class="small">本例共跑 9 次（1 张整图 + 8 个切片），每次共用同一份权重。下表按原层号分组。</text>
-  <rect x="62" y="468" width="776" height="61" rx="6" fill="#e4eff9"/>
-  <text x="79" y="505" class="heading">00–10　骨干</text>
-  <text x="300" y="505" class="body">00 Conv 接收 640 × 640 输入，逐层提取特征。</text>
-  <rect x="62" y="535" width="776" height="74" rx="6" fill="#e1f1ec"/>
-  <text x="79" y="580" class="heading">11–22　融合</text>
-  <text x="300" y="565" class="body">16 层 P3（80 × 80）　19 层 P4（40 × 40）</text>
-  <text x="300" y="591" class="body">22 层 P5（20 × 20）　这三路一起送进第 23 层。</text>
-  <rect x="62" y="615" width="776" height="65" rx="6" fill="#fff2dc"/>
-  <text x="79" y="655" class="heading">23　Detect</text>
-  <text x="300" y="654" class="body">为当前视图输出 8400 个候选框及其类别分数。</text>
-  <path class="line" d="M450 699 V723"/>
-  <rect x="152" y="727" width="596" height="48" rx="24" fill="#e5eaef"/>
-  <text x="450" y="757" text-anchor="middle" class="body">每个视图先各自筛分数、同类去重，得到各自的检测框。</text>
-  <path class="added" d="M450 775 V799"/>
-
-  <!-- 用本例实际切片原点说明跨视图去重前的坐标转换。 -->
-  <rect x="44" y="803" width="812" height="102" rx="12" fill="#fff0df" stroke="#c45b24" stroke-width="2"/>
-  <text x="65" y="838" class="heading ink">② 第 23 层和视图内去重之后 · 映回原图，跨视图去重</text>
-  <text x="66" y="868" class="body">这块的左上角在原图 (480, 0)，块内车框的横坐标加 480，纵坐标加 0。</text>
-  <text x="66" y="893" class="body">把各块和整图的框放到同一张图上，按类别合并重复框。</text>
-  <path class="line" d="M450 905 V928"/>
-  <rect x="161" y="932" width="578" height="44" rx="22" fill="#dceee8"/>
-  <text x="450" y="960" text-anchor="middle" class="body">最终整图结果 · 这辆车被保留，和人工框的 IoU 为 0.8057。</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1340" height="2583" viewBox="0 0 1340 2583" role="img">
+<title>SAHI 在 YOLO11s 原始逐层图中的位置</title>
+<rect width="1340" height="2583" fill="#f7f9fa"/>
+<g font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif" fill="#193849">
+  <rect x="24" y="16" width="1292" height="108" rx="10" fill="#fff0da"/>
+  <rect x="24" y="16" width="7" height="108" rx="3" fill="#b35219"/>
+  <text x="44" y="50" font-size="23" font-weight="700">① SAHI 在第 00 层前加切片　｜　从原图裁块，再把每个视图送入下方同一个网络</text>
+  <text x="44" y="80" font-size="18">本例保留一次整图推理，另从 1920 × 1080 原图裁出 8 个重叠的 640 × 640 切片，共做 9 次前向。</text>
+  <text x="44" y="107" font-size="18">同一辆车在整图输入中宽 8.33 像素，在完整覆盖它的切片中宽 25 像素。两路共用第 00～23 层及其权重。</text>
+</g>
+<g transform="translate(0,144)">
+<svg xmlns="http://www.w3.org/2000/svg" width="1340" height="2295" viewBox="0 0 1340 2295" role="img"><title>YOLO11s 第 0 至 23 层逐层输入、输出与作用</title>
+<defs><marker id="end" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 1L9 5L0 9Z" fill="#587181"/></marker></defs>
+<g font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">
+<rect x="0" y="0" width="1340" height="2295" rx="0" fill="#f7f9fa"/>
+<text x="32" y="52" font-size="33" font-weight="700" fill="#193849">跟着一张 640 × 640 的图，走过 YOLO11s 的每一层</text>
+<text x="32" y="89" font-size="19" font-weight="400" fill="#193849">每行对应权重里一个编号模块。形状按「通道 × 高 × 宽」阅读，省略批次；不同来源以层号标出。</text>
+<text x="32" y="121" font-size="18" font-weight="400" fill="#193849">例如 128×80×80 表示 128 张各有 80 行、80 列的特征图。每个数是模型学到的响应强度。</text>
+<text x="32" y="169" font-size="19" font-weight="700" fill="#193849">模块 / 用途</text>
+<text x="211" y="169" font-size="19" font-weight="700" fill="#193849">输入来自</text>
+<text x="339" y="169" font-size="19" font-weight="700" fill="#193849">输入形状</text>
+<text x="520" y="169" font-size="19" font-weight="700" fill="#193849">输出形状</text>
+<text x="710" y="169" font-size="19" font-weight="700" fill="#193849">这一层帮模型做什么？</text>
+<rect x="24" y="188" width="1292" height="65" rx="5" fill="#e4eff9"/>
+<text x="35" y="214" font-size="20" font-weight="700" fill="#193849">00  Conv</text>
+<text x="35" y="240" font-size="17" font-weight="700" fill="#245e6d">基础特征提取</text>
+<text x="211" y="226" font-size="18" font-weight="400" fill="#193849">图片</text>
+<text x="339" y="226.0" font-size="17" font-weight="400" fill="#193849">3×640×640</text>
+<text x="520" y="226" font-size="18" font-weight="700" fill="#193849">32×320×320</text>
+<text x="710" y="214" font-size="17" font-weight="700" fill="#193849">从像素中提取局部线索，例如一小段边缘或一处颜色变化。</text>
+<text x="710" y="240" font-size="16" font-weight="400" fill="#193849">3×3 卷积每次移动 2 个像素，生成 32 张特征图。</text>
+<rect x="24" y="259" width="1292" height="65" rx="5" fill="#e4eff9"/>
+<text x="35" y="285" font-size="20" font-weight="700" fill="#193849">01  Conv</text>
+<text x="35" y="311" font-size="17" font-weight="700" fill="#245e6d">下采样与特征提取</text>
+<text x="211" y="297" font-size="18" font-weight="400" fill="#193849">0</text>
+<text x="339" y="297.0" font-size="17" font-weight="400" fill="#193849">32×320×320</text>
+<text x="520" y="297" font-size="18" font-weight="700" fill="#193849">64×160×160</text>
+<text x="710" y="285" font-size="17" font-weight="700" fill="#193849">把邻近的基础线索放在一起看，每个位置能看到更大一片图。</text>
+<text x="710" y="311" font-size="16" font-weight="400" fill="#193849">步长 2 卷积把网格从 320×320 缩到 160×160。</text>
+<rect x="24" y="330" width="1292" height="65" rx="5" fill="#e4eff9"/>
+<text x="35" y="356" font-size="20" font-weight="700" fill="#193849">02  C3k2</text>
+<text x="35" y="382" font-size="17" font-weight="700" fill="#245e6d">局部特征提取</text>
+<text x="211" y="368" font-size="18" font-weight="400" fill="#193849">1</text>
+<text x="339" y="368.0" font-size="17" font-weight="400" fill="#193849">64×160×160</text>
+<text x="520" y="368" font-size="18" font-weight="700" fill="#193849">128×160×160</text>
+<text x="710" y="356" font-size="17" font-weight="700" fill="#193849">在同样密的网格上，用更多通道描述局部纹理和形状。</text>
+<text x="710" y="382" font-size="16" font-weight="400" fill="#193849">分支卷积后合并，通道从 64 增至 128。</text>
+<rect x="24" y="401" width="1292" height="65" rx="5" fill="#e4eff9"/>
+<text x="35" y="427" font-size="20" font-weight="700" fill="#193849">03  Conv</text>
+<text x="35" y="453" font-size="17" font-weight="700" fill="#245e6d">下采样至细网格</text>
+<text x="211" y="439" font-size="18" font-weight="400" fill="#193849">2</text>
+<text x="339" y="439.0" font-size="17" font-weight="400" fill="#193849">128×160×160</text>
+<text x="520" y="439" font-size="18" font-weight="700" fill="#193849">128×80×80</text>
+<text x="710" y="427" font-size="17" font-weight="700" fill="#193849">为后面定位小目标准备一张较密的网格。</text>
+<text x="710" y="453" font-size="16" font-weight="400" fill="#193849">步长 2 卷积得到 80×80；相邻格点在输入图上相隔 8 像素。</text>
+<rect x="24" y="472" width="1292" height="65" rx="5" fill="#e4eff9"/>
+<text x="35" y="498" font-size="20" font-weight="700" fill="#193849">04  C3k2</text>
+<text x="35" y="524" font-size="17" font-weight="700" fill="#245e6d">细节特征提取</text>
+<text x="211" y="510" font-size="18" font-weight="400" fill="#193849">3</text>
+<text x="339" y="510.0" font-size="17" font-weight="400" fill="#193849">128×80×80</text>
+<text x="520" y="510" font-size="18" font-weight="700" fill="#193849">256×80×80</text>
+<text x="710" y="498" font-size="17" font-weight="700" fill="#193849">保留目标在什么位置的线索，第 15 层会把这份细节接回来。</text>
+<text x="710" y="524" font-size="16" font-weight="400" fill="#193849">在 80×80 网格上做分支卷积，输出 256 个通道。</text>
+<rect x="24" y="543" width="1292" height="65" rx="5" fill="#e4eff9"/>
+<text x="35" y="569" font-size="20" font-weight="700" fill="#193849">05  Conv</text>
+<text x="35" y="595" font-size="17" font-weight="700" fill="#245e6d">下采样至中等网格</text>
+<text x="211" y="581" font-size="18" font-weight="400" fill="#193849">4</text>
+<text x="339" y="581.0" font-size="17" font-weight="400" fill="#193849">256×80×80</text>
+<text x="520" y="581" font-size="18" font-weight="700" fill="#193849">256×40×40</text>
+<text x="710" y="569" font-size="17" font-weight="700" fill="#193849">把邻近细节汇到一起，让后面的层看更大范围的形状。</text>
+<text x="710" y="595" font-size="16" font-weight="400" fill="#193849">步长 2 卷积把 80×80 缩到 40×40。</text>
+<rect x="24" y="614" width="1292" height="65" rx="5" fill="#e4eff9"/>
+<text x="35" y="640" font-size="20" font-weight="700" fill="#193849">06  C3k2</text>
+<text x="35" y="666" font-size="17" font-weight="700" fill="#245e6d">中尺度特征提取</text>
+<text x="211" y="652" font-size="18" font-weight="400" fill="#193849">5</text>
+<text x="339" y="652.0" font-size="17" font-weight="400" fill="#193849">256×40×40</text>
+<text x="520" y="652" font-size="18" font-weight="700" fill="#193849">256×40×40</text>
+<text x="710" y="640" font-size="17" font-weight="700" fill="#193849">在中等网格上组合形状线索，第 12 层会再次用到它们。</text>
+<text x="710" y="666" font-size="16" font-weight="400" fill="#193849">分支卷积并合并，保留 40×40 网格和 256 个通道。</text>
+<rect x="24" y="685" width="1292" height="65" rx="5" fill="#e4eff9"/>
+<text x="35" y="711" font-size="20" font-weight="700" fill="#193849">07  Conv</text>
+<text x="35" y="737" font-size="17" font-weight="700" fill="#245e6d">下采样至粗网格</text>
+<text x="211" y="723" font-size="18" font-weight="400" fill="#193849">6</text>
+<text x="339" y="723.0" font-size="17" font-weight="400" fill="#193849">256×40×40</text>
+<text x="520" y="723" font-size="18" font-weight="700" fill="#193849">512×20×20</text>
+<text x="710" y="711" font-size="17" font-weight="700" fill="#193849">把更大一片区域的信息汇到每个位置，供深层利用。</text>
+<text x="710" y="737" font-size="16" font-weight="400" fill="#193849">步长 2 卷积得到 20×20；相邻格点在输入图上相隔 32 像素。</text>
+<rect x="24" y="756" width="1292" height="65" rx="5" fill="#e4eff9"/>
+<text x="35" y="782" font-size="20" font-weight="700" fill="#193849">08  C3k2</text>
+<text x="35" y="808" font-size="17" font-weight="700" fill="#245e6d">深层特征提取</text>
+<text x="211" y="794" font-size="18" font-weight="400" fill="#193849">7</text>
+<text x="339" y="794.0" font-size="17" font-weight="400" fill="#193849">512×20×20</text>
+<text x="520" y="794" font-size="18" font-weight="700" fill="#193849">512×20×20</text>
+<text x="710" y="782" font-size="17" font-weight="700" fill="#193849">把较大范围内的局部形状组合起来，为判断物体类别提供线索。</text>
+<text x="710" y="808" font-size="16" font-weight="400" fill="#193849">在 20×20 网格上做分支卷积，再合并结果。</text>
+<rect x="24" y="827" width="1292" height="65" rx="5" fill="#e4eff9"/>
+<text x="35" y="853" font-size="20" font-weight="700" fill="#193849">09  SPPF</text>
+<text x="35" y="879" font-size="17" font-weight="700" fill="#245e6d">多尺度特征汇集</text>
+<text x="211" y="865" font-size="18" font-weight="400" fill="#193849">8</text>
+<text x="339" y="865.0" font-size="17" font-weight="400" fill="#193849">512×20×20</text>
+<text x="520" y="865" font-size="18" font-weight="700" fill="#193849">512×20×20</text>
+<text x="710" y="853" font-size="17" font-weight="700" fill="#193849">看同一位置时，既参考近处，也参考更大一圈的环境。</text>
+<text x="710" y="879" font-size="16" font-weight="400" fill="#193849">连续三次 5×5 最大池化，拼接池化前后四路特征。</text>
+<rect x="24" y="898" width="1292" height="65" rx="5" fill="#e4eff9"/>
+<text x="35" y="924" font-size="20" font-weight="700" fill="#193849">10  C2PSA</text>
+<text x="35" y="950" font-size="17" font-weight="700" fill="#245e6d">空间注意力</text>
+<text x="211" y="936" font-size="18" font-weight="400" fill="#193849">9</text>
+<text x="339" y="936.0" font-size="17" font-weight="400" fill="#193849">512×20×20</text>
+<text x="520" y="936" font-size="18" font-weight="700" fill="#193849">512×20×20</text>
+<text x="710" y="924" font-size="17" font-weight="700" fill="#193849">让一个位置也能参考图中较远位置的线索。</text>
+<text x="710" y="950" font-size="16" font-weight="400" fill="#193849">部分通道做自注意力，按位置间的关联加权汇总，再与其余通道融合。</text>
+<rect x="24" y="969" width="1292" height="65" rx="5" fill="#e1f2ec"/>
+<text x="35" y="995" font-size="20" font-weight="700" fill="#193849">11  Upsample</text>
+<text x="35" y="1021" font-size="17" font-weight="700" fill="#245e6d">上采样对齐</text>
+<text x="211" y="1007" font-size="18" font-weight="400" fill="#193849">10</text>
+<text x="339" y="1007.0" font-size="17" font-weight="400" fill="#193849">512×20×20</text>
+<text x="520" y="1007" font-size="18" font-weight="700" fill="#193849">512×40×40</text>
+<text x="710" y="995" font-size="17" font-weight="700" fill="#193849">把深层线索铺到更密的网格，让它和第 6 层逐格对齐。</text>
+<text x="710" y="1021" font-size="16" font-weight="400" fill="#193849">最近邻上采样复制已有数值，20×20 放大到 40×40。</text>
+<rect x="24" y="1040" width="1292" height="65" rx="5" fill="#e1f2ec"/>
+<text x="35" y="1066" font-size="20" font-weight="700" fill="#193849">12  Concat</text>
+<text x="35" y="1092" font-size="17" font-weight="700" fill="#245e6d">跨层特征拼接</text>
+<text x="211" y="1078" font-size="18" font-weight="400" fill="#193849">11 + 6</text>
+<text x="339" y="1068.0" font-size="17" font-weight="400" fill="#193849">512×40×40</text>
+<text x="339" y="1088.0" font-size="17" font-weight="400" fill="#193849">256×40×40</text>
+<text x="520" y="1078" font-size="18" font-weight="700" fill="#193849">768×40×40</text>
+<text x="710" y="1066" font-size="17" font-weight="700" fill="#193849">让后续卷积能同时读到深层的环境信息和第 6 层的形状线索。</text>
+<text x="710" y="1092" font-size="16" font-weight="400" fill="#193849">两路 40×40 特征按通道叠放，512 + 256 = 768 个通道。</text>
+<rect x="24" y="1111" width="1292" height="65" rx="5" fill="#e1f2ec"/>
+<text x="35" y="1137" font-size="20" font-weight="700" fill="#193849">13  C3k2</text>
+<text x="35" y="1163" font-size="17" font-weight="700" fill="#245e6d">中尺度特征融合</text>
+<text x="211" y="1149" font-size="18" font-weight="400" fill="#193849">12</text>
+<text x="339" y="1149.0" font-size="17" font-weight="400" fill="#193849">768×40×40</text>
+<text x="520" y="1149" font-size="18" font-weight="700" fill="#193849">256×40×40</text>
+<text x="710" y="1137" font-size="17" font-weight="700" fill="#193849">学习哪些深层线索和中层线索放在一起最有用。</text>
+<text x="710" y="1163" font-size="16" font-weight="400" fill="#193849">卷积混合第 12 层拼接的特征，压到 256 个通道。</text>
+<rect x="24" y="1182" width="1292" height="65" rx="5" fill="#e1f2ec"/>
+<text x="35" y="1208" font-size="20" font-weight="700" fill="#193849">14  Upsample</text>
+<text x="35" y="1234" font-size="17" font-weight="700" fill="#245e6d">上采样对齐</text>
+<text x="211" y="1220" font-size="18" font-weight="400" fill="#193849">13</text>
+<text x="339" y="1220.0" font-size="17" font-weight="400" fill="#193849">256×40×40</text>
+<text x="520" y="1220" font-size="18" font-weight="700" fill="#193849">256×80×80</text>
+<text x="710" y="1208" font-size="17" font-weight="700" fill="#193849">把已经融合的线索铺到细网格，准备接回第 4 层的位置细节。</text>
+<text x="710" y="1234" font-size="16" font-weight="400" fill="#193849">最近邻上采样把 40×40 放大到 80×80。</text>
+<rect x="24" y="1253" width="1292" height="65" rx="5" fill="#e1f2ec"/>
+<text x="35" y="1279" font-size="20" font-weight="700" fill="#193849">15  Concat</text>
+<text x="35" y="1305" font-size="17" font-weight="700" fill="#245e6d">接回位置细节</text>
+<text x="211" y="1291" font-size="18" font-weight="400" fill="#193849">14 + 4</text>
+<text x="339" y="1281.0" font-size="17" font-weight="400" fill="#193849">256×80×80</text>
+<text x="339" y="1301.0" font-size="17" font-weight="400" fill="#193849">256×80×80</text>
+<text x="520" y="1291" font-size="18" font-weight="700" fill="#193849">512×80×80</text>
+<text x="710" y="1279" font-size="17" font-weight="700" fill="#193849">让每个细格既能看到第 4 层的位置细节，也能读到深层线索。</text>
+<text x="710" y="1305" font-size="16" font-weight="400" fill="#193849">沿通道拼接两张 80×80 特征图，256 + 256 = 512 个通道。</text>
+<rect x="24" y="1324" width="1292" height="65" rx="5" fill="#e1f2ec"/>
+<text x="35" y="1350" font-size="20" font-weight="700" fill="#193849">16  C3k2</text>
+<text x="35" y="1376" font-size="17" font-weight="700" fill="#245e6d">细网格特征融合</text>
+<text x="211" y="1362" font-size="18" font-weight="400" fill="#193849">15</text>
+<text x="339" y="1362.0" font-size="17" font-weight="400" fill="#193849">512×80×80</text>
+<text x="520" y="1362" font-size="18" font-weight="700" fill="#193849">128×80×80</text>
+<text x="710" y="1350" font-size="17" font-weight="700" fill="#193849">给检测头提供最密的定位线索；本例框到小车的候选来自这一路。</text>
+<text x="710" y="1376" font-size="16" font-weight="400" fill="#193849">卷积融合出 P3，送往第 23 层检测头，也送往第 17 层。</text>
+<rect x="24" y="1395" width="1292" height="65" rx="5" fill="#e1f2ec"/>
+<text x="35" y="1421" font-size="20" font-weight="700" fill="#193849">17  Conv</text>
+<text x="35" y="1447" font-size="17" font-weight="700" fill="#245e6d">细节传回中尺度</text>
+<text x="211" y="1433" font-size="18" font-weight="400" fill="#193849">16</text>
+<text x="339" y="1433.0" font-size="17" font-weight="400" fill="#193849">128×80×80</text>
+<text x="520" y="1433" font-size="18" font-weight="700" fill="#193849">128×40×40</text>
+<text x="710" y="1421" font-size="17" font-weight="700" fill="#193849">把 P3 的细节汇到中等网格，供下一层和中尺度线索对齐。</text>
+<text x="710" y="1447" font-size="16" font-weight="400" fill="#193849">步长 2 卷积把 80×80 缩到 40×40。</text>
+<rect x="24" y="1466" width="1292" height="65" rx="5" fill="#e1f2ec"/>
+<text x="35" y="1492" font-size="20" font-weight="700" fill="#193849">18  Concat</text>
+<text x="35" y="1518" font-size="17" font-weight="700" fill="#245e6d">跨层特征拼接</text>
+<text x="211" y="1504" font-size="18" font-weight="400" fill="#193849">17 + 13</text>
+<text x="339" y="1494.0" font-size="17" font-weight="400" fill="#193849">128×40×40</text>
+<text x="339" y="1514.0" font-size="17" font-weight="400" fill="#193849">256×40×40</text>
+<text x="520" y="1504" font-size="18" font-weight="700" fill="#193849">384×40×40</text>
+<text x="710" y="1492" font-size="17" font-weight="700" fill="#193849">让中等网格也能用到刚从细网格传回来的信息。</text>
+<text x="710" y="1518" font-size="16" font-weight="400" fill="#193849">拼接第 17 层与第 13 层，128 + 256 = 384 个通道。</text>
+<rect x="24" y="1537" width="1292" height="65" rx="5" fill="#e1f2ec"/>
+<text x="35" y="1563" font-size="20" font-weight="700" fill="#193849">19  C3k2</text>
+<text x="35" y="1589" font-size="17" font-weight="700" fill="#245e6d">中网格特征融合</text>
+<text x="211" y="1575" font-size="18" font-weight="400" fill="#193849">18</text>
+<text x="339" y="1575.0" font-size="17" font-weight="400" fill="#193849">384×40×40</text>
+<text x="520" y="1575" font-size="18" font-weight="700" fill="#193849">256×40×40</text>
+<text x="710" y="1563" font-size="17" font-weight="700" fill="#193849">给检测头提供兼有细节和周边信息的中等网格。</text>
+<text x="710" y="1589" font-size="16" font-weight="400" fill="#193849">卷积融合出 P4，送往第 23 层检测头，也送往第 20 层。</text>
+<rect x="24" y="1608" width="1292" height="65" rx="5" fill="#e1f2ec"/>
+<text x="35" y="1634" font-size="20" font-weight="700" fill="#193849">20  Conv</text>
+<text x="35" y="1660" font-size="17" font-weight="700" fill="#245e6d">特征传回粗尺度</text>
+<text x="211" y="1646" font-size="18" font-weight="400" fill="#193849">19</text>
+<text x="339" y="1646.0" font-size="17" font-weight="400" fill="#193849">256×40×40</text>
+<text x="520" y="1646" font-size="18" font-weight="700" fill="#193849">256×20×20</text>
+<text x="710" y="1634" font-size="17" font-weight="700" fill="#193849">把 P4 的信息汇到粗网格，准备和深层信息放在一起。</text>
+<text x="710" y="1660" font-size="16" font-weight="400" fill="#193849">步长 2 卷积把 40×40 缩到 20×20。</text>
+<rect x="24" y="1679" width="1292" height="65" rx="5" fill="#e1f2ec"/>
+<text x="35" y="1705" font-size="20" font-weight="700" fill="#193849">21  Concat</text>
+<text x="35" y="1731" font-size="17" font-weight="700" fill="#245e6d">跨层特征拼接</text>
+<text x="211" y="1717" font-size="18" font-weight="400" fill="#193849">20 + 10</text>
+<text x="339" y="1707.0" font-size="17" font-weight="400" fill="#193849">256×20×20</text>
+<text x="339" y="1727.0" font-size="17" font-weight="400" fill="#193849">512×20×20</text>
+<text x="520" y="1717" font-size="18" font-weight="700" fill="#193849">768×20×20</text>
+<text x="710" y="1705" font-size="17" font-weight="700" fill="#193849">让粗网格同时保留从 P4 传来的线索和第 10 层的环境信息。</text>
+<text x="710" y="1731" font-size="16" font-weight="400" fill="#193849">拼接第 20 层与第 10 层，256 + 512 = 768 个通道。</text>
+<rect x="24" y="1750" width="1292" height="65" rx="5" fill="#e1f2ec"/>
+<text x="35" y="1776" font-size="20" font-weight="700" fill="#193849">22  C3k2</text>
+<text x="35" y="1802" font-size="17" font-weight="700" fill="#245e6d">粗网格特征融合</text>
+<text x="211" y="1788" font-size="18" font-weight="400" fill="#193849">21</text>
+<text x="339" y="1788.0" font-size="17" font-weight="400" fill="#193849">768×20×20</text>
+<text x="520" y="1788" font-size="18" font-weight="700" fill="#193849">512×20×20</text>
+<text x="710" y="1776" font-size="17" font-weight="700" fill="#193849">给检测头提供粗网格上的特征，帮助判断占图较大范围的目标。</text>
+<text x="710" y="1802" font-size="16" font-weight="400" fill="#193849">卷积融合出 P5，与 P3、P4 一起送入第 23 层。</text>
+<rect x="24" y="1821" width="1292" height="65" rx="5" fill="#fff0da"/>
+<text x="35" y="1847" font-size="20" font-weight="700" fill="#193849">23  Detect</text>
+<text x="35" y="1873" font-size="17" font-weight="700" fill="#245e6d">定位与分类预测</text>
+<text x="211" y="1859" font-size="18" font-weight="400" fill="#193849">16 + 19 + 22</text>
+<text x="339" y="1839.0" font-size="17" font-weight="400" fill="#193849">128×80×80</text>
+<text x="339" y="1859.0" font-size="17" font-weight="400" fill="#193849">256×40×40</text>
+<text x="339" y="1879.0" font-size="17" font-weight="400" fill="#193849">512×20×20</text>
+<text x="520" y="1859" font-size="18" font-weight="700" fill="#193849">14×8400（解码）</text>
+<text x="710" y="1847" font-size="17" font-weight="700" fill="#193849">在每个格点回答两个问题：物体框在哪里？它更像哪一类？</text>
+<text x="710" y="1873" font-size="16" font-weight="400" fill="#193849">三路特征分别预测四边距离和十类分数，共产生 8400 个候选。</text>
+<rect x="24" y="1907" width="1292" height="165" rx="10" fill="#fff0da"/>
+<text x="44" y="1941" font-size="23" font-weight="700" fill="#193849">把第 23 层打开　｜　三张特征图 → 每格两个分支 → 一张候选表</text>
+<text x="44" y="1971" font-size="18" font-weight="400" fill="#193849">第 16 层 P3 贡献 6400 格，第 19 层 P4 贡献 1600 格，第 22 层 P5 贡献 400 格，按此顺序排成 8400 列。</text>
+<text x="44" y="1998" font-size="18" font-weight="400" fill="#193849">位置分支输出 [B,64,8400]：左上右下四边各有 16 档。分类分支输出 [B,10,8400]：每个位置对应 VisDrone 十类。</text>
+<text x="44" y="2025" font-size="18" font-weight="400" fill="#193849">推理时对各边的 16 档加权求距离，再结合格点和步长解码；接上十个分类分数，得到 [B,14,8400]。B 是图片数。</text>
+<rect x="24" y="2087" width="1292" height="176" rx="10" fill="#e5eaef"/>
+<text x="44" y="2121" font-size="23" font-weight="700" fill="#193849">在上表找到这辆车　｜　第 16 层 → 第 23 层 → 候选 1633</text>
+<text x="44" y="2151" font-size="18" font-weight="400" fill="#193849">P3 的网格间距为 8 像素。输入里 8.33 像素宽的车约跨一个格距；每格的预测也会用到周围特征。</text>
+<text x="44" y="2178" font-size="18" font-weight="400" fill="#193849">P3 第 20 行、第 33 列（从 0 起）对应 20 × 80 + 33 = 1633。此列解码框的 IoU 是 0.5186，最高类别是 people。</text>
+<text x="44" y="2205" font-size="18" font-weight="400" fill="#193849">这能定位到分类选择时已无合格车框。要解释前面哪层特征导致误判，还需要单独的干预实验。</text>
+</g></svg>
+</g>
+<g font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif" fill="#193849">
+  <rect x="24" y="2455" width="1292" height="108" rx="10" fill="#fff0da"/>
+  <rect x="24" y="2455" width="7" height="108" rx="3" fill="#b35219"/>
+  <text x="44" y="2489" font-size="23" font-weight="700">② SAHI 在第 23 层输出、各视图分别去重后合并结果　｜　切片坐标 → 原图坐标 → 跨视图去重</text>
+  <text x="44" y="2519" font-size="18">覆盖这辆车的切片起点为 (480, 0)。将块内检测框的横坐标加 480、纵坐标加 0，即可放回原图。</text>
+  <text x="44" y="2546" font-size="18">各切片和整图的同类框按 IoU 0.5 去重。本例单块检出的 car 得分为 0.7391，合并后保留，与人工框的 IoU 为 0.8057。</text>
+</g>
 </svg>
