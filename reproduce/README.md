@@ -6,7 +6,7 @@
 |---|---|---|
 | [S³OD](s3od/) | [Rotated Faster R-CNN / DOTA-v1.5](s3od/upstream/) | 已在 VisDrone 上完成两个种子的伪框筛选离线评测，DOTA-v1.5 完整检测指标待测。[复现卡](../docs/reproduce/s3od/) |
 | [ESOD](esod/) | [YOLOv5m / VisDrone](esod/upstream/) | 已重评作者权重，并与本机 YOLOv5m 做了 32 图双种子训练对照。整图耗时缩短，小目标 AP 两次均下降。[复现卡](../docs/reproduce/esod/) |
-| [SAHI](sahi/) | [切片推理 / VisDrone](sahi/upstream/) | 同图同权重比较整图与切片推理，两份 YOLO11s 权重的小目标 AP 分别提高 11.88、11.53 点，整图耗时增加。[复现卡](../docs/reproduce/sahi/) |
+| [SAHI](sahi/) | [切片推理 / VisDrone](sahi/upstream/) | 两份 YOLO11s 权重的小目标 AP 分别提高 11.88、11.53 点，整图耗时增加。已追踪一辆整图漏检、单块找回的小车，批量归因待做。[单车输入对照](../analyzes/reproduce/sahi/) · [复现卡](../docs/reproduce/sahi/) |
 | [YOLC](yolc/) | [CenterNet / VisDrone](yolc/upstream/) | 548 图本机对照，作者权重的小目标 AP 提高 2.81 点。16 图双种子独立训练 30 轮，小目标 AP 变化 −0.01685 / +0.00013 点，召回率略升，单图耗时增加。[复现卡](../docs/reproduce/yolc/) |
 
 | 新增论文与作者源码 | 本机对照 | 记录 |
