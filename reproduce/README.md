@@ -9,7 +9,7 @@
 | [SCAHI 作者融合](scahi/upstream/) | 相同视图，F2 优于 F0，两份权重小目标 AP 都升 | [SCAHI](../docs/reproduce/scahi/) |
 | [DAASD 密度分档](daasd/) | 相对固定切片小目标 AP 均升，整体更慢 | [DAASD](../docs/reproduce/daasd/) |
 | [ASAHI 分辨率网格](asahi/) | 相对固定块小目标 AP 均升，速度方向不一 | [ASAHI](../docs/reproduce/asahi/) |
-| [BUTR 作者解码器](butr/upstream/) | 作者权重，固定/动态查询预算 test-dev 对照 | [BUTR](../docs/reproduce/butr/) |
+| [BUTR 作者解码器](butr/upstream/) | test-dev 两尺度均比固定 250 查询精度高；比固定 500 查询少、精度略低，未提速 | [BUTR](../docs/reproduce/butr/) |
 | [ASA-NMS 作者后处理](asanms/upstream/) | 类内空间抑制与同候选硬 NMS 对照 | [ASA-NMS](../docs/reproduce/asanms/) |
 
 ## 历史复现

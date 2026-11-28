@@ -1,6 +1,8 @@
 # 航拍目标检测论文复现
 
-**当前进度：第一步，重筛 2024–2026 年论文。** VisDrone 十类水平框；在本机配对比较小目标 AP 与整图耗时，不以旧的 10% 标注面积为约束。[SCAHI](docs/reproduce/scahi/)、[DAASD](docs/reproduce/daasd/)、[ASAHI](docs/reproduce/asahi/) 已在两份 YOLO11s 权重上取得同向精度收益，均未证明整体稳定提速。[BUTR](docs/reproduce/butr/) 与 [ASA-NMS](docs/reproduce/asanms/) 的证据状态见[本轮总览](docs/reproduce/README.md)。早期 SAHI/SNIP/Soft-NMS 及[单车诊断](analyzes/reproduce/one-car/)作为历史记录保留，不计入本轮篇数。
+**当前进度：第一步，重筛 2024–2026 年论文。** VisDrone 十类水平框；在本机配对比较小目标 AP 与整图耗时，不以旧的 10% 标注面积为约束。[SCAHI](docs/reproduce/scahi/)、[DAASD](docs/reproduce/daasd/)、[ASAHI](docs/reproduce/asahi/) 已在两份 YOLO11s 权重上取得同向精度收益，均未证明整体稳定提速。早期 SAHI/SNIP/Soft-NMS 及[单车诊断](analyzes/reproduce/one-car/)作为历史记录保留，不计入本轮篇数。
+
+[BUTR](docs/reproduce/butr/) 在 test-dev 上相对固定 500 查询，两份作者权重分别少用 19.21% / 15.92% 的查询，小目标 AP 各低 0.039 点，未缩短整图耗时。各篇同机基线与方法的对照见[本轮总览](docs/reproduce/README.md)。
 
 当前关注无人机航拍水平框小目标的检测精度与整图推理耗时。[ESOD](docs/reproduce/esod/) 的论文主要效果在本机小样本初筛中未稳定复现。与普通 YOLOv5m 相比，ESOD 的整图处理耗时缩短，模型前向变慢，两个训练种子的小目标 AP 分别低 0.285、0.336 点。[S³OD](docs/reproduce/s3od/) 已完成 VisDrone 的 SAT 伪框离线评测，DOTA-v1.5 原协议待测。
 
