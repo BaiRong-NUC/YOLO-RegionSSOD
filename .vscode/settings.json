@@ -1,15 +1,16 @@
 {
-  "windsurfPyright.analysis.exclude": [
-    ".agents",
-    ".git",
-    ".pytest_cache",
-    "cache",
-    "data",
-    "tmp",
-    "reproduce/*/local",
-    "reproduce/*/upstream",
-    "**/__pycache__",
-    "**/node_modules",
-    "**/.venv"
-  ]
+    "windsurfPyright.analysis.exclude": [
+        ".agents",
+        ".git",
+        ".pytest_cache",
+        "cache",
+        "data",
+        "tmp",
+        "reproduce/*/local",
+        "reproduce/*/upstream",
+        "**/__pycache__",
+        "**/node_modules",
+        "**/.venv"
+    ],
+    "cmake.ignoreCMakeListsMissing": true
 }
