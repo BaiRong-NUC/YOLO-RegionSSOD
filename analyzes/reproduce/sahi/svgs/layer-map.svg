@@ -1,10 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1340" height="2583" viewBox="0 0 1340 2583" role="img">
 <title>SAHI 在 YOLO11s 原始逐层图中的位置</title>
+<desc>红色标注了 SAHI 的两处推理改动。第一条箭头指向第 00 层的图片来源，第二条从第 23 层的每视图输出引向图下方的跨视图合并。</desc>
+<defs><marker id="sahi-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#bb202b"/></marker></defs>
 <rect width="1340" height="2583" fill="#f7f9fa"/>
 <g font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif" fill="#193849">
-  <rect x="24" y="16" width="1292" height="108" rx="10" fill="#fff0da"/>
-  <rect x="24" y="16" width="7" height="108" rx="3" fill="#b35219"/>
-  <text x="44" y="50" font-size="23" font-weight="700">① SAHI 在第 00 层前加切片　｜　从原图裁块，再把每个视图送入下方同一个网络</text>
+  <rect x="24" y="16" width="1292" height="108" rx="10" fill="#fff2f3" stroke="#bb202b" stroke-width="2"/>
+  <rect x="24" y="16" width="7" height="108" rx="3" fill="#bb202b"/>
+  <text x="44" y="50" font-size="23" font-weight="700" fill="#ad1826">① SAHI 在第 00 层前加切片　｜　从原图裁块，再把每个视图送入下方同一个网络</text>
   <text x="44" y="80" font-size="18">本例保留一次整图推理，另从 1920 × 1080 原图裁出 8 个重叠的 640 × 640 切片，共做 9 次前向。</text>
   <text x="44" y="107" font-size="18">同一辆车在整图输入中宽 8.33 像素，在完整覆盖它的切片中宽 25 像素。两路共用第 00～23 层及其权重。</text>
 </g>
@@ -230,11 +232,22 @@
 <text x="44" y="2178" font-size="18" font-weight="400" fill="#193849">P3 第 20 行、第 33 列（从 0 起）对应 20 × 80 + 33 = 1633。此列解码框的 IoU 是 0.5186，最高类别是 people。</text>
 <text x="44" y="2205" font-size="18" font-weight="400" fill="#193849">这能定位到分类选择时已无合格车框。要解释前面哪层特征导致误判，还需要单独的干预实验。</text>
 </g></svg>
+<!-- 单独叠加红色标注，沿表格外边及行间留白布线。坐标使用原图的坐标系。 -->
+<g fill="none" stroke="#bb202b" stroke-width="3" stroke-linejoin="round">
+  <path d="M24 -74 H11 V179 H230 V199" marker-end="url(#sahi-arrow)"/>
+  <rect x="201" y="203" width="59" height="30" rx="5"/>
+  <rect x="510" y="1836" width="164" height="31" rx="5"/>
+  <path d="M674 1852 H690 V1897 H1328 V2365 H1318" marker-end="url(#sahi-arrow)"/>
+</g>
+<g fill="#ad1826" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="17" font-weight="700">
+  <text x="201" y="249">① 整图 + 切片</text>
+  <text x="510" y="1883">② 各视图分别出框</text>
+</g>
 </g>
 <g font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif" fill="#193849">
-  <rect x="24" y="2455" width="1292" height="108" rx="10" fill="#fff0da"/>
-  <rect x="24" y="2455" width="7" height="108" rx="3" fill="#b35219"/>
-  <text x="44" y="2489" font-size="23" font-weight="700">② SAHI 在第 23 层输出、各视图分别去重后合并结果　｜　切片坐标 → 原图坐标 → 跨视图去重</text>
+  <rect x="24" y="2455" width="1292" height="108" rx="10" fill="#fff2f3" stroke="#bb202b" stroke-width="2"/>
+  <rect x="24" y="2455" width="7" height="108" rx="3" fill="#bb202b"/>
+  <text x="44" y="2489" font-size="23" font-weight="700" fill="#ad1826">② SAHI 在第 23 层输出、各视图分别去重后合并结果　｜　切片坐标 → 原图坐标 → 跨视图去重</text>
   <text x="44" y="2519" font-size="18">覆盖这辆车的切片起点为 (480, 0)。将块内检测框的横坐标加 480、纵坐标加 0，即可放回原图。</text>
   <text x="44" y="2546" font-size="18">各切片和整图的同类框按 IoU 0.5 去重。本例单块检出的 car 得分为 0.7391，合并后保留，与人工框的 IoU 为 0.8057。</text>
 </g>
